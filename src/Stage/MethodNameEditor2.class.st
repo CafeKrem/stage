@@ -1,42 +1,38 @@
 "
 this class is an window for Method name edition 
 
-TO DO:
-
-HOW TO RUN 
-	MethodNameEditor2 openOn: (Object >> #assert:).
 
 
-Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
+Class part 
+	this class represent a window for Method Name edition  
+	
+Responsibility part: 
 
-For the Class part:  State a one line summary. For example, ""I represent a paragraph of text"".
+my jobs :
+	- display a preview of your future method name or '(invalid)' when the name is incorrect  (with a LabelPresenter previewResult an instance variable)
+	- display the arguments list of your method and let you modified the order 
+	
+For the Collaborators Part: 
 
-For the Responsibility part: Three sentences about my main responsibilities - what I do, what I know.
 
-For the Collaborators Part: State my main collaborators and one line about how I interact with them. 
 
 Public API and Key Messages
 
-- message one   
-- message two 
-- (for bonus points) how to create instances.
-
-   One simple example is simply gorgeous.
+HOW TO RUN 
+		MethodNameEditor2 openOn: (Object >> #assert:).
+		or see class side 'example' script
+  
+ One simple example is simply gorgeous.
  
 Internal Representation and Key Implementation Points.
 
     Instance Variables
-	acceptButton:		<Object>
-	argumentsList:		<Object>
-	argumentsSelector:		<Object>
-	cancelButton:		<Object>
-	downButton:		<Object>
-	previewFinalResult:		<Object>
-	previewLabel:		<Object>
-	selectorInput:		<Object>
-	selectorLabel:		<Object>
-	upButton:		<Object>
-
+	selectorInput: <TextInputFieldPresenter>
+	argumentsList: <ListPresenter>
+	previewResult: <LabelPresenter>
+	upButton: <ButtonPresenter>
+	downButton: <ButtonPresenter>  
+	compiledMethod: <CompiledCode>
 
     Implementation Points
 "
@@ -53,7 +49,7 @@ Class {
 		'cancelButton',
 		'compiledMethod'
 	],
-	#category : #Stage
+	#category : #'Stage-things'
 }
 
 { #category : #specs }
@@ -159,6 +155,7 @@ MethodNameEditor2 >> downButton [
 
 { #category : #action }
 MethodNameEditor2 >> downButtonAction [
+	self flag: #RefactoringUpDownButton.
 	^ [ | selectedIndex selectedElement elementBefore |
 	selectedIndex := argumentsList selectionMode selectedIndex.
 	selectedElement := argumentsList items at: selectedIndex.
@@ -207,7 +204,6 @@ MethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
 
 { #category : #'spec-initializer' }
 MethodNameEditor2 >> initializePresenter [
-	"collect: [ :eachArgument | eachArgument name]"
 	self init.
 	selectorInput whenTextChangedDo: self selectorInputAction.
 	argumentsList whenSelectionChangedDo: self argumentsListAction.
@@ -253,6 +249,7 @@ MethodNameEditor2 >> selectorInputAction [
 
 { #category : #'accessing model' }
 MethodNameEditor2 >> setModelBeforeInitialization: aCompiledMethod [
+	"this metod just call a setter"
 	self compiledMethod: aCompiledMethod
 ]
 
@@ -263,6 +260,7 @@ MethodNameEditor2 >> upButton [
 
 { #category : #action }
 MethodNameEditor2 >> upButtonAction [
+	self flag: #RefactoringUpDownButton.
 	^ [ | selectedIndex selectedElement elementBefore |
 	selectedIndex := argumentsList selectionMode selectedIndex.
 	selectedElement := argumentsList items at: selectedIndex.

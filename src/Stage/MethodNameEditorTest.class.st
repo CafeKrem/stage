@@ -21,7 +21,7 @@ Class {
 	#classInstVars : [
 		'methodNameEditorWithOneGetter'
 	],
-	#category : #Stage
+	#category : #'Stage-test'
 }
 
 { #category : #running }
