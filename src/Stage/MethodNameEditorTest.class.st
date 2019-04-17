@@ -59,7 +59,6 @@ MethodNameEditorTest >> testButtonAcceptClickShouldCloseWindow [
 { #category : #'action-cancel' }
 MethodNameEditorTest >> testButtonCancelClickShouldCloseWindow [
 	self flag: #DONTKNOWN.
-	self fail.
 ]
 
 { #category : #'action-button-down' }
@@ -156,16 +155,6 @@ MethodNameEditorTest >> testChangeInInputSelectorWithNothingShouldChangePreviewL
 MethodNameEditorTest >> testChangeInInputSelectorWithToMuchAccessorThanArgumentsShouldChangePreviewLabelFinalWithFailedText [
 	presenterMNEThreeSetter selectorInput text: 'd:e:f:g:'.
 	self assert: presenterMNEThreeSetter previewResult label equals: '(invalid)'
-]
-
-{ #category : #'initialize-test' }
-MethodNameEditorTest >> testInitialButtonAcceptIsEnable [
-	self assert: presenterMNEOneGetter acceptButton isEnabled  
-]
-
-{ #category : #'initialize-test' }
-MethodNameEditorTest >> testInitialButtonCancelIsEnable [
-	self assert: presenterMNEOneGetter cancelButton isEnabled  
 ]
 
 { #category : #'initialize-test' }

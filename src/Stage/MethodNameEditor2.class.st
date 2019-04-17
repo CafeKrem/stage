@@ -61,43 +61,36 @@ MethodNameEditor2 class >> defaultSpec [
 	^ SpecBoxLayout newVertical
 		add:
 			(SpecBoxLayout newHorizontal
-				add: 'Selector' withConstraints: [ :aConstraints | aConstraints width: 100 ];
-				add: #selectorInput withConstraints: [ :aConstraints | aConstraints width: 200 ];
+				add: 'Selector'
+					withConstraints: [ :aConstraints | aConstraints width: 80 ];
+				add: #selectorInput;
 				yourself);
 		add:
 			(SpecBoxLayout newHorizontal
-				add: 'Arguments' withConstraints: [ :aConstraints | aConstraints width: 100 ];
-				add: #argumentsList withConstraints: [ :aConstraints | aConstraints width: 200 ];
+				add: 'Arguments'
+					withConstraints: [ :aConstraints | aConstraints width: 80 ];
+				add: #argumentsList;
 				add:
 					(SpecBoxLayout newVertical
-						add: #upButton withConstraints: [ :aConstraints | 
-							aConstraints
-								width: 30;
-								expand: false;
-								height: 30 ];
-						add: #downButton withConstraints: [ :aConstraints | 
-							aConstraints
-								width: self buttonHeight;
-								height: self buttonHeight ];
-						yourself);
+						add: #upButton;
+						add: #downButton;
+						yourself)
+					withConstraints: [ :aConstraints | aConstraints width: 30 ];
 				yourself);
 		add:
 			(SpecBoxLayout newHorizontal
-				add: 'Preview' withConstraints: [ :aConstraints | aConstraints width: 100 ];
-				add: #previewResult withConstraints: [ :aConstraints | aConstraints width: 200  ];
-				add:
-					(SpecBoxLayout newHorizontal
-						add: #acceptButton withConstraints: [ :aConstraints | 
-							aConstraints
-								width: self buttonHeight;
-								height: self buttonHeight ];
-						add: #cancelButton withConstraints: [ :aConstraints | 
-							aConstraints
-								width: self buttonHeight;
-								height: self buttonHeight ];
-						yourself);
+				add: 'Preview'
+					withConstraints: [ :aConstraints | aConstraints width: 80 ];
+				add: #previewResult
+					withConstraints: [ :aConstraints | aConstraints width: 100 ];
 				yourself);
 		yourself
+]
+
+{ #category : #examples }
+MethodNameEditor2 class >> example [ 
+	<script>
+	MethodNameEditor2 openOn: (UseOnlyForTest >> #bug:)
 ]
 
 { #category : #specs }
@@ -109,20 +102,10 @@ MethodNameEditor2 class >> openOn: aMethod [
 		return an instance of MethodNameEditor with selectorInput fill with the argument aString 
 		and PreviewLabelFinal
 		example:
-			MethodNameEditor2 openOn: (Object >> #assert)
+			MethodNameEditor2 openOn: (Object >> #assert:)
 			
 		"
-	^ (self on: aMethod) openWithSpec
-]
-
-{ #category : #accessing }
-MethodNameEditor2 >> acceptButton [
-	^ acceptButton
-]
-
-{ #category : #action }
-MethodNameEditor2 >> acceptButtonAction [
-	self flag: #TODO
+	^ (self on: aMethod) openModalWithSpec 
 ]
 
 { #category : #accessing }
@@ -154,7 +137,7 @@ MethodNameEditor2 >> cancelButton [
 
 { #category : #action }
 MethodNameEditor2 >> cancelButtonAction [
-	^ [ self application close  ]
+	self application close
 ]
 
 { #category : #accessing }
@@ -207,15 +190,29 @@ MethodNameEditor2 >> init [
 ]
 
 { #category : #'spec-initializer' }
+MethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
+	aModalPresenter
+		closeOnBackdropClick: true;
+		addButton: 'Ok'
+			do: [ :presenter | 
+			self previewResult label = '(invalid)'
+				ifTrue: [ self inform: 'Invalid method name' ]
+				ifFalse: [ self inform: 'Ok action'.
+					presenter close ] ];
+		addButton: 'Cancel'
+			do: [ :presenter | 
+			self cancelButtonAction.
+			presenter close ]
+]
+
+{ #category : #'spec-initializer' }
 MethodNameEditor2 >> initializePresenter [
 	"collect: [ :eachArgument | eachArgument name]"
 	self init.
 	selectorInput whenTextChangedDo: self selectorInputAction.
 	argumentsList whenSelectionChangedDo: self argumentsListAction.
 	upButton action: self upButtonAction.
-	downButton action: self downButtonAction.
-	acceptButton action: self acceptButtonAction.
-	cancelButton action: self cancelButtonAction
+	downButton action: self downButtonAction
 ]
 
 { #category : #'spec-initializer' }
@@ -227,12 +224,6 @@ MethodNameEditor2 >> initializeWidgets [
 		items: OrderedCollection new;
 		yourself.
 	previewResult := self newLabel.
-	acceptButton := self newButton
-		label: 'OK';
-		yourself.
-	cancelButton := self newButton
-		label: 'cancel';
-		yourself.
 	upButton := self newButton
 		label: 'Up';
 		disable;
@@ -257,10 +248,7 @@ MethodNameEditor2 >> selectorInput [
 MethodNameEditor2 >> selectorInputAction [
 	^ [ :text | 
 	self previewResult
-		label: (self upDateSelector: text arguments: self argumentsList items).
-	(self previewResult = '(invalid)')
-		ifTrue: [ acceptButton disable ];
-		ifFalse: [ acceptButton enable ] ]
+		label: (self upDateSelector: text arguments: self argumentsList items) ]
 ]
 
 { #category : #'accessing model' }
