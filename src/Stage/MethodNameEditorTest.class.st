@@ -27,38 +27,52 @@ Class {
 { #category : #running }
 MethodNameEditorTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
+
 	"Clement tu dois finir d'init les MethodNameEditor et pense a poser une question a esteban "
+
 	super setUp.
-	presenterMNEThreeSetter := MethodNameEditor2 on: (UseOnlyForTest >> #a:b:c:).
-	presenterMNEOneSetter := MethodNameEditor2 on:  (UseOnlyForTest >> #a:).
-	presenterMNEOneGetter := MethodNameEditor2 on: (UseOnlyForTest >> #a).
+	presenterMNEThreeSetter := MethodNameEditor2
+		on:
+			(RBMethodName
+				selector: (UseOnlyForTest >> #a:b:c:) selector
+				arguments: ((UseOnlyForTest >> #a:b:c:) ast arguments collect: #name)).
+	presenterMNEOneSetter := MethodNameEditor2
+		on:
+			(RBMethodName
+				selector: (UseOnlyForTest >> #a:) selector
+				arguments: ((UseOnlyForTest >> #a:) ast arguments collect: #name)).
+	presenterMNEOneGetter := MethodNameEditor2
+		on:
+			(RBMethodName
+				selector: (UseOnlyForTest >> #a) selector
+				arguments:( (UseOnlyForTest >> #a) ast arguments collect: #name)).
+		
 	windowMNEOneGetter := presenterMNEOneGetter openWithSpec.
-	windowMNEOneSetter := presenterMNEOneSetter openWithSpec .
-	windowMNEThreeSetter := presenterMNEThreeSetter openWithSpec .
+	windowMNEOneSetter := presenterMNEOneSetter openWithSpec.
+	windowMNEThreeSetter := presenterMNEThreeSetter openWithSpec.
 ]
 
 { #category : #'action-input' }
-MethodNameEditorTest >> tearDown [ 
-	presenterMNEOneGetter ifNotNil: [ :x | x application close ]. 
+MethodNameEditorTest >> tearDown [
+	presenterMNEOneGetter ifNotNil: [ :x | x application close ].
 	presenterMNEOneSetter ifNotNil: [ :x | x application close ].
 	presenterMNEThreeSetter ifNotNil: [ :x | x application close ].
-	super tearDown.
+	windowMNEOneGetter ifNotNil: [ :x | x close ].
+	windowMNEOneSetter ifNotNil: [ :x | x close ].
+	windowMNEThreeSetter ifNotNil: [ :x | x close ].
+	super tearDown
 ]
 
 { #category : #'action-accept' }
-MethodNameEditorTest >> testButtonAcceptClickShouldCallAnOtherWidgetWithInformation [
-	"i test if clicking on acceptButton will call an other application and give it all information in the form"
+MethodNameEditorTest >> testButtonAcceptClickShouldSetcancelValueToFalse [
 	self flag: #TODO.
-]
-
-{ #category : #'action-accept' }
-MethodNameEditorTest >> testButtonAcceptClickShouldCloseWindow [
-	self flag: #TODO.
+	"i can't test it "
 ]
 
 { #category : #'action-cancel' }
 MethodNameEditorTest >> testButtonCancelClickShouldCloseWindow [
 	self flag: #DONTKNOWN.
+	"i can't test it"
 ]
 
 { #category : #'action-button-down' }

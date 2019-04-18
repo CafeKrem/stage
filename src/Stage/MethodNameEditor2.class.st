@@ -46,8 +46,6 @@ Class {
 		'previewResult',
 		'upButton',
 		'downButton',
-		'acceptButton',
-		'cancelButton',
 		'compiledMethod'
 	],
 	#category : #'Stage-things'
@@ -97,9 +95,9 @@ MethodNameEditor2 class >> openOn: aMethod [
 	be carefull the accept?cancel button are define in the modalPresenter 
 	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that 	it freeze the global window and we can only interact with the local window )
 	"
-		
-		
-	^ (self on: aMethod) openModalWithSpec 
+
+	1halt.
+	^ (self on: aMethod) openModalWithSpec
 ]
 
 { #category : #action }
@@ -141,11 +139,6 @@ MethodNameEditor2 >> argumentsListAction [
 										downButton disable ];
 								ifFalse: [ upButton enable.
 										downButton enable ] ] ] ]
-]
-
-{ #category : #accessing }
-MethodNameEditor2 >> cancelButton [
-	^ cancelButton
 ]
 
 { #category : #action }
@@ -222,7 +215,7 @@ MethodNameEditor2 >> initializePresenter [
 	selectorInput whenTextChangedDo: self selectorInputAction.
 	argumentsList whenSelectionChangedDo: self argumentsListAction.
 	upButton action: self upButtonAction.
-	downButton action: self downButtonAction
+	downButton action: self downButtonAction.
 ]
 
 { #category : #'spec-initializer' }
