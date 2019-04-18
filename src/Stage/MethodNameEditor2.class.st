@@ -96,7 +96,6 @@ MethodNameEditor2 class >> openOn: aMethod [
 	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that 	it freeze the global window and we can only interact with the local window )
 	"
 
-	1halt.
 	^ (self on: aMethod) openModalWithSpec
 ]
 
