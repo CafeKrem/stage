@@ -19,7 +19,7 @@ For the Collaborators Part:
 Public API and Key Messages
 
 HOW TO RUN 
-		MethodNameEditor2 openOn: (Object >> #assert:).
+		MethodNameEditor2 openOn: (SycMethodNameEditor >> #initialize).
 		or see class side 'example' script
   
  One simple example is simply gorgeous.
@@ -32,8 +32,9 @@ Internal Representation and Key Implementation Points.
 	previewResult: <LabelPresenter>
 	upButton: <ButtonPresenter>
 	downButton: <ButtonPresenter>  
-	compiledMethod: <CompiledCode>
-
+	compiledMethod: <RBMethod>
+	accept and cancel button are manage by the ModalPresenter see 
+		MethodNameEditor2 class  >> #openOn 
     Implementation Points
 "
 Class {
@@ -78,7 +79,6 @@ MethodNameEditor2 class >> defaultSpec [
 				add: 'Preview'
 					withConstraints: [ :aConstraints | aConstraints width: 80 ];
 				add: #previewResult
-					withConstraints: [ :aConstraints | aConstraints width: 100 ];
 				yourself);
 		yourself
 ]
@@ -93,15 +93,32 @@ MethodNameEditor2 class >> example [
 MethodNameEditor2 class >> openOn: aMethod [
 	"
 	argument:
-		aMethod : it is the method that who want to rename
-	return:
-		return an instance of MethodNameEditor with selectorInput fill with the argument aString 
-		and PreviewLabelFinal
-		example:
-			MethodNameEditor2 openOn: (Object >> #assert:)
-			
-		"
+		- aMethod : it's an RBMethodName
+	be carefull the accept?cancel button are define in the modalPresenter 
+	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that 	it freeze the global window and we can only interact with the local window )
+	"
+		
+		
 	^ (self on: aMethod) openModalWithSpec 
+]
+
+{ #category : #action }
+MethodNameEditor2 >> acceptButtonAction [
+	"be carefull the accept button is define in the modalPresenter 
+	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that it freeze the global window and we can only interact with the local window )"
+	^ [ :presenter | 
+	self previewResult label = '(invalid)'
+		ifTrue: [ self inform: 'Invalid method name'.
+			presenter
+				beCancel;
+				close ]
+		ifFalse: [ self inform: 'Ok action'.
+			compiledMethod
+				arguments: argumentsList items;
+				selector: selectorInput text.
+			presenter
+				beOk;
+				close ] ]
 ]
 
 { #category : #accessing }
@@ -133,7 +150,11 @@ MethodNameEditor2 >> cancelButton [
 
 { #category : #action }
 MethodNameEditor2 >> cancelButtonAction [
-	self application close
+	^ [ :presenter | 
+	self application close.
+	presenter
+		beCancel;
+		close ]
 ]
 
 { #category : #accessing }
@@ -175,8 +196,8 @@ MethodNameEditor2 >> init [
 	| argumentsCollection selectorCollection |
 	self title: 'method name editor'.
 	selectorCollection := compiledMethod selector.
-	argumentsCollection := compiledMethod ast arguments
-		sorted: #start ascending.
+	argumentsCollection := compiledMethod arguments.
+		"sorted: #start ascending."
 	selectorInput text: selectorCollection.
 	argumentsList items: argumentsCollection.	"collect: [ :eachArgument | eachArgument name]"
 	previewResult
@@ -190,16 +211,9 @@ MethodNameEditor2 >> init [
 MethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
 	aModalPresenter
 		closeOnBackdropClick: true;
-		addButton: 'Ok'
-			do: [ :presenter | 
-			self previewResult label = '(invalid)'
-				ifTrue: [ self inform: 'Invalid method name' ]
-				ifFalse: [ self inform: 'Ok action'.
-					presenter close ] ];
-		addButton: 'Cancel'
-			do: [ :presenter | 
-			self cancelButtonAction.
-			presenter close ]
+		addButton: 'Ok' do: self acceptButtonAction;
+		addButton: 'Cancel' do: self cancelButtonAction;
+		initialExtent: 600 @ 300
 ]
 
 { #category : #'spec-initializer' }
@@ -218,6 +232,7 @@ MethodNameEditor2 >> initializeWidgets [
 		yourself.
 	argumentsList := self newList
 		items: OrderedCollection new;
+		"displayBlock: #name;"
 		yourself.
 	previewResult := self newLabel.
 	upButton := self newButton
@@ -287,5 +302,5 @@ MethodNameEditor2 >> upDateSelector: selectorCollection arguments: argumentsColl
 		and the same thing with not acceptable method name "
 	^ (RBMethodName
 		selector: selectorCollection 
-		arguments: (argumentsCollection  collect: #name)) methodName
+		arguments: (argumentsCollection  "collect: #name")) methodName
 ]
