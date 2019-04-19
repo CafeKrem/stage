@@ -47,7 +47,7 @@ ChangesBrowser2 class >> defaultSpec [
 { #category : #accessing }
 ChangesBrowser2 class >> main [
 	<script>
-		self new openWithSpec.
+		self new openDialogWithSpec.
 ]
 
 { #category : #specs }
@@ -96,13 +96,18 @@ ChangesBrowser2 >> changes: aCollection [
 
 { #category : #initialization }
 ChangesBrowser2 >> initializePresenter [
-	self flag: #TODO.
-	"table"
-	table whenSelectionChangedDo: [:element | textArea  text: element code  ]
+	textArea 
+		bindKeyCombination: Character tab toAction: [ self giveFocusToNextFrom: textArea ];
+		bindKeyCombination: Character tab shift toAction: [ self giveFocusToPreviousFrom: textArea ].
+	self
+		bindKeyCombination: PharoShortcuts current acceptShortcut toAction: [ self accept ];
+		bindKeyCombination: Character escape toAction: [ self cancel ]
+	
 ]
 
 { #category : #initialization }
 ChangesBrowser2 >> initializeTable [
+	self flag: #NeedCheckBoxColumn.
 	table addColumn: (StringTableColumn title: 'method?/ something ' evaluated: #name )
 	"add: (CheckBoxColumn)"
 ]
@@ -110,10 +115,7 @@ ChangesBrowser2 >> initializeTable [
 { #category : #initialization }
 ChangesBrowser2 >> initializeTextArea [
 	textArea 
-		enabled: false;
-		"make sure we can cycle over the text field"
-		bindKeyCombination: Character tab toAction: [ self giveFocusToNextFrom: textArea ];
-		bindKeyCombination: Character tab shift toAction: [ self giveFocusToPreviousFrom: textArea ].
+		enabled: false.
 ]
 
 { #category : #initialization }
@@ -125,9 +127,7 @@ ChangesBrowser2 >> initializeWidgets [
 	self initializeTable.
 	self initializeTextArea.
 	self setFocus.
-	self
-		bindKeyCombination: PharoShortcuts current acceptShortcut toAction: [ self accept ];
-		bindKeyCombination: Character escape toAction: [ self cancel ]
+	
 ]
 
 { #category : #opening }
@@ -141,12 +141,14 @@ ChangesBrowser2 >> open [
 { #category : #accessing }
 ChangesBrowser2 >> pickedChanges [
 	| selectedItems |
+	self flag:#NeedCheckBoxColumn.
 	selectedItems := table selectedItems collect: #content.
 	^ table items select: [ :i | selectedItems includes: i ]
 ]
 
 { #category : #accessing }
 ChangesBrowser2 >> scopeChooser [
+	self flag:#NobodyUse.
 	^ scopeChooser
 		ifNil: [ 
 			scopeChooser := self instantiate: EnvironmentChooser.
@@ -166,7 +168,9 @@ ChangesBrowser2 >> setFocus [
 
 { #category : #initialization }
 ChangesBrowser2 >> setShortcuts [
-	self changesTree attachKeymapCategory: #ChangesBrowserGlobalShortcuts targetting: self
+	self flag:#NobodyUse.
+	"self changesTree(replace by table) attachKeymapCategory: #ChangesBrowserGlobalShortcuts targetting: self"
+	
 ]
 
 { #category : #accessing }
@@ -182,6 +186,7 @@ ChangesBrowser2 >> textArea [
 { #category : #private }
 ChangesBrowser2 >> updateChanges [
 	| aCompositeChange |
+	self flag:#NeedCheckBoxColumn.
 	aCompositeChange := RBRefactoryChangeManager changeFactory
 		compositeRefactoryChange.
 	changes do: [ :each | aCompositeChange addChange: each ].

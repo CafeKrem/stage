@@ -4,6 +4,10 @@ this a class only use for test MethodNameEditor
 Class {
 	#name : #UseOnlyForTest,
 	#superclass : #Object,
+	#instVars : [
+		'njghvijn',
+		'klbikjgi'
+	],
 	#category : #'Stage-test'
 }
 

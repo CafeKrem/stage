@@ -70,7 +70,7 @@ MethodNameEditor2 class >> defaultSpec [
 						add: #upButton;
 						add: #downButton;
 						yourself)
-					withConstraints: [ :aConstraints | aConstraints width: 30 ];
+					withConstraints: [ :aConstraints | aConstraints width: 30  ];
 				yourself);
 		add:
 			(SpecBoxLayout newHorizontal
@@ -95,7 +95,6 @@ MethodNameEditor2 class >> openOn: aMethod [
 	be carefull the accept?cancel button are define in the modalPresenter 
 	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that 	it freeze the global window and we can only interact with the local window )
 	"
-
 	^ (self on: aMethod) openModalWithSpec
 ]
 
