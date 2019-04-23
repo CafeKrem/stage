@@ -19,14 +19,15 @@ Class {
 { #category : #specs }
 SingleCodeCriticResultList2 class >> defaultSpec [
 	<spec>
-	self flag: #migrate.
-	^ SpecLayout composed
-		newColumn: [ :c | 
-			c
-				add: #criticsPresenter;
-				add: #toolbarPresenter height: 25;
-				addSplitter;
-				add: #textPresenter ]
+	^ SpecPanedLayout newVertical
+		add: #criticsPresenter;
+		add:
+			(SpecBoxLayout newVertical
+				add: #toolbarPresenter
+					withConstraints: [ :contraint | contraint height: 25 ];
+				add: #sourceCodePresenter;
+				yourself);
+		yourself
 ]
 
 { #category : #icons }
@@ -258,20 +259,6 @@ SingleCodeCriticResultList2 >> initialize [
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> initializeActionToPerformOnTextModel [
-	
-	| selectedItem |
-	self flag:#extract.
-	sourceCodePresenter acceptBlock:  [ :text | 	
-		selectedItem := criticsPresenter selectedItem sourceAnchor entity.
-		(selectedItem isCompiledMethod and: [ rule isTransformationRule not ])
-			ifTrue: [ selectedItem methodClass compile: text ] 
-			ifFalse: [ Smalltalk compiler evaluate:  text ]]
-	
-
-]
-
-{ #category : #initialization }
 SingleCodeCriticResultList2 >> initializeDisplayCritic: aCritic forRule: aRule [
 	
 	| criticRepresentation | 
@@ -286,11 +273,30 @@ SingleCodeCriticResultList2 >> initializeDisplayCritic: aCritic forRule: aRule [
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializePresenter [
-
+	| selectedItem |
+	sourceCodePresenter
+		acceptBlock: [ :text | 
+			selectedItem := criticsPresenter selection selectedItem sourceAnchor
+				entity.
+			(selectedItem isCompiledMethod
+				and: [ rule isTransformationRule not ])
+				ifTrue: [ selectedItem methodClass compile: text ]
+				ifFalse: [ Smalltalk compiler evaluate: text ] ].
 	self whenSelectedItemChangesOnListModel.
-	
-
-
+	textInputFieldPresenter
+		acceptBlock: [ :text | 
+			| matchText critics |
+			critics := cache criticsOf: rule.
+			matchText := '*' , text , '*'.
+			criticsPresenter
+				items:
+					(text isEmpty
+						ifTrue: [ critics ]
+						ifFalse: [ critics
+								select: [ :critic | matchText match: (self formatCritic: critic) ] ]).
+			criticsPresenter updateList ].
+		self toolbarPresenter whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ].
+		
 ]
 
 { #category : #initialization }
@@ -300,57 +306,32 @@ SingleCodeCriticResultList2 >> initializeShortcuts [
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializeTextInputFieldModel [
-	| critics |
 	textInputFieldPresenter
 		autoAccept: true;
 		placeholder: 'Search field';
 		text: ' ';
 		removeEntryCompletion.
-	textInputFieldPresenter
-		acceptBlock: [ :text | 
-			| matchText |
-			self flag: #extract.
-			critics := cache criticsOf: rule.
-			matchText := '*' , text , '*'.
-			criticsPresenter
-				items:
-					(text isEmpty
-						ifTrue: [ critics ]
-						ifFalse: [ critics
-								select: [ :critic | matchText match: (self formatCritic: critic) ] ]).
-			criticsPresenter updateList ]
-]
-
-{ #category : #initialization }
-SingleCodeCriticResultList2 >> initializeToolBar [
-	self flag:#extract.
-	self toolbarPresenter whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ].
-
-
+	
 ]
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializeWidgets [
-	criticsPresenter := self newIconList.
+	criticsPresenter := self newList.
 	sourceCodePresenter := self newCode.
 	toolbarPresenter := self instantiate: CriticToolbar2.
-	textInputFieldPresenter := self newTextInput. "usefull useless ?"
-
+	textInputFieldPresenter := self newTextInput.	"usefull useless ?"
 	criticsPresenter beMultipleSelection.
 	self initializeTextInputFieldModel.
 	self initializeToolBar.
 	self initializeActionToPerformOnTextModel.
-	criticsPresenter displayBlock: [:selec |
-		self initializeDisplayCritic: selec forRule: rule]. 
-	
-	criticsPresenter menu: [ :a :b | self menu: a shifted: b ].
+	criticsPresenter
+		displayBlock: [ :selec | self initializeDisplayCritic: selec forRule: rule ].
+	criticsPresenter contextMenu: [ :a :b | self menu: a shifted: b ].
 	criticsPresenter icons: [ :item | self iconFor: item ].
-	
 	self focusOrder
 		add: criticsPresenter;
 		add: toolbarPresenter;
-		add: sourceCodePresenter.
-
+		add: sourceCodePresenter
 ]
 
 { #category : #menu }
@@ -470,6 +451,7 @@ SingleCodeCriticResultList2 >> setTextModelForClassOrMethod: aCritique [
 SingleCodeCriticResultList2 >> setTextModelForNil [
 
 	| text |
+	self flag:#maybeRefactoring.
 	text := rule rationale isEmpty 
 		ifTrue: [ rule name ]
 		ifFalse: [ rule rationale ]. 
@@ -497,6 +479,21 @@ SingleCodeCriticResultList2 >> setTextModelForTransformationRule: selection [
 { #category : #accessing }
 SingleCodeCriticResultList2 >> textInputFieldModel [
 	^ textInputFieldPresenter
+]
+
+{ #category : #initialization }
+SingleCodeCriticResultList2 >> textInputFieldPresenterAction [
+	^ [ :text | 
+	| matchText critics |
+	critics := cache criticsOf: rule.
+	matchText := '*' , text , '*'.
+	criticsPresenter
+		items:
+			(text isEmpty
+				ifTrue: [ critics ]
+				ifFalse: [ critics
+						select: [ :critic | matchText match: (self formatCritic: critic) ] ]).
+	criticsPresenter updateList ]
 ]
 
 { #category : #accessing }

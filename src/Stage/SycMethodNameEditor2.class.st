@@ -38,7 +38,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #MethodNameEditor2,
+	#name : #SycMethodNameEditor2,
 	#superclass : #ComposablePresenter,
 	#instVars : [
 		'selectorInput',
@@ -52,7 +52,7 @@ Class {
 }
 
 { #category : #specs }
-MethodNameEditor2 class >> defaultSpec [
+SycMethodNameEditor2 class >> defaultSpec [
 	^ SpecBoxLayout newVertical
 		add:
 			(SpecBoxLayout newHorizontal
@@ -82,13 +82,13 @@ MethodNameEditor2 class >> defaultSpec [
 ]
 
 { #category : #examples }
-MethodNameEditor2 class >> example [ 
+SycMethodNameEditor2 class >> example [ 
 	<script>
-	MethodNameEditor2 openOn: (UseOnlyForTest >> #bug:)
+	SycMethodNameEditor2 openOn: (UseOnlyForTest >> #bug:)
 ]
 
 { #category : #specs }
-MethodNameEditor2 class >> openOn: aMethod [
+SycMethodNameEditor2 class >> openOn: aMethod [
 	"
 	argument:
 		- aMethod : it's an RBMethodName
@@ -99,7 +99,7 @@ MethodNameEditor2 class >> openOn: aMethod [
 ]
 
 { #category : #action }
-MethodNameEditor2 >> acceptButtonAction [
+SycMethodNameEditor2 >> acceptButtonAction [
 	"be carefull the accept button is define in the modalPresenter 
 	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that it freeze the global window and we can only interact with the local window )"
 	^ [ :presenter | 
@@ -118,12 +118,12 @@ MethodNameEditor2 >> acceptButtonAction [
 ]
 
 { #category : #accessing }
-MethodNameEditor2 >> argumentsList [
+SycMethodNameEditor2 >> argumentsList [
 	^ argumentsList
 ]
 
 { #category : #action }
-MethodNameEditor2 >> argumentsListAction [
+SycMethodNameEditor2 >> argumentsListAction [
 	^ [ | argumentsListSize |
 	argumentsListSize := argumentsList items size.
 	(argumentsListSize = 1)
@@ -140,7 +140,7 @@ MethodNameEditor2 >> argumentsListAction [
 ]
 
 { #category : #action }
-MethodNameEditor2 >> cancelButtonAction [
+SycMethodNameEditor2 >> cancelButtonAction [
 	^ [ :presenter | 
 	self application close.
 	presenter
@@ -149,7 +149,7 @@ MethodNameEditor2 >> cancelButtonAction [
 ]
 
 { #category : #accessing }
-MethodNameEditor2 >> compiledMethod: aMethod [
+SycMethodNameEditor2 >> compiledMethod: aMethod [
 	"
 	this method is call by openOn  class side method.
 	argument:
@@ -161,12 +161,12 @@ MethodNameEditor2 >> compiledMethod: aMethod [
 ]
 
 { #category : #accessing }
-MethodNameEditor2 >> downButton [
+SycMethodNameEditor2 >> downButton [
 	^ downButton
 ]
 
 { #category : #action }
-MethodNameEditor2 >> downButtonAction [
+SycMethodNameEditor2 >> downButtonAction [
 	self flag: #RefactoringUpDownButton.
 	^ [ | selectedIndex selectedElement elementBefore |
 	selectedIndex := argumentsList selectionMode selectedIndex.
@@ -183,7 +183,7 @@ MethodNameEditor2 >> downButtonAction [
 ]
 
 { #category : #'spec-initializer' }
-MethodNameEditor2 >> init [
+SycMethodNameEditor2 >> init [
 	| argumentsCollection selectorCollection |
 	self title: 'method name editor'.
 	selectorCollection := compiledMethod selector.
@@ -199,7 +199,7 @@ MethodNameEditor2 >> init [
 ]
 
 { #category : #'spec-initializer' }
-MethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
+SycMethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
 	aModalPresenter
 		closeOnBackdropClick: true;
 		addButton: 'Ok' do: self acceptButtonAction;
@@ -208,7 +208,7 @@ MethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
 ]
 
 { #category : #'spec-initializer' }
-MethodNameEditor2 >> initializePresenter [
+SycMethodNameEditor2 >> initializePresenter [
 	self init.
 	selectorInput whenTextChangedDo: self selectorInputAction.
 	argumentsList whenSelectionChangedDo: self argumentsListAction.
@@ -217,7 +217,7 @@ MethodNameEditor2 >> initializePresenter [
 ]
 
 { #category : #'spec-initializer' }
-MethodNameEditor2 >> initializeWidgets [
+SycMethodNameEditor2 >> initializeWidgets [
 	selectorInput := (self instantiate: TextInputFieldPresenter)
 		autoAccept: true;
 		yourself.
@@ -237,35 +237,35 @@ MethodNameEditor2 >> initializeWidgets [
 ]
 
 { #category : #accessing }
-MethodNameEditor2 >> previewResult [
+SycMethodNameEditor2 >> previewResult [
 	^ previewResult
 ]
 
 { #category : #accessing }
-MethodNameEditor2 >> selectorInput [
+SycMethodNameEditor2 >> selectorInput [
 	^ selectorInput
 ]
 
 { #category : #action }
-MethodNameEditor2 >> selectorInputAction [
+SycMethodNameEditor2 >> selectorInputAction [
 	^ [ :text | 
 	self previewResult
 		label: (self upDateSelector: text arguments: self argumentsList items) ]
 ]
 
 { #category : #'accessing model' }
-MethodNameEditor2 >> setModelBeforeInitialization: aCompiledMethod [
+SycMethodNameEditor2 >> setModelBeforeInitialization: aCompiledMethod [
 	"this metod just call a setter"
 	self compiledMethod: aCompiledMethod
 ]
 
 { #category : #accessing }
-MethodNameEditor2 >> upButton [
+SycMethodNameEditor2 >> upButton [
 	^ upButton
 ]
 
 { #category : #action }
-MethodNameEditor2 >> upButtonAction [
+SycMethodNameEditor2 >> upButtonAction [
 	self flag: #RefactoringUpDownButton.
 	^ [ | selectedIndex selectedElement elementBefore |
 	selectedIndex := argumentsList selectionMode selectedIndex.
@@ -282,7 +282,7 @@ MethodNameEditor2 >> upButtonAction [
 ]
 
 { #category : #update }
-MethodNameEditor2 >> upDateSelector: selectorCollection arguments: argumentsCollection [
+SycMethodNameEditor2 >> upDateSelector: selectorCollection arguments: argumentsCollection [
 	"this method is used to rebuild the preview when text in the selectorInput change and when the argumentsList change 
 	example: 
 		if we want to rename ARandomClass >> #open:with:

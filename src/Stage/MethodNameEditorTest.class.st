@@ -31,17 +31,17 @@ MethodNameEditorTest >> setUp [
 	"Clement tu dois finir d'init les MethodNameEditor et pense a poser une question a esteban "
 
 	super setUp.
-	presenterMNEThreeSetter := MethodNameEditor2
+	presenterMNEThreeSetter := SycMethodNameEditor2
 		on:
 			(RBMethodName
 				selector: (UseOnlyForTest >> #a:b:c:) selector
 				arguments: ((UseOnlyForTest >> #a:b:c:) ast arguments collect: #name)).
-	presenterMNEOneSetter := MethodNameEditor2
+	presenterMNEOneSetter := SycMethodNameEditor2
 		on:
 			(RBMethodName
 				selector: (UseOnlyForTest >> #a:) selector
 				arguments: ((UseOnlyForTest >> #a:) ast arguments collect: #name)).
-	presenterMNEOneGetter := MethodNameEditor2
+	presenterMNEOneGetter := SycMethodNameEditor2
 		on:
 			(RBMethodName
 				selector: (UseOnlyForTest >> #a) selector
