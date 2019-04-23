@@ -31,7 +31,7 @@ CriticBrowser2 class >> criticsBrowserMenuOn: aBuilder [
 { #category : #specs }
 CriticBrowser2 class >> defaultSpec [
 	<spec>
-	
+	self flag: #migrate.
 	^ SpecLayout composed 
 		newColumn: [:c |
 			c 
@@ -328,7 +328,7 @@ CriticBrowser2 >> initializePresenter [
 
 { #category : #initialization }
 CriticBrowser2 >> initializeWidgets [
-
+	self flag: #migrate.
 	title := self defaultTitle.
 	rulesModel := self newTree."deprecate"
 	resetButton := self newButton.

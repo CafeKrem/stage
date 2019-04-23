@@ -194,6 +194,19 @@ SingleCodeCriticResultList2 >> criticsOf: aRule [
 					a printString < b printString ]).
 ]
 
+{ #category : #action }
+SingleCodeCriticResultList2 >> criticsPresenterSelectionChangeAction [
+	^ [ :critique | 
+	criticsPresenter setSelection: (0 to: 0).
+	rule
+		ifNotNil: [ critique
+				ifNil: [ self setTextModelForNil ]
+				ifNotNil: [ toolbarPresenter critic: critique.
+					critique providesChange
+						ifTrue: [ self setTextModelForTransformationRule: critique ]
+						ifFalse: [ self setTextModelForClassOrMethod: critique ] ] ] ]
+]
+
 { #category : #private }
 SingleCodeCriticResultList2 >> defaultColor [
 	^ Color red
@@ -273,30 +286,13 @@ SingleCodeCriticResultList2 >> initializeDisplayCritic: aCritic forRule: aRule [
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializePresenter [
-	| selectedItem |
-	sourceCodePresenter
-		acceptBlock: [ :text | 
-			selectedItem := criticsPresenter selection selectedItem sourceAnchor
-				entity.
-			(selectedItem isCompiledMethod
-				and: [ rule isTransformationRule not ])
-				ifTrue: [ selectedItem methodClass compile: text ]
-				ifFalse: [ Smalltalk compiler evaluate: text ] ].
-	self whenSelectedItemChangesOnListModel.
+	sourceCodePresenter acceptBlock: self sourceCodePresenterAcceptAction.
+	criticsPresenter
+		whenSelectedItemChanged: self criticsPresenterSelectionChangeAction.
 	textInputFieldPresenter
-		acceptBlock: [ :text | 
-			| matchText critics |
-			critics := cache criticsOf: rule.
-			matchText := '*' , text , '*'.
-			criticsPresenter
-				items:
-					(text isEmpty
-						ifTrue: [ critics ]
-						ifFalse: [ critics
-								select: [ :critic | matchText match: (self formatCritic: critic) ] ]).
-			criticsPresenter updateList ].
-		self toolbarPresenter whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ].
-		
+		acceptBlock: self textInputFieldPresenterAction.
+	toolbarPresenter
+		whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ]
 ]
 
 { #category : #initialization }
@@ -305,7 +301,7 @@ SingleCodeCriticResultList2 >> initializeShortcuts [
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> initializeTextInputFieldModel [
+SingleCodeCriticResultList2 >> initializeTextInputFieldPresenter [
 	textInputFieldPresenter
 		autoAccept: true;
 		placeholder: 'Search field';
@@ -321,9 +317,7 @@ SingleCodeCriticResultList2 >> initializeWidgets [
 	toolbarPresenter := self instantiate: CriticToolbar2.
 	textInputFieldPresenter := self newTextInput.	"usefull useless ?"
 	criticsPresenter beMultipleSelection.
-	self initializeTextInputFieldModel.
-	self initializeToolBar.
-	self initializeActionToPerformOnTextModel.
+	self initializeTextInputFieldPresenter.
 	criticsPresenter
 		displayBlock: [ :selec | self initializeDisplayCritic: selec forRule: rule ].
 	criticsPresenter contextMenu: [ :a :b | self menu: a shifted: b ].
@@ -476,6 +470,17 @@ SingleCodeCriticResultList2 >> setTextModelForTransformationRule: selection [
 					
 ]
 
+{ #category : #initialization }
+SingleCodeCriticResultList2 >> sourceCodePresenterAcceptAction [
+	| selectedItem |
+	^ [ :text | 
+	selectedItem := criticsPresenter selection selectedItem sourceAnchor
+		entity.
+	(selectedItem isCompiledMethod and: [ rule isTransformationRule not ])
+		ifTrue: [ selectedItem methodClass compile: text ]
+		ifFalse: [ Smalltalk compiler evaluate: text ] ]
+]
+
 { #category : #accessing }
 SingleCodeCriticResultList2 >> textInputFieldModel [
 	^ textInputFieldPresenter
@@ -524,20 +529,4 @@ SingleCodeCriticResultList2 >> updateList [
 	self criticsOf: rule.
 	thread ifNotNil: [ thread terminate ].
 	thread := [ UIManager default defer:  [ criticsPresenter updateList ]] fork.
-]
-
-{ #category : #initialization }
-SingleCodeCriticResultList2 >> whenSelectedItemChangesOnListModel [
-	criticsPresenter
-		whenSelectionChangedDo: [ :selection | 
-			[ :critique | 
-			sourceCodePresenter setSelection: (0 to: 0).
-			rule
-				ifNotNil: [ critique
-						ifNil: [ self setTextModelForNil ]
-						ifNotNil: [ toolbarPresenter critic: critique.
-							critique providesChange
-								ifTrue: [ self setTextModelForTransformationRule: critique ]
-								ifFalse: [ self setTextModelForClassOrMethod: critique ] ] ] ]
-				cull: selection selectedItem ]
 ]
