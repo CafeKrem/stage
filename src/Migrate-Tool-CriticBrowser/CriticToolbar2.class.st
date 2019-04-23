@@ -1,3 +1,14 @@
+"
+I am the toolbar for a selected SmallLint Critic in the critic browser.
+ 
+Instance Variable:  
+	ruleHolder <NewValueHolder>
+ 	criticHolder <NewValueHolder>
+ 	browseModel <ButtonPresenter>
+ 	falsepositiveModel <ButtonPresenter>
+ 	transformModel <ButtonPresenter>
+
+"
 Class {
 	#name : #CriticToolbar2,
 	#superclass : #ComposablePresenter,
@@ -14,7 +25,6 @@ Class {
 { #category : #specs }
 CriticToolbar2 class >> defaultSpec [
 	<spec>
-	self flag: #migrate.
 	"don't forget to add with by user "
 	^ SpecBoxLayout newHorizontal 
 		add: #browseModel  ;
@@ -60,21 +70,26 @@ CriticToolbar2 >> initialize [
 	super initialize.
 	criticHolder := nil asValueHolder.
 	ruleHolder := nil asValueHolder.
-	browseModel := self instantiate: ButtonPresenter.
-	transformModel := self instantiate: ButtonPresenter.
-	falsepositiveModel := self instantiate: ButtonPresenter.
-	self setFocusOrder.	
-	self setBrowseModel.
-	self setTransformModel.
-	self setFalsepositiveModel.
 	self registerForChanges
 ]
 
 { #category : #initialization }
+CriticToolbar2 >> initializePresenter [
+	browseModel action: [ self browseCritic ].
+	transformModel action: [ self transformCritic ].
+	"falsepositiveModel action: [ ] define in another class"
+]
+
+{ #category : #initialization }
 CriticToolbar2 >> initializeWidgets [
-		browseModel := self newButton.
+	browseModel := self newButton.
 	transformModel := self newButton.
 	falsepositiveModel := self newButton.
+	self setFocusOrder.	
+	self setBrowseModel.
+	self setTransformModel.
+	self setFalsepositiveModel.
+	
 ]
 
 { #category : #initialization }
@@ -103,8 +118,7 @@ CriticToolbar2 >> setBrowseModel [
 	
 	browseModel
 		state: false;
-		label: 'Browse';
-		action: [ self browseCritic ]
+		label: 'Browse'
 	
 
 ]
@@ -114,10 +128,7 @@ CriticToolbar2 >> setFalsepositiveModel [
 	
 	falsepositiveModel
 		state: false;
-		label: 'Mark as wrong';
-		action: [  ]
-	
-
+		label: 'Mark as wrong'
 ]
 
 { #category : #initialization }
@@ -135,10 +146,7 @@ CriticToolbar2 >> setTransformModel [
 	
 	transformModel
 		state: false;
-		label: 'Transform';
-		action: [ self transformCritic ]
-	
-
+		label: 'Transform'
 ]
 
 { #category : #private }
