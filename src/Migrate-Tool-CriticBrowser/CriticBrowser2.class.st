@@ -49,7 +49,7 @@ CriticBrowser2 class >> defaultSpec [
 							c1 
 								add: #(criticModel textInputFieldModel) height: 20;
 								add: #(criticModel criticsModel);
-								add: #(criticModel toolbarModel) height: 25 ]];
+								add: #(criticModel #toolbarPresenter) height: 25 ]];
 				addSplitter;
 				add: #(criticModel textModel) ]
 ]

@@ -3,12 +3,15 @@ Class {
 	#superclass : #ComposablePresenter,
 	#instVars : [
 		'rule',
-		'criticsModel',
-		'toolbarModel',
-		'sourceCodeModel',
-		'textInputFieldModel',
 		'cache',
-		'thread'
+		'thread',
+		'criticsPresenter',
+		'sourceCodePresenter',
+		'textInputFieldPresenter',
+		'toolbarPresenter'
+	],
+	#classInstVars : [
+		'icons'
 	],
 	#category : #'Migrate-Tool-CriticBrowser'
 }
@@ -18,12 +21,12 @@ SingleCodeCriticResultList2 class >> defaultSpec [
 	<spec>
 	self flag: #migrate.
 	^ SpecLayout composed
-		newColumn: [:c |
-			c 
-				add: #criticsModel;
-				add: #toolbarModel height: 25;
+		newColumn: [ :c | 
+			c
+				add: #criticsPresenter;
+				add: #toolbarPresenter height: 25;
 				addSplitter;
-				add: #textModel ]
+				add: #textPresenter ]
 ]
 
 { #category : #icons }
@@ -61,8 +64,8 @@ SingleCodeCriticResultList2 class >> initialize [
 
 { #category : #examples }
 SingleCodeCriticResultList2 class >> main [ 
- <example>
-	^ self new openWithSpec
+	<example>
+		^ self new openWithSpec
 ]
 
 { #category : #specs }
@@ -99,7 +102,7 @@ QewSrJyeCd4P0bnwXYISy3MCn5oZNtsf3pH46e7XBJcAAAAASUVORK5CYII='
 { #category : #menu }
 SingleCodeCriticResultList2 >> addCriticToFalsePositive [
 	
-	criticsModel selectedItems
+	criticsPresenter selectedItems
 		ifNotNil: [ :items | items do: [ :item |
 			cache
 				addFalsePositive: item
@@ -111,7 +114,7 @@ SingleCodeCriticResultList2 >> addCriticToFalsePositive [
 { #category : #menu }
 SingleCodeCriticResultList2 >> addCriticToToDo [
 
-	criticsModel selectedItems
+	criticsPresenter selectedItems
 		ifNotNil: [ :items | items do: [ :item |
 			cache
 				addToDo: item
@@ -122,13 +125,13 @@ SingleCodeCriticResultList2 >> addCriticToToDo [
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> addMarkingMenuItemsTo: aMenu [
-	(criticsModel selectedItems anySatisfy: [ :critic | cache isFalsePositive: critic forRule: rule ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isFalsePositive: critic forRule: rule ]) 
 		ifTrue: [ aMenu add: 'Unmark as wrong' target: self selector: #removeCriticToFalsePositive ].
-	(criticsModel selectedItems anySatisfy: [ :critic | (cache isFalsePositive: critic forRule: rule) not ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isFalsePositive: critic forRule: rule) not ]) 
 		ifTrue: [ aMenu add: 'Mark as wrong' target: self selector: #addCriticToFalsePositive ].
-	(criticsModel selectedItems anySatisfy: [ :critic | cache isToDo: critic forRule: rule ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isToDo: critic forRule: rule ]) 
 		ifTrue: [ aMenu add: 'Unmark as TODO' target: self selector: #removeCriticToToDo ].
-	(criticsModel selectedItems anySatisfy: [ :critic | (cache isToDo: critic forRule: rule) not ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isToDo: critic forRule: rule) not ]) 
 		ifTrue: [ aMenu add: 'Mark as TODO' target: self selector: #addCriticToToDo ].
 	
 ]
@@ -136,21 +139,21 @@ SingleCodeCriticResultList2 >> addMarkingMenuItemsTo: aMenu [
 { #category : #menu }
 SingleCodeCriticResultList2 >> addNavigationMenuItemsTo: aMenu [
 
-	criticsModel selectedItem ifNotNil: [ :critique |
+	criticsPresenter selectedItem ifNotNil: [ :critique |
 		critique sourceAnchor entity populateCBMenu: aMenu ]
 ]
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> addRuleToFalsePositive [
 
-	criticsModel selectedItems ifNotNil: [ :criticss |
+	criticsPresenter selectedItems ifNotNil: [ :criticss |
 		criticss do: [ :critic |
 			cache addFalsePositiveRule: rule forPackage: critic mcWorkingCopy]].
 ]
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> browseCritic [
-	criticsModel selectedItem
+	criticsPresenter selectedItem
 		ifNotNil: [ :element |
 			| entity |
 			entity := element sourceAnchor entity.
@@ -161,7 +164,7 @@ SingleCodeCriticResultList2 >> browseCritic [
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> browseDependencies [
-	criticsModel selectedItems ifNotNil: [ :packages |
+	criticsPresenter selectedItems ifNotNil: [ :packages |
 		(DAPackageAnalyzerPackageDependenciesWindow onPackagesNamed: (packages collect: #packageName)) open ]
 ]
 
@@ -172,20 +175,20 @@ SingleCodeCriticResultList2 >> cache:  acache [
 
 { #category : #accessing }
 SingleCodeCriticResultList2 >> criticsModel [
-	^ criticsModel
+	^ criticsPresenter
 ]
 
 { #category : #private }
 SingleCodeCriticResultList2 >> criticsModelContains: aCritic [
 
-	^ criticsModel listItems anySatisfy: [ :each |
+	^ criticsPresenter listItems anySatisfy: [ :each |
 			 each sourceAnchor entity name = aCritic name]
 ]
 
 { #category : #private }
 SingleCodeCriticResultList2 >> criticsOf: aRule [
 	cache ifNil: [^ {}].
-	criticsModel items: ((cache criticsOf: aRule)
+	criticsPresenter items: ((cache criticsOf: aRule)
 				sorted: [ :a :b | 
 					a printString < b printString ]).
 ]
@@ -243,7 +246,7 @@ SingleCodeCriticResultList2 >> iconFor: anItem [
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> implementorsOfCritic [
-	criticsModel selectedItem ifNotNil: [ :item | item browse] 
+	criticsPresenter selectedItem ifNotNil: [ :item | item browse] 
 
 ]
 
@@ -258,8 +261,9 @@ SingleCodeCriticResultList2 >> initialize [
 SingleCodeCriticResultList2 >> initializeActionToPerformOnTextModel [
 	
 	| selectedItem |
-	sourceCodeModel acceptBlock:  [ :text | 	
-		selectedItem := criticsModel selectedItem sourceAnchor entity.
+	self flag:#extract.
+	sourceCodePresenter acceptBlock:  [ :text | 	
+		selectedItem := criticsPresenter selectedItem sourceAnchor entity.
 		(selectedItem isCompiledMethod and: [ rule isTransformationRule not ])
 			ifTrue: [ selectedItem methodClass compile: text ] 
 			ifFalse: [ Smalltalk compiler evaluate:  text ]]
@@ -271,6 +275,7 @@ SingleCodeCriticResultList2 >> initializeActionToPerformOnTextModel [
 SingleCodeCriticResultList2 >> initializeDisplayCritic: aCritic forRule: aRule [
 	
 	| criticRepresentation | 
+	self flag: #migrate.
 	criticRepresentation := (self formatCritic: aCritic) asMorph.
 	^ (cache isFalsePositive: aCritic forRule: aRule) 
 			ifTrue: [ criticRepresentation color: self falsePositiveColor ]
@@ -290,70 +295,74 @@ SingleCodeCriticResultList2 >> initializePresenter [
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializeShortcuts [
-	criticsModel bindKeyCombination: PharoShortcuts current browseShortcut toAction: [ self browseCritic ]
+	criticsPresenter bindKeyCombination: PharoShortcuts current browseShortcut toAction: [ self browseCritic ]
 ]
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializeTextInputFieldModel [
 	| critics |
-	textInputFieldModel
+	textInputFieldPresenter
 		autoAccept: true;
 		placeholder: 'Search field';
 		text: ' ';
 		removeEntryCompletion.
-	textInputFieldModel
+	textInputFieldPresenter
 		acceptBlock: [ :text | 
 			| matchText |
+			self flag: #extract.
 			critics := cache criticsOf: rule.
 			matchText := '*' , text , '*'.
-			criticsModel
+			criticsPresenter
 				items:
 					(text isEmpty
 						ifTrue: [ critics ]
 						ifFalse: [ critics
 								select: [ :critic | matchText match: (self formatCritic: critic) ] ]).
-			criticsModel updateList ]
+			criticsPresenter updateList ]
 ]
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializeToolBar [
-	
-	self toolbarModel whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ].
+	self flag:#extract.
+	self toolbarPresenter whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ].
 
 
 ]
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> initializeWidgets [
-	criticsModel := self newList.
-	sourceCodeModel := self newCode.
-	toolbarModel := self instantiate: CriticToolbar.
-	textInputFieldModel := self newTextInput.
-	criticsModel beMultipleSelection.
+	criticsPresenter := self newIconList.
+	sourceCodePresenter := self newCode.
+	toolbarPresenter := self instantiate: CriticToolbar2.
+	textInputFieldPresenter := self newTextInput. "usefull useless ?"
+
+	criticsPresenter beMultipleSelection.
 	self initializeTextInputFieldModel.
 	self initializeToolBar.
 	self initializeActionToPerformOnTextModel.
-	criticsModel
-		displayBlock: [ :selec | self initializeDisplayCritic: selec forRule: rule ].
-	criticsModel
-		contextMenu: [ [ :a :b | self menu: a shifted: b ] cull: nil cull: false ].
-	criticsModel icons: [ :item | self iconFor: item ].
+	criticsPresenter displayBlock: [:selec |
+		self initializeDisplayCritic: selec forRule: rule]. 
+	
+	criticsPresenter menu: [ :a :b | self menu: a shifted: b ].
+	criticsPresenter icons: [ :item | self iconFor: item ].
+	
 	self focusOrder
-		add: criticsModel;
-		add: toolbarModel;
-		add: sourceCodeModel
+		add: criticsPresenter;
+		add: toolbarPresenter;
+		add: sourceCodePresenter.
+
 ]
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> menu: aMenu shifted: aBoolean [
-	(rule notNil and: [ criticsModel selectedItems notEmpty ])
+	(rule notNil and: [ criticsPresenter selectedItems notEmpty ])
 		ifFalse: [ ^ aMenu ]. 
 		
 	self addNavigationMenuItemsTo: aMenu.
 	aMenu addLine.
 	self addMarkingMenuItemsTo: aMenu.
 			
-	criticsModel selectedItem
+	criticsPresenter selectedItem
 		ifNotNil: [ :critique |
 		critique actions ifNotEmpty: [ :actions |
 			aMenu addLine.
@@ -372,7 +381,7 @@ SingleCodeCriticResultList2 >> menu: aMenu shifted: aBoolean [
 { #category : #menu }
 SingleCodeCriticResultList2 >> removeCriticToFalsePositive [
 	
-	criticsModel selectedItems
+	criticsPresenter selectedItems
 		ifNotNil: [ :items | items do: [ :item |
 			cache removeFalsePositive: item forRule: rule ]].
 	
@@ -381,7 +390,7 @@ SingleCodeCriticResultList2 >> removeCriticToFalsePositive [
 { #category : #menu }
 SingleCodeCriticResultList2 >> removeCriticToToDo [
 
-	criticsModel selectedItems
+	criticsPresenter selectedItems
 		ifNotNil: [:items | items do: [ :item |
 			cache removeToDo: item forRule: rule ]].
 	
@@ -391,7 +400,7 @@ SingleCodeCriticResultList2 >> removeCriticToToDo [
 { #category : #menu }
 SingleCodeCriticResultList2 >> removeRuleToFalsePositive [
 
-	criticsModel selectedItems ifNotNil: [ :criticss |
+	criticsPresenter selectedItems ifNotNil: [ :criticss |
 		criticss do: [ :critic |
 			cache removeFalsePositiveRule: rule forPackage: critic sourceAnchor entity mcWorkingCopy]].
 ]
@@ -413,7 +422,7 @@ SingleCodeCriticResultList2 >> rule: aRule [
 	(rule isNil or: [ rule isComposite ]) 
 		ifTrue: [ ^ self ].	
 	self criticsOf:  aRule.
-	toolbarModel rule: rule.
+	toolbarPresenter rule: rule.
 ]
 
 { #category : #'smartSuggestions - support' }
@@ -428,7 +437,7 @@ SingleCodeCriticResultList2 >> selectionIntervalFor: aString [
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> sendersOfCritic [
-	criticsModel selectedItem
+	criticsPresenter selectedItem
 		ifNotNil: [ :elem | 
 			elem isBehavior
 				ifTrue: [ self systemNavigation browseAllCallsOnClass: elem ]
@@ -441,17 +450,17 @@ SingleCodeCriticResultList2 >> setTextModelForClassOrMethod: aCritique [
 	| entity |
 	entity := aCritique sourceAnchor entity.
 	self flag: 'Another hack. We need a better way to display entities (because now we may get not only classes and methods. Maybe something like GTInspector presentations could work)'.
-	sourceCodeModel text: (
+	sourceCodePresenter text: (
 		(entity respondsTo: #definition)
 			ifTrue: [ entity definition ]
 			ifFalse: [ entity asString ]).
-	sourceCodeModel aboutToStyle: true.
-	sourceCodeModel behavior: (
+	sourceCodePresenter aboutToStyle: true.
+	sourceCodePresenter behavior: (
 		entity isCompiledMethod
 			ifTrue: [ entity methodClass ]
 			ifFalse: [ nil ]).
 	aCritique sourceAnchor providesInterval ifTrue: [ 
-		sourceCodeModel setSelection: aCritique sourceAnchor interval ]
+		sourceCodePresenter setSelection: aCritique sourceAnchor interval ]
 	
 	
 					
@@ -464,10 +473,10 @@ SingleCodeCriticResultList2 >> setTextModelForNil [
 	text := rule rationale isEmpty 
 		ifTrue: [ rule name ]
 		ifFalse: [ rule rationale ]. 
-	sourceCodeModel aboutToStyle: false.
-	sourceCodeModel text: text.
-	sourceCodeModel behavior: nil.
-	toolbarModel critic: nil 
+	sourceCodePresenter aboutToStyle: false.
+	sourceCodePresenter text: text.
+	sourceCodePresenter behavior: nil.
+	toolbarPresenter critic: nil 
 	
 	
 					
@@ -476,10 +485,10 @@ SingleCodeCriticResultList2 >> setTextModelForNil [
 { #category : #initialization }
 SingleCodeCriticResultList2 >> setTextModelForTransformationRule: selection [
 	
-	sourceCodeModel behavior: nil.
-	sourceCodeModel text: (
+	sourceCodePresenter behavior: nil.
+	sourceCodePresenter text: (
 		self diffTextForChange: selection change).
-	sourceCodeModel aboutToStyle: false.
+	sourceCodePresenter aboutToStyle: false.
 
 									
 					
@@ -487,12 +496,12 @@ SingleCodeCriticResultList2 >> setTextModelForTransformationRule: selection [
 
 { #category : #accessing }
 SingleCodeCriticResultList2 >> textInputFieldModel [
-	^ textInputFieldModel
+	^ textInputFieldPresenter
 ]
 
 { #category : #accessing }
 SingleCodeCriticResultList2 >> textModel [
-	^ sourceCodeModel
+	^ sourceCodePresenter
 ]
 
 { #category : #private }
@@ -501,14 +510,14 @@ SingleCodeCriticResultList2 >> toDoColor [
 ]
 
 { #category : #accessing }
-SingleCodeCriticResultList2 >> toolbarModel [
-	^ toolbarModel
+SingleCodeCriticResultList2 >> toolbarPresenter [
+	^ toolbarPresenter
 ]
 
 { #category : #menu }
 SingleCodeCriticResultList2 >> transformCritic [
 	
-	criticsModel selectedItems ifNotNil: [ :items |
+	criticsPresenter selectedItems ifNotNil: [ :items |
 		items do: [:critic | critic change execute ]  displayingProgress: [:critic|]]
 ]
 
@@ -517,19 +526,19 @@ SingleCodeCriticResultList2 >> updateList [
 
 	self criticsOf: rule.
 	thread ifNotNil: [ thread terminate ].
-	thread := [ UIManager default defer:  [ criticsModel updateList ]] fork.
+	thread := [ UIManager default defer:  [ criticsPresenter updateList ]] fork.
 ]
 
 { #category : #initialization }
 SingleCodeCriticResultList2 >> whenSelectedItemChangesOnListModel [
-	criticsModel
+	criticsPresenter
 		whenSelectionChangedDo: [ :selection | 
 			[ :critique | 
-			sourceCodeModel setSelection: (0 to: 0).
+			sourceCodePresenter setSelection: (0 to: 0).
 			rule
 				ifNotNil: [ critique
 						ifNil: [ self setTextModelForNil ]
-						ifNotNil: [ toolbarModel critic: critique.
+						ifNotNil: [ toolbarPresenter critic: critique.
 							critique providesChange
 								ifTrue: [ self setTextModelForTransformationRule: critique ]
 								ifFalse: [ self setTextModelForClassOrMethod: critique ] ] ] ]
