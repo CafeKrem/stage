@@ -64,7 +64,7 @@ CriticBrowser2 class >> icon [
 { #category : #examples }
 CriticBrowser2 class >> main [ 
 	<example>
-	^ self new openWithSpec
+	^ self new open; openWithSpec
 ]
 
 { #category : #'instance creation' }
@@ -339,7 +339,7 @@ CriticBrowser2 >> initializeWidgets [
 	self setResetButton.
 	self setUpdateButton.
 	 
-	criticModel := SingleCodeCriticResultList new.
+	criticModel := SingleCodeCriticResultList2 new.
 	rulesModel childrenBlock: [ :rule | 
 		rule isComposite 
 			ifTrue: [ rule rules ]

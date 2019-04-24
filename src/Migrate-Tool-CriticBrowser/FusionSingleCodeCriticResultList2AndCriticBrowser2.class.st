@@ -1,5 +1,5 @@
 Class {
-	#name : #SingleCodeCriticResultList2,
+	#name : #FusionSingleCodeCriticResultList2AndCriticBrowser2,
 	#superclass : #ComposablePresenter,
 	#instVars : [
 		'rule',
@@ -7,8 +7,14 @@ Class {
 		'thread',
 		'criticsPresenter',
 		'sourceCodePresenter',
-		'textInputFieldPresenter',
-		'toolbarPresenter'
+		'toolbarPresenter',
+		'rulesPresenter',
+		'resetButton',
+		'logButton',
+		'updateButton',
+		'rbEnvironment',
+		'checker',
+		'removeTestCase'
 	],
 	#classInstVars : [
 		'icons'
@@ -17,8 +23,8 @@ Class {
 }
 
 { #category : #specs }
-SingleCodeCriticResultList2 class >> defaultSpec [
-	<spec>
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> SpecSingleCodeCriticResult [
+
 	^ SpecPanedLayout newVertical
 		add: #criticsPresenter;
 		add:
@@ -30,8 +36,43 @@ SingleCodeCriticResultList2 class >> defaultSpec [
 		yourself
 ]
 
+{ #category : #specs }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> defaultSpec [
+	<spec>
+	^ SpecPanedLayout newVertical
+		add:
+			(SpecBoxLayout newVertical
+				add:
+					(SpecPanedLayout newHorizontal
+						add:
+							(SpecBoxLayout newVertical
+								add: #rulesPresenter;
+								add:
+									(SpecBoxLayout newHorizontal
+										add: #resetButton;
+										add: #updateButton;
+										add: #logButton;
+										yourself)
+									withConstraints: [ :element | element height: 20 ;padding: 7];
+								yourself);
+						add:
+							(SpecBoxLayout newVertical
+								add: #criticsPresenter;
+								add: #toolbarPresenter
+									withConstraints: [ :element | element height: 20 ;padding: 7];
+								yourself);
+						yourself);
+				yourself)
+			withConstraints: [ :elt | 
+				elt
+					beNotResizable;
+					beShrinkable ];
+		add: #sourceCodePresenter;
+		yourself
+]
+
 { #category : #icons }
-SingleCodeCriticResultList2 class >> exclamationIcon [ 
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> exclamationIcon [ 
 
 	^  icons
 			at: #'exclamationIcon'
@@ -40,7 +81,7 @@ SingleCodeCriticResultList2 class >> exclamationIcon [
 ]
 
 { #category : #icons }
-SingleCodeCriticResultList2 class >> exclamationIconContents [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> exclamationIconContents [
 	"Private - Method generated"
 	^ 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0
 RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJPSURBVDjLpZPLS5RhFMYfv9QJ
@@ -58,25 +99,46 @@ e48/+xD8oxcAYPzs4QaS7RR2kbLTTOTQieczfzfTv8QPldGvTGoF6/8AAAAASUVORK5CYII='
 ]
 
 { #category : #'class initialization' }
-SingleCodeCriticResultList2 class >> initialize [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> initialize [
 	
 	icons := IdentityDictionary new
 ]
 
 { #category : #examples }
-SingleCodeCriticResultList2 class >> main [ 
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> main [
 	<example>
-		^ self new openWithSpec
+	^ self open
+]
+
+{ #category : #'instance creation' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open [
+	| env rules |
+	rules := RBCompositeLintRule allGoodRules rules.
+	env := RBBrowserEnvironment default.
+	self openOnRule: rules onEnvironment: env
+]
+
+{ #category : #'instance creation' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
+	| cbr |
+	cbr := self new
+		rules: aRule;
+		environment: aEnv;
+		"removeTestCase: false;"
+		yourself.
+	cbr openWithSpec.
+	"cbr applyRules."
+	cbr rulesPresenter changed: #listElementAt:
 ]
 
 { #category : #specs }
-SingleCodeCriticResultList2 class >> title [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> title [
 
 	^ 'Critic Browser'
 ]
 
 { #category : #icons }
-SingleCodeCriticResultList2 class >> wrenchOrangeIcon [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> wrenchOrangeIcon [
 
 	^  icons
 			at: #'wrenchOrangeIcon'
@@ -85,7 +147,7 @@ SingleCodeCriticResultList2 class >> wrenchOrangeIcon [
 ]
 
 { #category : #icons }
-SingleCodeCriticResultList2 class >> wrenchOrangeIconContents [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> wrenchOrangeIconContents [
 	"Private - Method generated"
 	^ 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0
 RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAHaSURBVDjLlZO7a1NRHMfzfzhI
@@ -101,7 +163,7 @@ QewSrJyeCd4P0bnwXYISy3MCn5oZNtsf3pH46e7XBJcAAAAASUVORK5CYII='
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> addCriticToFalsePositive [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToFalsePositive [
 	
 	criticsPresenter selectedItems
 		ifNotNil: [ :items | items do: [ :item |
@@ -113,7 +175,7 @@ SingleCodeCriticResultList2 >> addCriticToFalsePositive [
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> addCriticToToDo [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToToDo [
 
 	criticsPresenter selectedItems
 		ifNotNil: [ :items | items do: [ :item |
@@ -125,7 +187,7 @@ SingleCodeCriticResultList2 >> addCriticToToDo [
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> addMarkingMenuItemsTo: aMenu [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addMarkingMenuItemsTo: aMenu [
 	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isFalsePositive: critic forRule: rule ]) 
 		ifTrue: [ aMenu add: 'Unmark as wrong' target: self selector: #removeCriticToFalsePositive ].
 	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isFalsePositive: critic forRule: rule) not ]) 
@@ -138,22 +200,57 @@ SingleCodeCriticResultList2 >> addMarkingMenuItemsTo: aMenu [
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> addNavigationMenuItemsTo: aMenu [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addNavigationMenuItemsTo: aMenu [
 
 	criticsPresenter selectedItem ifNotNil: [ :critique |
 		critique sourceAnchor entity populateCBMenu: aMenu ]
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> addRuleToFalsePositive [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addRuleToFalsePositive [
 
 	criticsPresenter selectedItems ifNotNil: [ :criticss |
 		criticss do: [ :critic |
 			cache addFalsePositiveRule: rule forPackage: critic mcWorkingCopy]].
 ]
 
+{ #category : #'instance creation' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allRules [
+	^ rulesPresenter roots flatCollect: #rules
+]
+
+{ #category : #private }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
+	| packageCount nbPackage process rules |
+	rules := self allRules.
+	nbPackage := rbEnvironment packages size.
+	packageCount := 0.
+	self updateTree.
+	process := [ rbEnvironment packages
+		do: [ :package | 
+			| windowTitle |
+			packageCount := packageCount + 1.
+			windowTitle := String
+				streamContents: [ :s | 
+					s << 'run rules on ' << package packageName << ' ('
+						<< packageCount asString << '/' << nbPackage asString << ')' ].
+			"self setTitle: windowTitle."
+			checker
+				runRules: rules
+				onPackage: package
+				withoutTestCase: removeTestCase ].
+	checker rule: rules.
+	"self setTitle: self defaultTitle."
+	cache packages: rbEnvironment.
+	cache initCache.
+	self updateTree.
+	self registerToAnnouncements ] newProcess.
+	process name: 'SmallLint'.
+	process resume
+]
+
 { #category : #menu }
-SingleCodeCriticResultList2 >> browseCritic [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseCritic [
 	criticsPresenter selectedItem
 		ifNotNil: [ :element |
 			| entity |
@@ -164,38 +261,38 @@ SingleCodeCriticResultList2 >> browseCritic [
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> browseDependencies [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseDependencies [
 	criticsPresenter selectedItems ifNotNil: [ :packages |
 		(DAPackageAnalyzerPackageDependenciesWindow onPackagesNamed: (packages collect: #packageName)) open ]
 ]
 
 { #category : #accessing }
-SingleCodeCriticResultList2 >> cache:  acache [ 
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  acache [ 
 	cache := acache
 ]
 
-{ #category : #accessing }
-SingleCodeCriticResultList2 >> criticsModel [
-	^ criticsPresenter
-]
-
 { #category : #private }
-SingleCodeCriticResultList2 >> criticsModelContains: aCritic [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsModelContains: aCritic [
 
 	^ criticsPresenter listItems anySatisfy: [ :each |
 			 each sourceAnchor entity name = aCritic name]
 ]
 
 { #category : #private }
-SingleCodeCriticResultList2 >> criticsOf: aRule [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsOf: aRule [
 	cache ifNil: [^ {}].
 	criticsPresenter items: ((cache criticsOf: aRule)
 				sorted: [ :a :b | 
 					a printString < b printString ]).
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
+	^ criticsPresenter
+]
+
 { #category : #action }
-SingleCodeCriticResultList2 >> criticsPresenterSelectionChangeAction [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterSelectionChangeAction [
 	self flag:#migrate.
 	^ [ :critique | 
 	criticsPresenter setSelection: (0 to: 0)."setSelection IconListPresenter's method"
@@ -209,12 +306,12 @@ SingleCodeCriticResultList2 >> criticsPresenterSelectionChangeAction [
 ]
 
 { #category : #private }
-SingleCodeCriticResultList2 >> defaultColor [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> defaultColor [
 	^ Color red
 ]
 
 { #category : #private }
-SingleCodeCriticResultList2 >> diffSeparator [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> diffSeparator [
 
 	^ '——————————————————
 	
@@ -222,7 +319,7 @@ SingleCodeCriticResultList2 >> diffSeparator [
 ]
 
 { #category : #private }
-SingleCodeCriticResultList2 >> diffTextForChange: aRefactoryChange [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> diffTextForChange: aRefactoryChange [
 	| text builder |
 
 	text := Text new.
@@ -238,20 +335,26 @@ SingleCodeCriticResultList2 >> diffTextForChange: aRefactoryChange [
 	^ text
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> environment: aEnv [
+	rbEnvironment := aEnv
+ 
+]
+
 { #category : #private }
-SingleCodeCriticResultList2 >> falsePositiveColor [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> falsePositiveColor [
 	^ Color darkGray
 ]
 
 { #category : #private }
-SingleCodeCriticResultList2 >> formatCritic: aCritic [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 	
 	^  String streamContents: [:s | aCritic sourceAnchor entity criticNameOn: s ]
 
 ]
 
 { #category : #private }
-SingleCodeCriticResultList2 >> iconFor: anItem [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
 	
 	^  (cache isFalsePositive: anItem forRule: rule) 
 			ifFalse: [(cache isToDo: anItem forRule: rule)
@@ -260,20 +363,30 @@ SingleCodeCriticResultList2 >> iconFor: anItem [
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> implementorsOfCritic [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> implementorsOfCritic [
 	criticsPresenter selectedItem ifNotNil: [ :item | item browse] 
 
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> initialize [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 
 	super initialize.
 	self initializeShortcuts
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> initializeDisplayCritic: aCritic forRule: aRule [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter [
+	criticsPresenter
+		beMultipleSelection;
+		displayBlock: [ :selec | self initializeDisplayCritic: selec forRule: rule ];
+		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
+		contextMenu: [ :a :b | self menu: a shifted: b ];
+		icons: [ :item | self iconFor: item ]
+]
+
+{ #category : #initialization }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeDisplayCritic: aCritic forRule: aRule [
 	
 	| criticRepresentation | 
 	self flag: #migrate.
@@ -286,51 +399,38 @@ SingleCodeCriticResultList2 >> initializeDisplayCritic: aCritic forRule: aRule [
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> initializePresenter [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	sourceCodePresenter acceptBlock: self sourceCodePresenterAcceptAction.
 	criticsPresenter
 		whenSelectedItemChanged: self criticsPresenterSelectionChangeAction.
-	textInputFieldPresenter
-		acceptBlock: self textInputFieldPresenterAction.
 	toolbarPresenter
 		whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ]
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> initializeShortcuts [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeShortcuts [
 	criticsPresenter bindKeyCombination: PharoShortcuts current browseShortcut toAction: [ self browseCritic ]
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> initializeTextInputFieldPresenter [
-	textInputFieldPresenter
-		autoAccept: true;
-		placeholder: 'Search field';
-		text: ' ';
-		removeEntryCompletion.
-	
-]
-
-{ #category : #initialization }
-SingleCodeCriticResultList2 >> initializeWidgets [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	criticsPresenter := self newList.
 	sourceCodePresenter := self newCode.
 	toolbarPresenter := self instantiate: CriticToolbar2.
-	textInputFieldPresenter := self newTextInput.	"usefull useless ?"
-	criticsPresenter beMultipleSelection.
-	self initializeTextInputFieldPresenter.
-	criticsPresenter
-		displayBlock: [ :selec | self initializeDisplayCritic: selec forRule: rule ].
-	criticsPresenter contextMenu: [ :a :b | self menu: a shifted: b ].
-	criticsPresenter icons: [ :item | self iconFor: item ].
-	self focusOrder
-		add: criticsPresenter;
-		add: toolbarPresenter;
-		add: sourceCodePresenter
+	rulesPresenter := self newTreeTable.
+	resetButton := self newButton.
+	updateButton := self newButton.
+	logButton := self newButton.
+	self initializeCriticsPresenter.
+	rulesPresenter
+		children: [ :aRule | 
+			aRule isComposite
+				ifTrue: [ aRule rules ]
+				ifFalse: [ #() ] ]
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> menu: aMenu shifted: aBoolean [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBoolean [
 	(rule notNil and: [ criticsPresenter selectedItems notEmpty ])
 		ifFalse: [ ^ aMenu ]. 
 		
@@ -354,8 +454,23 @@ SingleCodeCriticResultList2 >> menu: aMenu shifted: aBoolean [
 	^ aMenu
 ]
 
+{ #category : #'system annoucements' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
+	
+	self unregisterFromAnnouncements.
+	
+	SystemAnnouncer uniqueInstance weak
+		when: ClassAdded send: #handleClassAdded: to: self;
+		when: ClassModifiedClassDefinition send: #handleClassModified: to: self;
+		when: ClassRemoved send: #handleClassRemoved: to: self;
+		when: MethodAdded send: #handleMethodAdded: to: self;
+		when: MethodModified send: #handleMethodModified: to: self;
+		when: MethodRemoved send: #handleMethodRemoved: to: self.
+	self window window announcer when: WindowClosed send: #onWindowClosed to: self
+]
+
 { #category : #menu }
-SingleCodeCriticResultList2 >> removeCriticToFalsePositive [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToFalsePositive [
 	
 	criticsPresenter selectedItems
 		ifNotNil: [ :items | items do: [ :item |
@@ -364,7 +479,7 @@ SingleCodeCriticResultList2 >> removeCriticToFalsePositive [
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> removeCriticToToDo [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToToDo [
 
 	criticsPresenter selectedItems
 		ifNotNil: [:items | items do: [ :item |
@@ -374,7 +489,7 @@ SingleCodeCriticResultList2 >> removeCriticToToDo [
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> removeRuleToFalsePositive [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeRuleToFalsePositive [
 
 	criticsPresenter selectedItems ifNotNil: [ :criticss |
 		criticss do: [ :critic |
@@ -382,17 +497,17 @@ SingleCodeCriticResultList2 >> removeRuleToFalsePositive [
 ]
 
 { #category : #api }
-SingleCodeCriticResultList2 >> resetSelection [
-	self criticsModel resetSelection
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> resetSelection [
+	self criticsPresenter resetSelection
 ]
 
 { #category : #accessing }
-SingleCodeCriticResultList2 >> rule [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule [
 	^ rule
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> rule: aRule [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule: aRule [
 
 	rule := aRule.
 	(rule isNil or: [ rule isComposite ]) 
@@ -401,18 +516,34 @@ SingleCodeCriticResultList2 >> rule: aRule [
 	toolbarPresenter rule: rule.
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rules: rulesCollection [
+
+	self rulesPresenter roots: ((
+		(rulesCollection groupedBy: #group) associations collect: [ :as |
+			CriticBrowserRulesGroup
+				named: as key
+				rules: as value ])
+					sorted: [ :a :b | a name < b name ])
+]
+
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenter [
+	^ rulesPresenter 
+]
+
 { #category : #'smartSuggestions - support' }
-SingleCodeCriticResultList2 >> selectedMessage [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedMessage [
 	^ nil
 ]
 
 { #category : #private }
-SingleCodeCriticResultList2 >> selectionIntervalFor: aString [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectionIntervalFor: aString [
 	^ rule result selectionIntervalFor: aString
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> sendersOfCritic [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendersOfCritic [
 	criticsPresenter selectedItem
 		ifNotNil: [ :elem | 
 			elem isBehavior
@@ -421,7 +552,7 @@ SingleCodeCriticResultList2 >> sendersOfCritic [
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> setTextModelForClassOrMethod: aCritique [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForClassOrMethod: aCritique [
 
 	| entity |
 	entity := aCritique sourceAnchor entity.
@@ -443,7 +574,7 @@ SingleCodeCriticResultList2 >> setTextModelForClassOrMethod: aCritique [
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> setTextModelForNil [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForNil [
 
 	| text |
 	self flag:#maybeRefactoring.
@@ -460,7 +591,7 @@ SingleCodeCriticResultList2 >> setTextModelForNil [
 ]
 
 { #category : #initialization }
-SingleCodeCriticResultList2 >> setTextModelForTransformationRule: selection [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForTransformationRule: selection [
 	
 	sourceCodePresenter behavior: nil.
 	sourceCodePresenter text: (
@@ -471,8 +602,13 @@ SingleCodeCriticResultList2 >> setTextModelForTransformationRule: selection [
 					
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
+	^ sourceCodePresenter
+]
+
 { #category : #initialization }
-SingleCodeCriticResultList2 >> sourceCodePresenterAcceptAction [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAcceptAction [
 	| selectedItem |
 	^ [ :text | 
 	selectedItem := criticsPresenter selection selectedItem sourceAnchor
@@ -482,17 +618,12 @@ SingleCodeCriticResultList2 >> sourceCodePresenterAcceptAction [
 		ifFalse: [ Smalltalk compiler evaluate: text ] ]
 ]
 
-{ #category : #accessing }
-SingleCodeCriticResultList2 >> textInputFieldModel [
-	^ textInputFieldPresenter
-]
-
 { #category : #initialization }
-SingleCodeCriticResultList2 >> textInputFieldPresenterAction [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> textInputFieldPresenterAction [
 	^ [ :text | 
 	| matchText critics |
 	critics := cache criticsOf: rule.
-	matchText :=  '*' ,  text , '*'.
+	matchText := '*' , text , '*'.
 	criticsPresenter
 		items:
 			(text isEmpty
@@ -502,32 +633,39 @@ SingleCodeCriticResultList2 >> textInputFieldPresenterAction [
 	criticsPresenter updateList ]
 ]
 
-{ #category : #accessing }
-SingleCodeCriticResultList2 >> textModel [
-	^ sourceCodePresenter
-]
-
 { #category : #private }
-SingleCodeCriticResultList2 >> toDoColor [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toDoColor [
 	^ Color orange
 ]
 
 { #category : #accessing }
-SingleCodeCriticResultList2 >> toolbarPresenter [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toolbarPresenter [
 	^ toolbarPresenter
 ]
 
 { #category : #menu }
-SingleCodeCriticResultList2 >> transformCritic [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> transformCritic [
 	
 	criticsPresenter selectedItems ifNotNil: [ :items |
 		items do: [:critic | critic change execute ]  displayingProgress: [:critic|]]
 ]
 
+{ #category : #'system annoucements' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
+
+	SystemAnnouncer uniqueInstance unsubscribe: self
+]
+
 { #category : #thread }
-SingleCodeCriticResultList2 >> updateList [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateList [
 
 	self criticsOf: rule.
 	thread ifNotNil: [ thread terminate ].
 	thread := [ UIManager default defer:  [ criticsPresenter updateList ]] fork.
+]
+
+{ #category : #api }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
+	criticsPresenter updateList. 
+	rulesPresenter  updateTree
 ]
