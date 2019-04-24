@@ -404,7 +404,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	criticsPresenter
 		whenSelectedItemChanged: self criticsPresenterSelectionChangeAction.
 	toolbarPresenter
-		whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ]
+		whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ].
+	logButton action: self setActionLogButton.
+	resetButton action: self setActionResetButton.
+	updateButton action: self setActionUpdateButton.
 ]
 
 { #category : #initialization }
@@ -421,12 +424,16 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	resetButton := self newButton.
 	updateButton := self newButton.
 	logButton := self newButton.
-	self initializeCriticsPresenter.
-	rulesPresenter
-		children: [ :aRule | 
-			aRule isComposite
-				ifTrue: [ aRule rules ]
-				ifFalse: [ #() ] ]
+	logButton
+		state: false;
+		label: 'Save Critics'.
+	resetButton
+		state: false;
+		label: 'Run new configuration'.
+	updateButton
+		state: false;
+		label: 'Update'.
+	self initializeCriticsPresenter
 ]
 
 { #category : #menu }
@@ -452,6 +459,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBool
 						critique sourceAnchor entity } ] ] ].
 			
 	^ aMenu
+]
+
+{ #category : #initialization }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
+	
+	cache initialize.
+	self applyRules 
 ]
 
 { #category : #'system annoucements' }
@@ -549,6 +563,29 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendersOfCritic [
 			elem isBehavior
 				ifTrue: [ self systemNavigation browseAllCallsOnClass: elem ]
 				ifFalse: [ self systemNavigation browseAllSendersOf: elem selector ] ]
+]
+
+{ #category : #initialization }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionLogButton [
+	^ [ (UIManager default
+		confirm:
+			'Do you want to save all false positive and toDo in the Manifests ?
+(this action may generate new manifest classes and make dirty your package)')
+		ifTrue: [ cache logInManifest ] ]
+]
+
+{ #category : #initialization }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionResetButton [
+	
+	^ [(UIManager default confirm: 'Do you want to delete the current configuration
+ and create a new configuration ?')
+		ifTrue: [ self delete. 
+				SelectPackageBrowser open ]]
+]
+
+{ #category : #initialization }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionUpdateButton [
+	^ [ self reapplyAllRules ]
 ]
 
 { #category : #initialization }
