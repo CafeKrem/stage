@@ -424,6 +424,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	resetButton := self newButton.
 	updateButton := self newButton.
 	logButton := self newButton.
+	rulesPresenter children: [ :aRule | 
+		aRule isComposite 
+			ifTrue: [ aRule rules ]
+			ifFalse: [ #() ]].  
 	logButton
 		state: false;
 		label: 'Save Critics'.
