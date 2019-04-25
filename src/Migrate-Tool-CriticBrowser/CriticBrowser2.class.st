@@ -609,6 +609,7 @@ CriticBrowser2 >> stringMorphForRule: rule [
 				<< ', Wrong: ';
 				print: falsePositives;
 				<< ')' ].
+	self flag:#deprecated.
 	^ text asMorph
 		color: (self colorForRule: rule);
 		yourself

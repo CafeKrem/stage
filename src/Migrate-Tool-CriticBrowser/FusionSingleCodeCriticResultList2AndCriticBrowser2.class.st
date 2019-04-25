@@ -1,3 +1,53 @@
+"
+this class is a merge of CriticBrowser and SpecSingleCodeCriticResult (used by old CriticBrowser )
+so 
+			new Layout 
+        ---------------------------------------------
+        | RulesPresenter  ||                        |
+        |                 ||                        |
+        |                 || CriticsPresenter       |
+        |-----------------||------------------------|
+        |reset |update|log||browse|Tranform|marknoPB|                       |              |
+        |===========================================|
+        |SourceCodePresenter                        |
+        ---------------------------------------------
+	      now i use the filter feature of a ListPresenter (CriticsPresenter) instead of TextInputFieldPresenter
+			
+
+For the Class part:  State a one line summary. For example, ""I represent a paragraph of text"".
+
+For the Responsibility part: Three sentences about my main responsibilities - what I do, what I know.
+
+For the Collaborators Part: State my main collaborators and one line about how I interact with them. 
+
+Public API and Key Messages
+
+- message one   
+- message two 
+- (for bonus points) how to create instances.
+
+   One simple example is simply gorgeous.
+ 
+Internal Representation and Key Implementation Points.
+
+    Instance Variables
+	cache:		<Object>
+	checker:		<Object>
+	criticsPresenter:		<Object>
+	logButton:		<Object>
+	rbEnvironment:		<Object>
+	removeTestCase:		<Object>
+	resetButton:		<Object>
+	rule:		<Object>
+	rulesPresenter:		<Object>
+	sourceCodePresenter:		<Object>
+	thread:		<Object>
+	toolbarPresenter:		<Object>
+	updateButton:		<Object>
+
+
+    Implementation Points
+"
 Class {
 	#name : #FusionSingleCodeCriticResultList2AndCriticBrowser2,
 	#superclass : #ComposablePresenter,
@@ -121,6 +171,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open [
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
 	| cbr |
+	1halt.
 	cbr := self new
 		rules: aRule;
 		environment: aEnv;
@@ -128,7 +179,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule on
 		yourself.
 	cbr openWithSpec.
 	"cbr applyRules."
-	cbr rulesPresenter changed: #listElementAt:
+	"cbr rulesPresenter changed: #listElementAt:"
 ]
 
 { #category : #specs }
@@ -165,11 +216,7 @@ QewSrJyeCd4P0bnwXYISy3MCn5oZNtsf3pH46e7XBJcAAAAASUVORK5CYII='
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToFalsePositive [
 	
-	criticsPresenter selectedItems
-		ifNotNil: [ :items | items do: [ :item |
-			cache
-				addFalsePositive: item
-				forRule: rule ]].
+	
 	
 	
 ]
@@ -291,7 +338,15 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 	^ criticsPresenter
 ]
 
-{ #category : #action }
+{ #category : #'initialize-actions' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
+	criticsPresenter
+		whenSelectionChangedDo: [ :selection | 
+			self criticsPresenterSelectionChangeAction
+				cull: selection selectedItem ]
+]
+
+{ #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterSelectionChangeAction [
 	self flag:#migrate.
 	^ [ :critique | 
@@ -368,14 +423,18 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> implementorsOfCritic [
 
 ]
 
-{ #category : #initialization }
+{ #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 
 	super initialize.
-	self initializeShortcuts
+	self initializeShortcuts.
+	cache := ReCriticsCache new.
+	checker := ReSmalllintChecker new.
+	cache checker: checker.
+	cache browser: self.
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter [
 	criticsPresenter
 		beMultipleSelection;
@@ -385,7 +444,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 		icons: [ :item | self iconFor: item ]
 ]
 
-{ #category : #initialization }
+{ #category : #migrate }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeDisplayCritic: aCritic forRule: aRule [
 	
 	| criticRepresentation | 
@@ -398,24 +457,83 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeDisplayCritic: a
 						ifFalse: [ criticRepresentation color: self defaultColor ]]
 ]
 
-{ #category : #initialization }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
-	sourceCodePresenter acceptBlock: self sourceCodePresenterAcceptAction.
-	criticsPresenter
-		whenSelectedItemChanged: self criticsPresenterSelectionChangeAction.
-	toolbarPresenter
-		whenFalsePositiveClickedDo: [ self addCriticToFalsePositive ].
-	logButton action: self setActionLogButton.
-	resetButton action: self setActionResetButton.
-	updateButton action: self setActionUpdateButton.
+{ #category : #'initialize-widgets' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeLogButton [
+	logButton
+		state: false;
+		label: 'Save Critics'
 ]
 
-{ #category : #initialization }
+{ #category : #initialize }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
+	self criticsPresenterAction.
+	self toolbarPresenter.
+	self rulesPresenterActions.
+	logButton action: self setActionLogButton.
+	resetButton action: self setActionResetButton.
+	updateButton action: self setActionUpdateButton
+]
+
+{ #category : #'initialize-widgets' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeResetButton [
+	resetButton
+		state: false;
+		label: 'Run new configuration'
+]
+
+{ #category : #'initialize-widgets' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
+	rulesPresenter
+		addColumn:
+			(StringTableColumn new
+				title: 'rules';
+				"width: 200;"
+				evaluated: #name;
+				yourself);
+		addColumn:
+			(StringTableColumn new
+				width:40;
+				title: 'toSort';
+				evaluated: [ :aRules | 
+					| falsePositives toDos total |
+					falsePositives := (cache falsePositiveOf: aRules) size.
+					toDos := (cache toDosOf: aRules) size.
+					total := (cache criticsOf: aRules) size.
+					total - falsePositives - toDos ];
+				yourself);
+		addColumn:
+			(StringTableColumn new
+				width: 40;
+				title: 'toDo';
+				evaluated: [ :aRules | (cache toDosOf: aRules) size ];
+				yourself);
+		addColumn:
+			(StringTableColumn new
+				width: 40;
+				title: 'Wrong';
+				evaluated: [ :aRules | (cache falsePositiveOf: aRules) size ];
+				yourself);
+		yourself.
+	rulesPresenter
+		children: [ :aRule | 
+			aRule isComposite
+				ifTrue: [ aRule rules ]
+				ifFalse: [ #() ] ]
+]
+
+{ #category : #'initialize-shortcuts' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeShortcuts [
 	criticsPresenter bindKeyCombination: PharoShortcuts current browseShortcut toAction: [ self browseCritic ]
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-widgets' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeUpdateButton [
+	updateButton
+		state: false;
+		label: 'Update'
+]
+
+{ #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	criticsPresenter := self newList.
 	sourceCodePresenter := self newCode.
@@ -424,19 +542,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	resetButton := self newButton.
 	updateButton := self newButton.
 	logButton := self newButton.
-	rulesPresenter children: [ :aRule | 
-		aRule isComposite 
-			ifTrue: [ aRule rules ]
-			ifFalse: [ #() ]].  
-	logButton
-		state: false;
-		label: 'Save Critics'.
-	resetButton
-		state: false;
-		label: 'Run new configuration'.
-	updateButton
-		state: false;
-		label: 'Update'.
+	self initializeRulesPresenter.
+	self initializeLogButton.
+	self initializeResetButton.
+	self initializeUpdateButton.
 	self initializeCriticsPresenter
 ]
 
@@ -465,11 +574,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBool
 	^ aMenu
 ]
 
-{ #category : #initialization }
+{ #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
 	
-	cache initialize.
-	self applyRules 
+
 ]
 
 { #category : #'system annoucements' }
@@ -514,7 +622,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeRuleToFalsePositive 
 			cache removeFalsePositiveRule: rule forPackage: critic sourceAnchor entity mcWorkingCopy]].
 ]
 
-{ #category : #api }
+{ #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> resetSelection [
 	self criticsPresenter resetSelection
 ]
@@ -524,7 +632,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule [
 	^ rule
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-other' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule: aRule [
 
 	rule := aRule.
@@ -536,7 +644,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule: aRule [
 
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rules: rulesCollection [
-
 	self rulesPresenter roots: ((
 		(rulesCollection groupedBy: #group) associations collect: [ :as |
 			CriticBrowserRulesGroup
@@ -548,6 +655,22 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rules: rulesCollection [
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenter [
 	^ rulesPresenter 
+]
+
+{ #category : #'initialize-actions' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
+	rulesPresenter
+		transmitTo: criticsPresenter
+		transform: [ :aRule | 
+			(aRule isNil or: [ aRule isComposite ])
+				ifTrue: [ '' ]
+				ifFalse: [ cache criticsOf: aRule ] ].
+	rulesPresenter
+		transmitTo: sourceCodePresenter
+		transform: [ :aRule | 
+			(aRule isNil or: [ aRule isComposite ])
+				ifTrue: [ '' ]
+				ifFalse: [ aRule name ] ]
 ]
 
 { #category : #'smartSuggestions - support' }
@@ -569,7 +692,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendersOfCritic [
 				ifFalse: [ self systemNavigation browseAllSendersOf: elem selector ] ]
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionLogButton [
 	^ [ (UIManager default
 		confirm:
@@ -578,7 +701,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionLogButton [
 		ifTrue: [ cache logInManifest ] ]
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionResetButton [
 	
 	^ [(UIManager default confirm: 'Do you want to delete the current configuration
@@ -587,12 +710,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionResetButton [
 				SelectPackageBrowser open ]]
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionUpdateButton [
-	^ [ self reapplyAllRules ]
+	^ [ cache initialize.
+	self applyRules ]
 ]
 
-{ #category : #initialization }
+{ #category : #migrate }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForClassOrMethod: aCritique [
 
 	| entity |
@@ -614,7 +738,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForClassOrMeth
 					
 ]
 
-{ #category : #initialization }
+{ #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForNil [
 
 	| text |
@@ -631,7 +755,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForNil [
 					
 ]
 
-{ #category : #initialization }
+{ #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForTransformationRule: selection [
 	
 	sourceCodePresenter behavior: nil.
@@ -648,7 +772,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 	^ sourceCodePresenter
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAcceptAction [
 	| selectedItem |
 	^ [ :text | 
@@ -659,7 +783,20 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAcceptA
 		ifFalse: [ Smalltalk compiler evaluate: text ] ]
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-actions' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterActions [
+	sourceCodePresenter
+		acceptBlock: [ :text | 
+			| selectedItem |
+			selectedItem := criticsPresenter selection selectedItem
+				sourceAnchor entity.
+			(selectedItem isCompiledMethod
+				and: [ rule isTransformationRule not ])
+				ifTrue: [ selectedItem methodClass compile: text ]
+				ifFalse: [ Smalltalk compiler evaluate: text ] ]
+]
+
+{ #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> textInputFieldPresenterAction [
 	^ [ :text | 
 	| matchText critics |
@@ -684,6 +821,16 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toolbarPresenter [
 	^ toolbarPresenter
 ]
 
+{ #category : #'initialize-actions' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toolbarPresenterActions [
+self flag:'optimise'.
+	toolbarPresenter
+		whenFalsePositiveClickedDo: [ :selectedItem | 
+			selectedItem
+				ifNotNil:
+					[ :items | items do: [ :item | cache addFalsePositive: item forRule: rule ] ] ]
+]
+
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> transformCritic [
 	
@@ -705,8 +852,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateList [
 	thread := [ UIManager default defer:  [ criticsPresenter updateList ]] fork.
 ]
 
-{ #category : #api }
+{ #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
+	self flag: #deprecated. 
 	criticsPresenter updateList. 
 	rulesPresenter  updateTree
 ]
