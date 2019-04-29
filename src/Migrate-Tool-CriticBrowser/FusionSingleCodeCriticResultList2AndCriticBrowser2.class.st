@@ -307,10 +307,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseCritic [
 				ifFalse: [ entity browse ] ] 
 ]
 
-{ #category : #menu }
+{ #category : #'new?Feature' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseDependencies [
-	criticsPresenter selectedItems ifNotNil: [ :packages |
-		(DAPackageAnalyzerPackageDependenciesWindow onPackagesNamed: (packages collect: #packageName)) open ]
+	self flag: #unused.
+	criticsPresenter selectedItems
+		ifNotNil: [ :packages | 
+			(DAPackageAnalyzerPackageDependenciesWindow
+				onPackagesNamed: (packages collect: #packageName)) open ]
 ]
 
 { #category : #accessing }
@@ -318,9 +321,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  acache [
 	cache := acache
 ]
 
-{ #category : #private }
+{ #category : #'new?Feature' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsModelContains: aCritic [
-
+	self flag:#unused. "when i migrate this class this method already exist so i decided to store into new?Feature protocol "
 	^ criticsPresenter listItems anySatisfy: [ :each |
 			 each sourceAnchor entity name = aCritic name] 
 ]
@@ -418,8 +421,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
 				ifFalse: [ self class exclamationIcon ] ]
 ]
 
-{ #category : #menu }
+{ #category : #'new?Feature' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> implementorsOfCritic [
+	self flag:#unsed.
 	criticsPresenter selectedItem ifNotNil: [ :item | item browse] 
 
 ]
@@ -574,9 +578,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBool
 	^ aMenu
 ]
 
-{ #category : #TOCATEGORISE }
+{ #category : #'new?Feature' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
-	
+	self flag:#maybeRemoveOrToDo 
 
 ]
 
@@ -690,6 +694,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectionIntervalFor: aStr
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendersOfCritic [
+	self flag: #unused.
 	criticsPresenter selectedItem
 		ifNotNil: [ :elem | 
 			elem isBehavior
@@ -699,6 +704,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendersOfCritic [
 
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionLogButton [
+	self flag:#mustBeDie.
 	^ [ (UIManager default
 		confirm:
 			'Do you want to save all false positive and toDo in the Manifests ?
@@ -708,7 +714,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionLogButton [
 
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionResetButton [
-	
+	self flag:#mustBeDie.
 	^ [(UIManager default confirm: 'Do you want to delete the current configuration
  and create a new configuration ?')
 		ifTrue: [ self delete. 
