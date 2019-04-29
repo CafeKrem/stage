@@ -17,7 +17,8 @@ Class {
 		'criticHolder',
 		'browseModel',
 		'falsepositiveModel',
-		'transformModel'
+		'transformModel',
+		'transformButton'
 	],
 	#category : #'Migrate-Tool-CriticBrowser'
 }
@@ -92,17 +93,16 @@ CriticToolbar2 >> initializeWidgets [
 	
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-actions' }
 CriticToolbar2 >> registerForChanges [
-
-	criticHolder whenChangedDo: [ :contents |
-		| boolean |
-		boolean := contents notNil.
-		browseModel state: (boolean and: [ browseModel enabled ]).
-		transformModel state: (boolean and: [ transformModel enabled ]).
-		falsepositiveModel state: (boolean and: [ falsepositiveModel enabled ]) 
-		]
-
+	criticHolder
+		whenChangedDo: [ :contents | 
+			| boolean |
+			boolean := contents notNil.
+			browseModel state: (boolean and: [ browseModel isEnabled ]).
+			transformModel state: (boolean and: [ transformModel isEnabled ]).
+			falsepositiveModel
+				state: (boolean and: [ falsepositiveModel isEnabled ]) ]
 ]
 
 { #category : #api }
@@ -113,7 +113,7 @@ CriticToolbar2 >> rule: aRule [
 
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-widgets' }
 CriticToolbar2 >> setBrowseModel [
 	
 	browseModel
@@ -123,7 +123,7 @@ CriticToolbar2 >> setBrowseModel [
 
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-widgets' }
 CriticToolbar2 >> setFalsepositiveModel [
 	
 	falsepositiveModel
@@ -131,7 +131,7 @@ CriticToolbar2 >> setFalsepositiveModel [
 		label: 'Mark as wrong'
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-widgets' }
 CriticToolbar2 >> setFocusOrder [
 
 	self focusOrder
@@ -141,7 +141,7 @@ CriticToolbar2 >> setFocusOrder [
 		
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-widgets' }
 CriticToolbar2 >> setTransformModel [
 	
 	transformModel
@@ -163,7 +163,7 @@ CriticToolbar2 >> transformModel [
 	^ transformModel
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-actions' }
 CriticToolbar2 >> whenFalsePositiveClickedDo: aBlock [
 
 	self falsepositiveModel whenActionPerformedDo: aBlock
