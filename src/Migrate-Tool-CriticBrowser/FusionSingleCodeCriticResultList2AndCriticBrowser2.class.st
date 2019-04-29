@@ -175,10 +175,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule on
 	cbr := self new
 		rules: aRule;
 		environment: aEnv;
-		"removeTestCase: false;"
+		removeTestCase: false;"replace by enable the "
 		yourself.
 	cbr openWithSpec.
-	"cbr applyRules."
+	cbr applyRules.
 	"cbr rulesPresenter changed: #listElementAt:"
 ]
 
@@ -487,7 +487,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 		addColumn:
 			(StringTableColumn new
 				title: 'rules';
-				"width: 200;"
 				evaluated: #name;
 				yourself);
 		addColumn:

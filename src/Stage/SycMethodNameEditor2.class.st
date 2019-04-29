@@ -139,6 +139,10 @@ SycMethodNameEditor2 >> argumentsListAction [
 										downButton enable ] ] ] ]
 ]
 
+{ #category : #'spec-initializer' }
+SycMethodNameEditor2 >> argumentsListAction2 [
+]
+
 { #category : #action }
 SycMethodNameEditor2 >> cancelButtonAction [
 	^ [ :presenter | 
@@ -211,7 +215,7 @@ SycMethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
 SycMethodNameEditor2 >> initializePresenter [
 	self init.
 	selectorInput whenTextChangedDo: self selectorInputAction.
-	argumentsList whenSelectionChangedDo: self argumentsListAction.
+	argumentsList whenSelectionChangedDo: self argumentsListAction2.
 	upButton action: self upButtonAction.
 	downButton action: self downButtonAction.
 ]
