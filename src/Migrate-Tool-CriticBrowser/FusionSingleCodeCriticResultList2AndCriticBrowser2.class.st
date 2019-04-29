@@ -322,7 +322,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  acache [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsModelContains: aCritic [
 
 	^ criticsPresenter listItems anySatisfy: [ :each |
-			 each sourceAnchor entity name = aCritic name]
+			 each sourceAnchor entity name = aCritic name] 
 ]
 
 { #category : #private }
@@ -340,10 +340,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
-	criticsPresenter
+	criticsPresenter transmitTo: sourceCodePresenter  transform: [ :selection | 1halt. selection ].
+	"criticsPresenter
 		whenSelectionChangedDo: [ :selection | 
 			self criticsPresenterSelectionChangeAction
-				cull: selection selectedItem ]
+				cull: selection selectedItem ]"
 ]
 
 { #category : #'initialize-actions' }
@@ -621,6 +622,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeRuleToFalsePositive 
 			cache removeFalsePositiveRule: rule forPackage: critic sourceAnchor entity mcWorkingCopy]].
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeTestCase: aBoolean [
+	removeTestCase := aBoolean 
+]
+
 { #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> resetSelection [
 	self criticsPresenter resetSelection
@@ -663,7 +669,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 		transform: [ :aRule | 
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
-				ifFalse: [ cache criticsOf: aRule ] ].
+				ifFalse: [ (cache criticsOf: aRule) asOrderedCollection ] ].
 	rulesPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :aRule | 
@@ -855,5 +861,5 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateList [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
 	self flag: #deprecated. 
 	criticsPresenter updateList. 
-	rulesPresenter  updateTree
+	rulesPresenter  needRebuild: true
 ]
