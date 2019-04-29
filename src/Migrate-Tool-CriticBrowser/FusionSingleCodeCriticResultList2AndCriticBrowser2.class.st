@@ -343,11 +343,34 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
-	criticsPresenter transmitTo: sourceCodePresenter  transform: [ :selection | 1halt. selection ].
-	"criticsPresenter
-		whenSelectionChangedDo: [ :selection | 
-			self criticsPresenterSelectionChangeAction
-				cull: selection selectedItem ]"
+	criticsPresenter
+		transmitTo: sourceCodePresenter
+		transform: [ :selection | 
+			selection
+				ifNotNil: [ selection providesChange
+						ifTrue: [ self diffTextForChange: selection change ]
+						ifFalse: [ | entity |
+							entity := selection sourceAnchor entity.
+							(entity respondsTo: #definition)
+								ifTrue: [ entity definition ]
+								ifFalse: [ entity asString ]	"may be they are an other way to do this" ] ] ]
+		postTransmission: [ :dest :origin :location | 
+			origin selection selectedItem
+				ifNotNil: [ :critic | 
+					critic providesChange
+						ifTrue: [ dest behavior: nil ]
+						ifFalse: [ | entity |
+							entity := critic sourceAnchor entity.
+							self
+								flag:
+									'Another hack. We need a better way to display entities (because now we may get not only classes and methods. Maybe something like GTInspector presentations could work)'.
+							dest
+								behavior:
+									(entity isCompiledMethod
+										ifTrue: [ entity methodClass ]
+										ifFalse: [ nil ]).
+							critic sourceAnchor providesInterval
+								ifTrue: [ dest setSelection: critic sourceAnchor interval ] ] ] ]
 ]
 
 { #category : #private }
@@ -428,8 +451,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 { #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter [
 	criticsPresenter
-		beMultipleSelection;
-		displayBlock: [ :selec | self initializeDisplayCritic: selec forRule: rule ];
+		displayBlock: [ :selec | selec description ];
 		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
 		contextMenu: [ :a :b | self menu: a shifted: b ];
 		icons: [ :item | self iconFor: item ]
@@ -559,17 +581,17 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
 
 { #category : #'system annoucements' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
-	
+	 
 	self unregisterFromAnnouncements.
-	
-	SystemAnnouncer uniqueInstance weak
+	self flag:'to do when finish'.
+	"SystemAnnouncer uniqueInstance weak
 		when: ClassAdded send: #handleClassAdded: to: self;
 		when: ClassModifiedClassDefinition send: #handleClassModified: to: self;
 		when: ClassRemoved send: #handleClassRemoved: to: self;
 		when: MethodAdded send: #handleMethodAdded: to: self;
 		when: MethodModified send: #handleMethodModified: to: self;
 		when: MethodRemoved send: #handleMethodRemoved: to: self.
-	self window window announcer when: WindowClosed send: #onWindowClosed to: self
+	self window window announcer when: WindowClosed send: #onWindowClosed to: self"
 ]
 
 { #category : #menu }
@@ -642,7 +664,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 		transform: [ :aRule | 
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
-				ifFalse: [ aRule name ] ]
+				ifFalse: [ aRule rationale ] ]
 ]
 
 { #category : #private }
@@ -762,7 +784,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateList [
 
 { #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
-	self flag: #deprecated. 
 	criticsPresenter updateList. 
 	rulesPresenter  needRebuild: true
 ]
