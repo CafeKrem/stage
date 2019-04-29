@@ -350,20 +350,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 				cull: selection selectedItem ]"
 ]
 
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterSelectionChangeAction [
-	self flag:#migrate.
-	^ [ :critique | 
-	criticsPresenter setSelection: (0 to: 0)."setSelection IconListPresenter's method"
-	rule
-		ifNotNil: [ critique
-				ifNil: [ self setTextModelForNil ]
-				ifNotNil: [ toolbarPresenter critic: critique.
-					critique providesChange
-						ifTrue: [ self setTextModelForTransformationRule: critique ]
-						ifFalse: [ self setTextModelForClassOrMethod: critique ] ] ] ]
-]
-
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> defaultColor [
 	^ Color red
@@ -447,19 +433,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
 		contextMenu: [ :a :b | self menu: a shifted: b ];
 		icons: [ :item | self iconFor: item ]
-]
-
-{ #category : #migrate }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeDisplayCritic: aCritic forRule: aRule [
-	
-	| criticRepresentation | 
-	self flag: #migrate.
-	criticRepresentation := (self formatCritic: aCritic) asMorph.
-	^ (cache isFalsePositive: aCritic forRule: aRule) 
-			ifTrue: [ criticRepresentation color: self falsePositiveColor ]
-			ifFalse: [ (cache isToDo: aCritic forRule: aRule)
-						ifTrue: [ criticRepresentation color: self toDoColor ]
-						ifFalse: [ criticRepresentation color: self defaultColor ]]
 ]
 
 { #category : #'initialize-widgets' }
@@ -641,16 +614,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule [
 	^ rule
 ]
 
-{ #category : #'initialize-other' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule: aRule [
-
-	rule := aRule.
-	(rule isNil or: [ rule isComposite ]) 
-		ifTrue: [ ^ self ].	
-	self criticsOf:  aRule.
-	toolbarPresenter rule: rule.
-]
-
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rules: rulesCollection [
 	self rulesPresenter roots: ((
@@ -680,11 +643,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
 				ifFalse: [ aRule name ] ]
-]
-
-{ #category : #'smartSuggestions - support' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedMessage [
-	^ nil
 ]
 
 { #category : #private }
@@ -725,57 +683,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionResetButton [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionUpdateButton [
 	^ [ cache initialize.
 	self applyRules ]
-]
-
-{ #category : #migrate }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForClassOrMethod: aCritique [
-
-	| entity |
-	entity := aCritique sourceAnchor entity.
-	self flag: 'Another hack. We need a better way to display entities (because now we may get not only classes and methods. Maybe something like GTInspector presentations could work)'.
-	sourceCodePresenter text: (
-		(entity respondsTo: #definition)
-			ifTrue: [ entity definition ]
-			ifFalse: [ entity asString ]).
-	sourceCodePresenter aboutToStyle: true.
-	sourceCodePresenter behavior: (
-		entity isCompiledMethod
-			ifTrue: [ entity methodClass ]
-			ifFalse: [ nil ]).
-	aCritique sourceAnchor providesInterval ifTrue: [ 
-		sourceCodePresenter setSelection: aCritique sourceAnchor interval ]
-	
-	
-					
-]
-
-{ #category : #TOCATEGORISE }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForNil [
-
-	| text |
-	self flag:#maybeRefactoring.
-	text := rule rationale isEmpty 
-		ifTrue: [ rule name ]
-		ifFalse: [ rule rationale ]. 
-	sourceCodePresenter aboutToStyle: false.
-	sourceCodePresenter text: text.
-	sourceCodePresenter behavior: nil.
-	toolbarPresenter critic: nil 
-	
-	
-					
-]
-
-{ #category : #TOCATEGORISE }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setTextModelForTransformationRule: selection [
-	
-	sourceCodePresenter behavior: nil.
-	sourceCodePresenter text: (
-		self diffTextForChange: selection change).
-	sourceCodePresenter aboutToStyle: false.
-
-									
-					
 ]
 
 { #category : #accessing }
@@ -830,16 +737,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toDoColor [
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toolbarPresenter [
 	^ toolbarPresenter
-]
-
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toolbarPresenterActions [
-self flag:'optimise'.
-	toolbarPresenter
-		whenFalsePositiveClickedDo: [ :selectedItem | 
-			selectedItem
-				ifNotNil:
-					[ :items | items do: [ :item | cache addFalsePositive: item forRule: rule ] ] ]
 ]
 
 { #category : #menu }
