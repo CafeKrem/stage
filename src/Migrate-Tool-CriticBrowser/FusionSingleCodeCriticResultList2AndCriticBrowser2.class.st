@@ -52,67 +52,35 @@ Class {
 	#name : #FusionSingleCodeCriticResultList2AndCriticBrowser2,
 	#superclass : #ComposablePresenter,
 	#instVars : [
-		'rule',
 		'cache',
 		'thread',
 		'criticsPresenter',
 		'sourceCodePresenter',
 		'rulesPresenter',
-		'resetButton',
-		'logButton',
-		'updateButton',
 		'rbEnvironment',
-		'checker',
 		'removeTestCase',
-		'browseButton',
-		'falsepositiveButton',
-		'transformButton'
-	],
-	#classInstVars : [
-		'icons'
+		'criticsActionsPresenter',
+		'rulesActionsPresenter'
 	],
 	#category : #'Migrate-Tool-CriticBrowser'
 }
 
 { #category : #specs }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> SpecSingleCodeCriticResult [
-
-	^ SpecPanedLayout newVertical
-		add: #criticsPresenter;
-		add:
-			(SpecBoxLayout newVertical
-				add: #toolbarPresenter
-					withConstraints: [ :contraint | contraint height: 25 ];
-				add: #sourceCodePresenter;
-				yourself);
-		yourself
-]
-
-{ #category : #specs }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> defaultSpec [
-	<spec>
 	^ SpecPanedLayout newVertical
 		add:
-			(SpecBoxLayout newVertical
+			(SpecPanedLayout newHorizontal
 				add:
-					(SpecPanedLayout newHorizontal
-						add:
-							(SpecBoxLayout newVertical
-								add: #rulesPresenter;
-								add:
-									(SpecBoxLayout newHorizontal
-										add: #resetButton;
-										add: #updateButton;
-										add: #logButton;
-										yourself)
-									withConstraints: [ :element | element height: 20 ;padding: 7];
-								yourself);
-						add:
-							(SpecBoxLayout newVertical
-								add: #criticsPresenter;
-								add: #toolbarPresenter
-									withConstraints: [ :element | element height: 20 ;padding: 7];
-								yourself);
+					(SpecBoxLayout newVertical
+						add: #rulesPresenter;
+						add: #rulesActionsPresenter
+							withConstraints: [ :element | element height: self buttonHeight ];
+						yourself);
+				add:
+					(SpecBoxLayout newVertical
+						add: #criticsPresenter;
+						add: #criticsActionsPresenter
+							withConstraints: [ :element | element height: self buttonHeight ];
 						yourself);
 				yourself)
 			withConstraints: [ :elt | 
@@ -123,47 +91,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> defaultSpec [
 		yourself
 ]
 
-{ #category : #icons }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> exclamationIcon [ 
-
-	^  icons
-			at: #'exclamationIcon'
-			ifAbsentPut:[ Form fromBinaryStream: self exclamationIconContents base64Decoded readStream ].
-
-]
-
-{ #category : #icons }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> exclamationIconContents [
-	"Private - Method generated"
-	^ 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0
-RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJPSURBVDjLpZPLS5RhFMYfv9QJ
-lelTQZwRb2OKlKuINuHGLlBEBEOLxAu46oL0F0QQFdWizUCrWnjBaDHgThCMoiKkhUONTqmj
-mDp2GZ0UnWbmfc/ztrC+GbM2dXbv4ZzfeQ7vefKMMfifyP89IbevNNCYdkN2kawkCZKfSPZT
-OGTf6Y/m1uflKlC3LvsNTWArr9BT2LAf+W73dn5jHclIBFZyfYWU3or7T4K7AJmbl/yG7EtX
-1BQXNTVCYgtgbAEAYHlqYHlrsTEVQWr63RZFuqsfDAcdQPrGRR/JF5nKGm9xUxMyr0YBAEXX
-HgIANq/3ADQobD2J9fAkNiMTMSFb9z8ambMAQER3JC1XttkYGGZXoyZEGyTHRuBuPgBTUu7V
-SnUAgAUAWutOV2MjZGkehgYUA6O5A0AlkAyRnotiX3MLlFKduYCqAtuGXpyH0XQmOj+TIURt
-51OzURTYZdBKV2UBSsOIcRp/TVTT4ewK6idECAihtUKOArWcjq/B8tQ6UkUR31+OYXP4sTOd
-isivrkMyHodWejlXwcC38Fvs8dY5xaIId89VlJy7ACpCNCFCuOp8+BJ6A631gANQSg1mVmOx
-xGQYRW2nHMha4B5WA3chsv22T5/B13AIicWZmNZ6cMchTXUe81Okzz54pLi0uQWp+TmkZqMw
-xsBV74Or3od4OISPr0e3SHa3PX0f3HXKofNH/UIG9pZ5PeUth+CyS2EMkEqs4fPEOBJLsysk
-e48/+xD8oxcAYPzs4QaS7RR2kbLTTOTQieczfzfTv8QPldGvTGoF6/8AAAAASUVORK5CYII='
-]
-
-{ #category : #'class initialization' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> initialize [
-	
-	icons := IdentityDictionary new
-]
-
-{ #category : #examples }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> main [
-	<example>
-	^ self open
-]
-
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open [
+	<example>
 	| env rules |
 	rules := RBCompositeLintRule allGoodRules rules.
 	env := RBBrowserEnvironment default.
@@ -173,7 +103,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open [
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
 	| cbr |
-	1halt.
 	cbr := self new
 		rules: aRule;
 		environment: aEnv;
@@ -188,31 +117,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule on
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> title [
 
 	^ 'Critic Browser'
-]
-
-{ #category : #icons }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> wrenchOrangeIcon [
-
-	^  icons
-			at: #'wrenchOrangeIcon'
-			ifAbsentPut:[ Form fromBinaryStream: self wrenchOrangeIconContents base64Decoded readStream ].
-
-]
-
-{ #category : #icons }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> wrenchOrangeIconContents [
-	"Private - Method generated"
-	^ 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0
-RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAHaSURBVDjLlZO7a1NRHMfzfzhI
-KQ5OHR1ddRRBLA6lg4iTd5PSas37YR56Y2JiHgg21uoFxSatCVFjbl5iNBBiMmUJgWwZhCB4
-pR9/V4QKfSQdDufF5/v7nu85xwJYprV0Oq0kk8luIpEw4vG48f/eVDiVSikCTobDIePxmGg0
-yokEBO4OBgNGoxH5fJ5wOHwygVgsZpjVW60WqqqWzbVgMIjf78fn8xlTBcTy736/T7VaJRQK
-fQoEArqmafR6Pdxu9/ECkUjkglje63Q6NBoNisUihUKBcrlMpVLB6XR2D4df3VQnmRstsWzU
-63WazSZmX6vV0HWdUqmEw+GY2Gw25SC8dV1l1wrZNX5s3qLdbpPL5fB6vXumZalq2O32rtVq
-VQ6GuGnCd+HbFnx9AZrC+MkSHo/np8vlmj/M7f4ks6yysyawgB8fwPv70HgKG8v8cp/7fFRO
-/+AllewqNJ/DhyBsi9A7J1QTkF4E69mXRws8u6ayvSJwRqoG4K2Md+ygxyF5FdbPaMfdlIXU
-ZfiyAUWx/OY25O4JHBP4CtyZ16a9EwuRi1CXs+5K1ew6lB9DXERX517P8tEsPDzfNIP6C5Ye
-QewSrJyeCd4P0bnwXYISy3MCn5oZNtsf3pH46e7XBJcAAAAASUVORK5CYII='
 ]
 
 { #category : #menu }
