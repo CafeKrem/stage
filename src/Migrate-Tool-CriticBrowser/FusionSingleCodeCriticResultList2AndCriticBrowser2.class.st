@@ -126,20 +126,20 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToToDo [
 		ifNotNil: [ :items | items do: [ :item |
 			cache
 				addToDo: item
-				forRule: rule ]].
+				forRule: self rule ]].
 		
 
 ]
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addMarkingMenuItemsTo: aMenu [
-	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isFalsePositive: critic forRule: rule ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isFalsePositive: critic forRule: self rule ]) 
 		ifTrue: [ aMenu add: 'Unmark as wrong' target: self selector: #removeCriticToFalsePositive ].
-	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isFalsePositive: critic forRule: rule) not ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isFalsePositive: critic forRule: self rule) not ]) 
 		ifTrue: [ aMenu add: 'Mark as wrong' target: self selector: #addCriticToFalsePositive ].
-	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isToDo: critic forRule: rule ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isToDo: critic forRule: self rule ]) 
 		ifTrue: [ aMenu add: 'Unmark as TODO' target: self selector: #removeCriticToToDo ].
-	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isToDo: critic forRule: rule) not ]) 
+	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isToDo: critic forRule: self rule) not ]) 
 		ifTrue: [ aMenu add: 'Mark as TODO' target: self selector: #addCriticToToDo ].
 	
 ]
@@ -156,18 +156,19 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addRuleToFalsePositive [
 
 	criticsPresenter selectedItems ifNotNil: [ :criticss |
 		criticss do: [ :critic |
-			cache addFalsePositiveRule: rule forPackage: critic mcWorkingCopy]].
+			cache addFalsePositiveRule: self rule forPackage: critic mcWorkingCopy]].
 ]
 
-{ #category : #'instance creation' }
+{ #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allRules [
 	^ rulesPresenter roots flatCollect: #rules
 ]
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
-	| packageCount nbPackage process rules |
+	| packageCount nbPackage process rules checker |
 	rules := self allRules.
+	checker := cache checker.
 	nbPackage := rbEnvironment packages size.
 	packageCount := 0.
 	self updateTree.
@@ -194,36 +195,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 	process resume
 ]
 
-{ #category : #initialize }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseButtonAction [
-	^ [ criticsPresenter selectedItem
-		ifNotNil: [ :element | 
-			| entity |
-			entity := element sourceAnchor entity.
-			entity isBehavior
-				ifTrue: [ entity instanceSide browse ]
-				ifFalse: [ entity browse ] ] ]
-]
-
-{ #category : #'new?Feature' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseDependencies [
-	self flag: #unused.
-	criticsPresenter selectedItems
-		ifNotNil: [ :packages | 
-			(DAPackageAnalyzerPackageDependenciesWindow
-				onPackagesNamed: (packages collect: #packageName)) open ]
-]
-
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  acache [ 
 	cache := acache
-]
-
-{ #category : #'new?Feature' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsModelContains: aCritic [
-	self flag:#unused. "when i migrate this class this method already exist so i decided to store into new?Feature protocol "
-	^ criticsPresenter listItems anySatisfy: [ :each |
-			 each sourceAnchor entity name = aCritic name] 
 ]
 
 { #category : #private }
@@ -251,7 +225,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 							entity := selection sourceAnchor entity.
 							(entity respondsTo: #definition)
 								ifTrue: [ entity definition ]
-								ifFalse: [ entity asString ]	"may be they are an other way to do this" ] ] ]
+								ifFalse: [ "may be they are an other way to do this" entity asString ] ] ] ]
 		postTransmission: [ :dest :origin :location | 
 			origin selection selectedItem
 				ifNotNil: [ :critic | 
@@ -312,13 +286,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> falsePositiveColor [
 	^ Color darkGray
 ]
 
-{ #category : #initialize }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> falsepositiveButtonAction [
-	^ [ self criticsPresenter selectedItems
-		ifNotNil:
-			[ :items | items do: [ :item | cache addFalsePositive: item forRule: rule ] ] ]
-]
-
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 	
@@ -328,29 +295,22 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
-	
-	^  (cache isFalsePositive: anItem forRule: rule) 
-			ifFalse: [(cache isToDo: anItem forRule: rule)
-				ifTrue: [ self class wrenchOrangeIcon ]
-				ifFalse: [ self class exclamationIcon ] ]
-]
-
-{ #category : #'new?Feature' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> implementorsOfCritic [
-	self flag:#unsed.
-	criticsPresenter selectedItem ifNotNil: [ :item | item browse] 
-
+	self flag: #pharoTodo. "It is weird than in a branch of the condition there is no icon returned"
+	^ (cache isFalsePositive: anItem forRule: self rule)
+		ifFalse: [ self
+				iconNamed:
+					((cache isToDo: anItem forRule: self rule)
+						ifTrue: [ #repair ]
+						ifFalse: [ #error ]) ]
 ]
 
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
-
 	super initialize.
 	self initializeShortcuts.
 	cache := ReCriticsCache new.
-	checker := ReSmalllintChecker new.
-	cache checker: checker.
-	cache browser: self.
+	cache checker: ReSmalllintChecker new.
+	cache browser: self
 ]
 
 { #category : #'initialize-widgets' }
@@ -362,30 +322,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 		icons: [ :item | self iconFor: item ]
 ]
 
-{ #category : #'initialize-widgets' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeLogButton [
-	logButton
-		state: false;
-		label: 'Save Critics'
-]
-
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	self criticsPresenterAction.
 	self rulesPresenterActions.
-	logButton action: self setActionLogButton.
-	resetButton action: self setActionResetButton.
-	updateButton action: self setActionUpdateButton.
-	browseButton action: self browseButtonAction.
-	transformButton action: self transformButtonAction.
-	falsepositiveButton action: self falsepositiveButtonAction
-]
-
-{ #category : #'initialize-widgets' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeResetButton [
-	resetButton
-		state: false;
-		label: 'Run new configuration'
 ]
 
 { #category : #'initialize-widgets' }
@@ -427,39 +367,40 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 				ifFalse: [ #() ] ]
 ]
 
-{ #category : #'initialize-shortcuts' }
+{ #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeShortcuts [
+	self flag: 'last element to migrate'.
 	criticsPresenter bindKeyCombination: PharoShortcuts current browseShortcut toAction: [ self browseCritic ]
-]
-
-{ #category : #'initialize-widgets' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeUpdateButton [
-	updateButton
-		state: false;
-		label: 'Update'
 ]
 
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	criticsPresenter := self newList.
 	sourceCodePresenter := self newCode.
-	browseButton := self newButton.
-	transformButton := self newButton.
-	falsepositiveButton := self newButton.
+	criticsActionsPresenter := self newActionBar.
+	rulesActionsPresenter := self newActionBar.
 	rulesPresenter := self newTreeTable.
-	resetButton := self newButton.
-	updateButton := self newButton.
-	logButton := self newButton.
+	CBAbstractRuleAction actions
+		do: [ :class | rulesActionsPresenter add: (self newButtonFor: class) ].
+	CBAbstractCriticAction actions
+		do: [ :class | criticsActionsPresenter add: (self newButtonFor: class) ].
 	self initializeRulesPresenter.
-	self initializeLogButton.
-	self initializeResetButton.
-	self initializeUpdateButton.
 	self initializeCriticsPresenter
+]
+
+{ #category : #TOCATEGORISE }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> logInManifest [
+	cache logInManifest 
+]
+
+{ #category : #private }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurrentRule: aCritic [
+	cache addFalsePositive: aCritic forRule: self rule
 ]
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBoolean [
-	(rule notNil and: [ criticsPresenter selectedItems notEmpty ])
+	(self rule notNil and: [ criticsPresenter selectedItems notEmpty ])
 		ifFalse: [ ^ aMenu ]. 
 		
 	self addNavigationMenuItemsTo: aMenu.
@@ -482,10 +423,18 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBool
 	^ aMenu
 ]
 
-{ #category : #'new?Feature' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
-	self flag:#maybeRemoveOrToDo 
+{ #category : #'initialize-widgets' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> newButtonFor: aClass [ 
+	^ self newButton 
+		label: aClass title;
+		action: [ aClass runOn: self ];
+		yourself
+]
 
+{ #category : #TOCATEGORISE }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
+	cache initialize.
+	self applyRules
 ]
 
 { #category : #'system annoucements' }
@@ -508,7 +457,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToFalsePositiv
 	
 	criticsPresenter selectedItems
 		ifNotNil: [ :items | items do: [ :item |
-			cache removeFalsePositive: item forRule: rule ]].
+			cache removeFalsePositive: item forRule: self rule ]].
 	
 ]
 
@@ -517,7 +466,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToToDo [
 
 	criticsPresenter selectedItems
 		ifNotNil: [:items | items do: [ :item |
-			cache removeToDo: item forRule: rule ]].
+			cache removeToDo: item forRule: self rule ]].
 	
 	
 ]
@@ -527,7 +476,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeRuleToFalsePositive 
 
 	criticsPresenter selectedItems ifNotNil: [ :criticss |
 		criticss do: [ :critic |
-			cache removeFalsePositiveRule: rule forPackage: critic sourceAnchor entity mcWorkingCopy]].
+			cache removeFalsePositiveRule: self rule forPackage: critic sourceAnchor entity mcWorkingCopy]].
 ]
 
 { #category : #accessing }
@@ -542,7 +491,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> resetSelection [
 
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule [
-	^ rule
+	^ self rulesPresenter selection selectedItem
 ]
 
 { #category : #accessing }
@@ -573,12 +522,18 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 		transform: [ :aRule | 
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
-				ifFalse: [ aRule rationale ] ]
+				ifFalse: [ aRule rationale ] ].
+	rulesPresenter selectPath: #(1)
+]
+
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedCritic [
+	^ criticsPresenter selectedItem
 ]
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectionIntervalFor: aString [
-	^ rule result selectionIntervalFor: aString
+	^ self rule result selectionIntervalFor: aString
 ]
 
 { #category : #menu }
@@ -589,31 +544,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendersOfCritic [
 			elem isBehavior
 				ifTrue: [ self systemNavigation browseAllCallsOnClass: elem ]
 				ifFalse: [ self systemNavigation browseAllSendersOf: elem selector ] ]
-]
-
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionLogButton [
-	self flag:#mustBeDie.
-	^ [ (UIManager default
-		confirm:
-			'Do you want to save all false positive and toDo in the Manifests ?
-(this action may generate new manifest classes and make dirty your package)')
-		ifTrue: [ cache logInManifest ] ]
-]
-
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionResetButton [
-	self flag:#mustBeDie.
-	^ [(UIManager default confirm: 'Do you want to delete the current configuration
- and create a new configuration ?')
-		ifTrue: [ self delete. 
-				SelectPackageBrowser open ]]
-]
-
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> setActionUpdateButton [
-	^ [ cache initialize.
-	self applyRules ]
 ]
 
 { #category : #accessing }
@@ -627,7 +557,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAcceptA
 	^ [ :text | 
 	selectedItem := criticsPresenter selection selectedItem sourceAnchor
 		entity.
-	(selectedItem isCompiledMethod and: [ rule isTransformationRule not ])
+	(selectedItem isCompiledMethod and: [ self rule isTransformationRule not ])
 		ifTrue: [ selectedItem methodClass compile: text ]
 		ifFalse: [ Smalltalk compiler evaluate: text ] ]
 ]
@@ -640,7 +570,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterActions
 			selectedItem := criticsPresenter selection selectedItem
 				sourceAnchor entity.
 			(selectedItem isCompiledMethod
-				and: [ rule isTransformationRule not ])
+				and: [ self rule isTransformationRule not ])
 				ifTrue: [ selectedItem methodClass compile: text ]
 				ifFalse: [ Smalltalk compiler evaluate: text ] ]
 ]
@@ -649,7 +579,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterActions
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> textInputFieldPresenterAction [
 	^ [ :text | 
 	| matchText critics |
-	critics := cache criticsOf: rule.
+	critics := cache criticsOf: self rule.
 	matchText := '*' , text , '*'.
 	criticsPresenter
 		items:
@@ -665,15 +595,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toDoColor [
 	^ Color orange
 ]
 
-{ #category : #initialize }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> transformButtonAction [
-	^ [ criticsPresenter selectedItems
-		ifNotNil: [ :items | 
-			items
-				do: [ :critic | critic change execute ]
-				displayingProgress: [ :critic |  ] ] ]
-]
-
 { #category : #'system annoucements' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
 
@@ -682,10 +603,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncement
 
 { #category : #thread }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateList [
-
-	self criticsOf: rule.
+	self criticsOf: self rule.
 	thread ifNotNil: [ thread terminate ].
-	thread := [ UIManager default defer:  [ criticsPresenter updateList ]] fork.
+	thread := [  UIManager default defer:  [ criticsPresenter updateList ]] fork.
 ]
 
 { #category : #TOCATEGORISE }
