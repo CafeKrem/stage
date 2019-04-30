@@ -57,14 +57,16 @@ Class {
 		'thread',
 		'criticsPresenter',
 		'sourceCodePresenter',
-		'toolbarPresenter',
 		'rulesPresenter',
 		'resetButton',
 		'logButton',
 		'updateButton',
 		'rbEnvironment',
 		'checker',
-		'removeTestCase'
+		'removeTestCase',
+		'browseButton',
+		'falsepositiveButton',
+		'transformButton'
 	],
 	#classInstVars : [
 		'icons'
@@ -214,14 +216,6 @@ QewSrJyeCd4P0bnwXYISy3MCn5oZNtsf3pH46e7XBJcAAAAASUVORK5CYII='
 ]
 
 { #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToFalsePositive [
-	
-	
-	
-	
-]
-
-{ #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToToDo [
 
 	criticsPresenter selectedItems
@@ -296,15 +290,15 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 	process resume
 ]
 
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseCritic [
-	criticsPresenter selectedItem
-		ifNotNil: [ :element |
+{ #category : #initialize }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> browseButtonAction [
+	^ [ criticsPresenter selectedItem
+		ifNotNil: [ :element | 
 			| entity |
 			entity := element sourceAnchor entity.
-			entity isBehavior 
+			entity isBehavior
 				ifTrue: [ entity instanceSide browse ]
-				ifFalse: [ entity browse ] ] 
+				ifFalse: [ entity browse ] ] ]
 ]
 
 { #category : #'new?Feature' }
@@ -414,6 +408,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> falsePositiveColor [
 	^ Color darkGray
 ]
 
+{ #category : #initialize }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> falsepositiveButtonAction [
+	^ [ self criticsPresenter selectedItems
+		ifNotNil:
+			[ :items | items do: [ :item | cache addFalsePositive: item forRule: rule ] ] ]
+]
+
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 	
@@ -467,11 +468,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeLogButton [
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	self criticsPresenterAction.
-	self toolbarPresenter.
 	self rulesPresenterActions.
 	logButton action: self setActionLogButton.
 	resetButton action: self setActionResetButton.
-	updateButton action: self setActionUpdateButton
+	updateButton action: self setActionUpdateButton.
+	browseButton action: self browseButtonAction.
+	transformButton action: self transformButtonAction.
+	falsepositiveButton action: self falsepositiveButtonAction
 ]
 
 { #category : #'initialize-widgets' }
@@ -536,7 +539,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeUpdateButton [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	criticsPresenter := self newList.
 	sourceCodePresenter := self newCode.
-	toolbarPresenter := self instantiate: CriticToolbar2.
+	browseButton := self newButton.
+	transformButton := self newButton.
+	falsepositiveButton := self newButton.
 	rulesPresenter := self newTreeTable.
 	resetButton := self newButton.
 	updateButton := self newButton.
@@ -756,16 +761,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toDoColor [
 	^ Color orange
 ]
 
-{ #category : #accessing }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toolbarPresenter [
-	^ toolbarPresenter
-]
-
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> transformCritic [
-	
-	criticsPresenter selectedItems ifNotNil: [ :items |
-		items do: [:critic | critic change execute ]  displayingProgress: [:critic|]]
+{ #category : #initialize }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> transformButtonAction [
+	^ [ criticsPresenter selectedItems
+		ifNotNil: [ :items | 
+			items
+				do: [ :critic | critic change execute ]
+				displayingProgress: [ :critic |  ] ] ]
 ]
 
 { #category : #'system annoucements' }
