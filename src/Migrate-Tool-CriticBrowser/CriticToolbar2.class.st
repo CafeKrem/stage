@@ -128,6 +128,7 @@ CriticToolbar2 >> setFalsepositiveModel [
 	
 	falsepositiveModel
 		state: false;
+		disable;
 		label: 'Mark as wrong'
 ]
 
