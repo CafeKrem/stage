@@ -1,3 +1,6 @@
+"
+my action is to browse the selectedItem in CriticsPresenter 
+"
 Class {
 	#name : #CBBrowseCriticAction,
 	#superclass : #CBAbstractCriticAction,

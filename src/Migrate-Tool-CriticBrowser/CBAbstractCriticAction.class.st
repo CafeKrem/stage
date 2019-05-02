@@ -1,6 +1,15 @@
+"
+this class is an Abstract Class to defined button interact with Item in CriticsPresenter
+
+	see documentation of my SuperClass 
+	
+i define :
+	- actions : return a Collection of all my subclass sorted by priority
+	
+"
 Class {
 	#name : #CBAbstractCriticAction,
-	#superclass : #Object,
+	#superclass : #CBAbstractButtonAction,
 	#category : #'Migrate-Tool-CriticBrowser'
 }
 

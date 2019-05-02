@@ -1,3 +1,7 @@
+"
+my action is :
+	to log all critics
+"
 Class {
 	#name : #CBLogRuleAction,
 	#superclass : #CBAbstractRuleAction,

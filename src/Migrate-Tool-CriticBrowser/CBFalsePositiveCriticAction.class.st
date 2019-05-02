@@ -1,3 +1,7 @@
+"
+my action is :
+	to tag the selected critic in the criticsPresenter 
+"
 Class {
 	#name : #CBFalsePositiveCriticAction,
 	#superclass : #CBAbstractCriticAction,

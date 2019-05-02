@@ -1,3 +1,7 @@
+"
+my action is :
+	to reload the rules
+"
 Class {
 	#name : #CBUpdateRuleAction,
 	#superclass : #CBAbstractRuleAction,
