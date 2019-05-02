@@ -53,7 +53,6 @@ Class {
 	#superclass : #ComposablePresenter,
 	#instVars : [
 		'cache',
-		'thread',
 		'criticsPresenter',
 		'sourceCodePresenter',
 		'rulesPresenter',
@@ -166,33 +165,19 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allRules [
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
-	| packageCount nbPackage process rules checker |
+	| rules checker |
 	rules := self allRules.
 	checker := cache checker.
-	nbPackage := rbEnvironment packages size.
-	packageCount := 0.
-	self updateTree.
-	process := [ rbEnvironment packages
+	rbEnvironment packages
 		do: [ :package | 
-			| windowTitle |
-			packageCount := packageCount + 1.
-			windowTitle := String
-				streamContents: [ :s | 
-					s << 'run rules on ' << package packageName << ' ('
-						<< packageCount asString << '/' << nbPackage asString << ')' ].
-			"self setTitle: windowTitle."
 			checker
 				runRules: rules
 				onPackage: package
-				withoutTestCase: removeTestCase ].
-	checker rule: rules.
-	"self setTitle: self defaultTitle."
-	cache packages: rbEnvironment.
-	cache initCache.
-	self updateTree.
-	self registerToAnnouncements ] newProcess.
-	process name: 'SmallLint'.
-	process resume
+				withoutTestCase: removeTestCase.
+			checker rule: rules.
+			cache packages: rbEnvironment.
+			cache initCache.
+			self registerToAnnouncements ]
 ]
 
 { #category : #accessing }
@@ -202,10 +187,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  acache [
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsOf: aRule [
-	cache ifNil: [^ {}].
-	criticsPresenter items: ((cache criticsOf: aRule)
-				sorted: [ :a :b | 
-					a printString < b printString ]).
+	^ cache criticsOf: aRule
 ]
 
 { #category : #accessing }
@@ -225,7 +207,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 							entity := selection sourceAnchor entity.
 							(entity respondsTo: #definition)
 								ifTrue: [ entity definition ]
-								ifFalse: [ "may be they are an other way to do this" entity asString ] ] ] ]
+								ifFalse: [ entity asString ] ] ] ]
 		postTransmission: [ :dest :origin :location | 
 			origin selection selectedItem
 				ifNotNil: [ :critic | 
@@ -318,7 +300,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 	criticsPresenter
 		displayBlock: [ :selec | selec description ];
 		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
-		contextMenu: [ :a :b | self menu: a shifted: b ];
+		contextMenu: [ :a :b | self menu: a shifted: b ];"see some example"
 		icons: [ :item | self iconFor: item ]
 ]
 
@@ -395,6 +377,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> logInManifest [
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurrentRule: aCritic [
+	1halt.
 	cache addFalsePositive: aCritic forRule: self rule
 ]
 
@@ -484,11 +467,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeTestCase: aBoolean [
 	removeTestCase := aBoolean 
 ]
 
-{ #category : #TOCATEGORISE }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> resetSelection [
-	self criticsPresenter resetSelection
-]
-
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule [
 	^ self rulesPresenter selection selectedItem
@@ -516,7 +494,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 		transform: [ :aRule | 
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
-				ifFalse: [ (cache criticsOf: aRule) asOrderedCollection ] ].
+				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ].
 	rulesPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :aRule | 
@@ -528,22 +506,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedCritic [
-	^ criticsPresenter selectedItem
+	^ criticsPresenter selection selectedItem
 ]
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectionIntervalFor: aString [
 	^ self rule result selectionIntervalFor: aString
-]
-
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendersOfCritic [
-	self flag: #unused.
-	criticsPresenter selectedItem
-		ifNotNil: [ :elem | 
-			elem isBehavior
-				ifTrue: [ self systemNavigation browseAllCallsOnClass: elem ]
-				ifFalse: [ self systemNavigation browseAllSendersOf: elem selector ] ]
 ]
 
 { #category : #accessing }
@@ -599,17 +567,4 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toDoColor [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
 
 	SystemAnnouncer uniqueInstance unsubscribe: self
-]
-
-{ #category : #thread }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateList [
-	self criticsOf: self rule.
-	thread ifNotNil: [ thread terminate ].
-	thread := [  UIManager default defer:  [ criticsPresenter updateList ]] fork.
-]
-
-{ #category : #TOCATEGORISE }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
-	criticsPresenter updateList. 
-	rulesPresenter  needRebuild: true
 ]
