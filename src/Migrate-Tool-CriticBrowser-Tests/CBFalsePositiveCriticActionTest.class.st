@@ -1,0 +1,8 @@
+"
+A CBFalsePositiveCriticActionTest is a test class for testing the behavior of CBFalsePositiveCriticAction
+"
+Class {
+	#name : #CBFalsePositiveCriticActionTest,
+	#superclass : #CBAbstractButtonActionTest,
+	#category : #'Migrate-Tool-CriticBrowser-Tests'
+}
