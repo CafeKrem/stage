@@ -16,9 +16,8 @@ CBFalsePositiveCriticAction class >> priority [
 { #category : #accessing }
 CBFalsePositiveCriticAction class >> runOn: aCriticBrowser [
 	aCriticBrowser selectedCritic
-		ifNotNil: [ :items | 
-			items
-				do: [ :item | aCriticBrowser markAsFalsePositiveForCurrentRule: item ] ]
+		ifNotNil: [ :item | 
+			aCriticBrowser markAsFalsePositiveForCurrentRule: item ]
 		ifNil: [ self inform: 'No critic selected' ]
 ]
 

@@ -11,10 +11,8 @@ CBTransformCriticAction class >> priority [
 
 { #category : #accessing }
 CBTransformCriticAction class >> runOn: aCriticBrowser [
-	aCriticBrowser selectedItems
-		ifNotNil: [ :items | 
-			items
-				do: [ :critic | "displayingProgress: [ :criti c |  ]" critic change execute ] ]
+	aCriticBrowser selectedCritic 
+		ifNotNil: [ :itemCritic | itemCritic change execute ]
 		ifNil: [ self inform: 'i don ' , $' , 't known how  ' ]
 ]
 

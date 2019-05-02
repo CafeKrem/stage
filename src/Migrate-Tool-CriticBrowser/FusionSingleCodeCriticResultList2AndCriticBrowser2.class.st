@@ -102,13 +102,15 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open [
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
 	| cbr |
+	1halt.
 	cbr := self new
 		rules: aRule;
 		environment: aEnv;
 		removeTestCase: false;"replace by enable the "
 		yourself.
-	cbr openWithSpec.
 	cbr applyRules.
+	cbr openWithSpec.
+	
 	"cbr rulesPresenter changed: #listElementAt:"
 ]
 
