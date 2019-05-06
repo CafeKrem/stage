@@ -6,3 +6,9 @@ Class {
 	#superclass : #CBAbstractButtonActionTest,
 	#category : #'Migrate-Tool-CriticBrowser-Tests'
 }
+
+{ #category : #running }
+CBTransformCriticActionTest >> setUp [
+	"Hooks that subclasses may override to define the fixture of test."
+	super setUp
+]

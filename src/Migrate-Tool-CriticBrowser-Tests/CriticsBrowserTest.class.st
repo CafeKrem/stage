@@ -2,8 +2,7 @@ Class {
 	#name : #CriticsBrowserTest,
 	#superclass : #CBAbstractTest,
 	#instVars : [
-		'criticBrowserPresenter',
-		'criticsBrowserWindow'
+		'criticBrowserWindow'
 	],
 	#category : #'Migrate-Tool-CriticBrowser-Tests'
 }
@@ -11,7 +10,9 @@ Class {
 { #category : #running }
 CriticsBrowserTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
-	super setUp
+	super setUp.
+	
+	criticBrowserWindow := criticBrowserPresenter openWithSpec. 
 ]
 
 { #category : #setup }
