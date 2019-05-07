@@ -1,11 +1,12 @@
 "
+see superClass 's documentation
 my action is :
 	to reload the rules
 "
 Class {
 	#name : #CBUpdateRuleAction,
 	#superclass : #CBAbstractRuleAction,
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-util'
 }
 
 { #category : #accessing }

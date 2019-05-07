@@ -15,18 +15,6 @@ CriticsBrowserTest >> setUp [
 	criticBrowserWindow := criticBrowserPresenter openWithSpec. 
 ]
 
-{ #category : #setup }
-CriticsBrowserTest >> setupSelectionRulesPresenter [
-	| indexRule rulePresenterTmp |
-	indexRule := (rulePresenterTmp := (criticBrowserPresenter
-		rulesPresenter roots at: 1) rules)
-		indexOf:
-			(rulePresenterTmp
-				detect: [ :e | e isKindOf: GRInstanceVariableCapitalizationRule ]).
-	criticBrowserPresenter rulesPresenter
-		selectPath: #(1) , indexRule asArray
-]
-
 { #category : #running }
 CriticsBrowserTest >> tearDown [ 
 	criticBrowserPresenter delete.

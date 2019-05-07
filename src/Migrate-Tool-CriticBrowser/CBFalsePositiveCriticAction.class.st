@@ -1,11 +1,12 @@
 "
+see superClass 's documentation
 my action is :
 	to tag the selected critic in the criticsPresenter 
 "
 Class {
 	#name : #CBFalsePositiveCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-util'
 }
 
 { #category : #accessing }

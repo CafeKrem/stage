@@ -1,10 +1,12 @@
 "
+see superClass 's documentation
 my action is to browse the selectedItem in CriticsPresenter 
+
 "
 Class {
 	#name : #CBBrowseCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-util'
 }
 
 { #category : #accessing }

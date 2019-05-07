@@ -1,11 +1,12 @@
 "
+see superClass 's documentation
 my actions is to: 
 	to reset the CritcBrowser and run SelectPackageBrowser (who ask you wich package you want to check his rules)
 "
 Class {
 	#name : #CBResetRuleAction,
 	#superclass : #CBAbstractRuleAction,
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-util'
 }
 
 { #category : #accessing }

@@ -61,7 +61,7 @@ Class {
 		'criticsActionsPresenter',
 		'rulesActionsPresenter'
 	],
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-main'
 }
 
 { #category : #specs }

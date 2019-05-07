@@ -1,11 +1,12 @@
 "
+see superClass 's documentation
 my action is :
 	to log all critics
 "
 Class {
 	#name : #CBLogRuleAction,
 	#superclass : #CBAbstractRuleAction,
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-util'
 }
 
 { #category : #accessing }

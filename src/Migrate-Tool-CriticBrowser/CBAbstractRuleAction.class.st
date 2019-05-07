@@ -1,10 +1,9 @@
 "
 i'm an Abstract class to define feature of a button:
 
-abstract define:
+i define:
 
 	- actions : return a collection of all my subclass sorted by priority method
-	- isAbstract : i'm use to say if the class is abstract 	
 
 my subclass define:
 	
@@ -15,7 +14,7 @@ my subclass define:
 Class {
 	#name : #CBAbstractRuleAction,
 	#superclass : #CBAbstractButtonAction,
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-util'
 }
 
 { #category : #actions }

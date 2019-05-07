@@ -27,3 +27,15 @@ CBAbstractTest >> setUp [
 		yourself.
 	criticBrowserPresenter applyRules
 ]
+
+{ #category : #setup }
+CBAbstractTest >> setupSelectionRulesPresenter [
+	| indexRule rulePresenterTmp |
+	indexRule := (rulePresenterTmp := (criticBrowserPresenter
+		rulesPresenter roots at: 1) rules)
+		indexOf:
+			(rulePresenterTmp
+				detect: [ :e | e isKindOf: GRInstanceVariableCapitalizationRule ]).
+	criticBrowserPresenter rulesPresenter
+		selectPath: #(1) , indexRule asArray
+]

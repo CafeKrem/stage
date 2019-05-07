@@ -1,7 +1,13 @@
+"
+see superClass 's documentation
+	my work is to fix auto detect change 
+	example 
+		if a method use a String concatenation  instead of Stream putOn: 
+"
 Class {
 	#name : #CBTransformCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser'
+	#category : #'Migrate-Tool-CriticBrowser-util'
 }
 
 { #category : #accessing }
