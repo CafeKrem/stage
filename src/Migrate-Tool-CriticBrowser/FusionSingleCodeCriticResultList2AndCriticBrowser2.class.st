@@ -133,6 +133,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToToDo [
 ]
 
 { #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addFalsePositiveRule: aRule forPackage: aPackage [
+	cache addFalsePositiveRule: aRule forPackage: aPackage
+]
+
+{ #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addMarkingMenuItemsTo: aMenu [
 	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isFalsePositive: critic forRule: self rule ]) 
 		ifTrue: [ aMenu add: 'Unmark as wrong' target: self selector: #removeCriticToFalsePositive ].
@@ -158,6 +163,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addRuleToFalsePositive [
 	criticsPresenter selectedItems ifNotNil: [ :criticss |
 		criticss do: [ :critic |
 			cache addFalsePositiveRule: self rule forPackage: critic mcWorkingCopy]].
+]
+
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allPackages [ 
+	^ rbEnvironment packages
 ]
 
 { #category : #accessing }
@@ -322,7 +332,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 				yourself);
 		addColumn:
 			(StringTableColumn new
-				width:40;
+				width: 40;
 				title: 'toSort';
 				evaluated: [ :aRules | 
 					| falsePositives toDos total |
@@ -348,7 +358,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 		children: [ :aRule | 
 			aRule isComposite
 				ifTrue: [ aRule rules ]
-				ifFalse: [ #() ] ]
+				ifFalse: [ #() ] ];
+		contextMenu: (self menuGenerator: CBAbstractRuleMenu)
 ]
 
 { #category : #initialize }
@@ -408,6 +419,33 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBool
 	^ aMenu
 ]
 
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGenerator: aClassName [
+	| newMenu |
+	newMenu := MenuPresenter new.
+	(aClassName actionsMenu)
+		do:
+			[ :aCBGroupMenu | newMenu addGroup: (self menuGroupGenerator: aCBGroupMenu) ].
+	^ newMenu
+]
+
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGroupGenerator: aGroupClass [
+	^ [ :newGroup | 
+	aGroupClass actionsGroup
+		do: [ :item | newGroup addItem: (self menuItemGenerator: item) ] ]
+]
+
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuItemGenerator: anItem [
+	^ [ :newItem | 
+	newItem
+		name: anItem title;
+		action: [ anItem runOn: self ];
+		icon: anItem icon;
+		yourself ]
+]
+
 { #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> newButtonFor: aClass [ 
 	^ self newButton 
@@ -454,6 +492,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToToDo [
 			cache removeToDo: item forRule: self rule ]].
 	
 	
+]
+
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositiveRule: aRule forPackage: aPackage [
+	cache removeFalsePositiveRule: aRule forPackage: aPackage
 ]
 
 { #category : #menu }
@@ -509,6 +552,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedCritic [
 	^ criticsPresenter selection selectedItem
+]
+
+{ #category : #TOCATEGORISE }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedRule [
+	^ rulesPresenter selectedItem
 ]
 
 { #category : #private }
