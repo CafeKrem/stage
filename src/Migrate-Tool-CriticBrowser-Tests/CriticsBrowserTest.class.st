@@ -80,7 +80,7 @@ CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCriticsT
 	self deny: criticBrowserPresenter rule isComposite.
 	self
 		assert: criticBrowserPresenter criticsPresenter items size
-		equals: 2.
+		equals: 3.
 	self flag: 'good test ?'
 ]
 

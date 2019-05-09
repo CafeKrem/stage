@@ -5,8 +5,16 @@ Class {
 		'B',
 		'A'
 	],
+	#classInstVars : [
+		'Test'
+	],
 	#category : #'Migrate-Tool-CriticBrowser-environementTest'
 }
+
+{ #category : #accessing }
+UseForTestCriticBrowser class >> test [
+	^ Test
+]
 
 { #category : #accessing }
 UseForTestCriticBrowser >> a [
