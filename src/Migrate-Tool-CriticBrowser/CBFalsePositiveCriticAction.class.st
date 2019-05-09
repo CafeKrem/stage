@@ -6,11 +6,11 @@ my action is :
 Class {
 	#name : #CBFalsePositiveCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #accessing }
-CBFalsePositiveCriticAction class >> priority [
+CBFalsePositiveCriticAction class >> groupPriority [
 	^ 20
 ]
 

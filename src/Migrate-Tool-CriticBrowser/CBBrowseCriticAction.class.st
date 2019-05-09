@@ -6,11 +6,11 @@ my action is to browse the selectedItem in CriticsPresenter
 Class {
 	#name : #CBBrowseCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #accessing }
-CBBrowseCriticAction class >> priority [
+CBBrowseCriticAction class >> groupPriority [
 	^ 1
 ]
 

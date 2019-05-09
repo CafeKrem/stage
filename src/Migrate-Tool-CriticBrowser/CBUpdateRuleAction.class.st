@@ -6,11 +6,11 @@ my action is :
 Class {
 	#name : #CBUpdateRuleAction,
 	#superclass : #CBAbstractRuleAction,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #accessing }
-CBUpdateRuleAction class >> priority [ 
+CBUpdateRuleAction class >> groupPriority [ 
 	^ 10
 ]
 

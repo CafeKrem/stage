@@ -7,11 +7,11 @@ see superClass 's documentation
 Class {
 	#name : #CBTransformCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #accessing }
-CBTransformCriticAction class >> priority [
+CBTransformCriticAction class >> groupPriority [
 	^ 10
 ]
 

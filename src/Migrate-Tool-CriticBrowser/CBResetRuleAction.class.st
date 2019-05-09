@@ -6,11 +6,11 @@ my actions is to:
 Class {
 	#name : #CBResetRuleAction,
 	#superclass : #CBAbstractRuleAction,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #accessing }
-CBResetRuleAction class >> priority [ 
+CBResetRuleAction class >> groupPriority [ 
 	^ 1 
 ]
 

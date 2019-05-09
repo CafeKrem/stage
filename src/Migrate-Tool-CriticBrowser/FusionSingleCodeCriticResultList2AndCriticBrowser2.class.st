@@ -311,7 +311,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter [
 	criticsPresenter
 		displayBlock: [ :selec | selec description ];
-		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
+		itemFilterBlock: [ :item :string | 1halt. '*' , string , '*' match: item contents ];
 		contextMenu: [ :a :b | self menu: a shifted: b ];"see some example"
 		icons: [ :item | self iconFor: item ]
 ]

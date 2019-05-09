@@ -6,11 +6,11 @@ my action is :
 Class {
 	#name : #CBLogRuleAction,
 	#superclass : #CBAbstractRuleAction,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #accessing }
-CBLogRuleAction class >> priority [ 
+CBLogRuleAction class >> groupPriority [ 
 	^ 20
 ]
 

@@ -14,12 +14,12 @@ my subclass define:
 Class {
 	#name : #CBAbstractRuleAction,
 	#superclass : #CBAbstractButtonAction,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #actions }
 CBAbstractRuleAction class >> actions [
-	^ self allSubclasses sorted: #priority ascending 
+	^ self allSubclasses sorted: #groupPriority ascending 
 ]
 
 { #category : #testing }

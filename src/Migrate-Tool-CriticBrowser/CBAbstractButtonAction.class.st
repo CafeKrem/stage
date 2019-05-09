@@ -9,7 +9,7 @@ my subclass define :
 Class {
 	#name : #CBAbstractButtonAction,
 	#superclass : #Object,
-	#category : #'Migrate-Tool-CriticBrowser-util'
+	#category : #'Migrate-Tool-CriticBrowser-data'
 }
 
 { #category : #actions }
@@ -17,14 +17,14 @@ CBAbstractButtonAction class >> actions [
 	^ self subclassResponsibility 
 ]
 
+{ #category : #accessing }
+CBAbstractButtonAction class >> groupPriority [ 
+	^ self subclassResponsibility 
+]
+
 { #category : #testing }
 CBAbstractButtonAction class >> isAbstract [ 
 	^ self = CBAbstractButtonAction 
-]
-
-{ #category : #accessing }
-CBAbstractButtonAction class >> priority [ 
-	^ self subclassResponsibility 
 ]
 
 { #category : #testing }
