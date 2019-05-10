@@ -9,7 +9,7 @@ my subclass define :
 Class {
 	#name : #CBAbstractButtonAction,
 	#superclass : #Object,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-buttons'
 }
 
 { #category : #actions }

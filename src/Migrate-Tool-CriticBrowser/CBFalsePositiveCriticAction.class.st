@@ -6,7 +6,7 @@ my action is :
 Class {
 	#name : #CBFalsePositiveCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-buttons'
 }
 
 { #category : #accessing }

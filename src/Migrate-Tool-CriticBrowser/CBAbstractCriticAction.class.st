@@ -14,7 +14,7 @@ my subclass define:
 Class {
 	#name : #CBAbstractCriticAction,
 	#superclass : #CBAbstractButtonAction,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-buttons'
 }
 
 { #category : #actions }

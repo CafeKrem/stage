@@ -6,7 +6,7 @@ my actions is to:
 Class {
 	#name : #CBResetRuleAction,
 	#superclass : #CBAbstractRuleAction,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-buttons'
 }
 
 { #category : #accessing }

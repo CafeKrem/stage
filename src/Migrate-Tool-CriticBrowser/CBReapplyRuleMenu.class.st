@@ -1,21 +1,21 @@
 Class {
-	#name : #CBReapplyCriticMenu,
-	#superclass : #CBGroupACriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#name : #CBReapplyRuleMenu,
+	#superclass : #CBGroupARuleMenu,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu'
 }
 
 { #category : #accessing }
-CBReapplyCriticMenu class >> icon [ 
+CBReapplyRuleMenu class >> icon [ 
 	^ nil
 ]
 
 { #category : #accessing }
-CBReapplyCriticMenu class >> itemPriority [ 
+CBReapplyRuleMenu class >> itemPriority [ 
 	^ 10 
 ]
 
 { #category : #accessing }
-CBReapplyCriticMenu class >> runOn: aCriticBrowser [
+CBReapplyRuleMenu class >> runOn: aCriticBrowser [
 	^ aCriticBrowser selectedRule
 		ifNotNil: [ :aRule | 
 			aRule content isComposite
@@ -25,6 +25,6 @@ CBReapplyCriticMenu class >> runOn: aCriticBrowser [
 ]
 
 { #category : #accessing }
-CBReapplyCriticMenu class >> title [ 
+CBReapplyRuleMenu class >> title [ 
 	^ 'Reapply this rule'
 ]

@@ -5,12 +5,17 @@ actionsGroup
 Class {
 	#name : #CBAbstractMenu,
 	#superclass : #Object,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-menu'
 }
 
 { #category : #accessing }
-CBAbstractMenu class >> actionsMenu [
+CBAbstractMenu class >> actionsGroup [ 
 	^ self subclassResponsibility 
+]
+
+{ #category : #accessing }
+CBAbstractMenu class >> actionsMenu [
+	^ self subclasses sorted: #priorityGroup ascending.
 ]
 
 { #category : #accessing }

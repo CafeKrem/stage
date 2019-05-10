@@ -1,7 +1,7 @@
 Class {
 	#name : #CBBrowseCriticMenu,
 	#superclass : #CBGroupACriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-menu'
 }
 
 { #category : #accessing }
@@ -16,11 +16,10 @@ CBBrowseCriticMenu class >> itemPriority [
 
 { #category : #accessing }
 CBBrowseCriticMenu class >> runOn: aCriticBrowser [
-	^ aCriticBrowser selectedRule
-		ifNotNil: [ :aRule | aRule content browse ]
+	^ CBBrowseCriticAction runOn: aCriticBrowser
 ]
 
 { #category : #accessing }
-CBBrowseCriticMenu class >> title [
-	^ 'Browse rule'
+CBBrowseCriticMenu class >> title [ 
+	^ 'browse'
 ]

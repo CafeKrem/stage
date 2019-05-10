@@ -6,7 +6,7 @@ my action is to browse the selectedItem in CriticsPresenter
 Class {
 	#name : #CBBrowseCriticAction,
 	#superclass : #CBAbstractCriticAction,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-buttons'
 }
 
 { #category : #accessing }

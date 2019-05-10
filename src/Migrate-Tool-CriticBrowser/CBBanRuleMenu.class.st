@@ -1,21 +1,21 @@
 Class {
-	#name : #CBBanCriticMenu,
-	#superclass : #CBGroupBCriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#name : #CBBanRuleMenu,
+	#superclass : #CBGroupBRuleMenu,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu'
 }
 
 { #category : #accessing }
-CBBanCriticMenu class >> icon [ 
+CBBanRuleMenu class >> icon [ 
 	^ nil 
 ]
 
 { #category : #accessing }
-CBBanCriticMenu class >> itemPriority [ 
+CBBanRuleMenu class >> itemPriority [ 
 	^ 10
 ]
 
 { #category : #accessing }
-CBBanCriticMenu class >> runOn: aCriticBrowser [
+CBBanRuleMenu class >> runOn: aCriticBrowser [
 	^ aCriticBrowser selectedCritic
 		ifNotNil: [ :criticsCollection | 
 			criticsCollection
@@ -26,6 +26,6 @@ CBBanCriticMenu class >> runOn: aCriticBrowser [
 ]
 
 { #category : #accessing }
-CBBanCriticMenu class >> title [ 
+CBBanRuleMenu class >> title [ 
 	^ 'Ban from selected packages'
 ]

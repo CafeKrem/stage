@@ -1,7 +1,7 @@
 Class {
 	#name : #CBAbstractRuleMenu,
 	#superclass : #CBAbstractMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#category : #'Migrate-Tool-CriticBrowser-data-menu'
 }
 
 { #category : #accessing }

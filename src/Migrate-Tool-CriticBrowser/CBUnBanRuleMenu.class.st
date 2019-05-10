@@ -1,21 +1,21 @@
 Class {
-	#name : #CBUnBanCriticMenu,
-	#superclass : #CBGroupBCriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data'
+	#name : #CBUnBanRuleMenu,
+	#superclass : #CBGroupBRuleMenu,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu'
 }
 
 { #category : #accessing }
-CBUnBanCriticMenu class >> icon [ 
+CBUnBanRuleMenu class >> icon [ 
 	^ nil
 ]
 
 { #category : #accessing }
-CBUnBanCriticMenu class >> itemPriority [ 
+CBUnBanRuleMenu class >> itemPriority [ 
 	^ 10
 ]
 
 { #category : #accessing }
-CBUnBanCriticMenu class >> runOn: aCriticBrowser [
+CBUnBanRuleMenu class >> runOn: aCriticBrowser [
 	aCriticBrowser selectedRule
 		ifNotNil: [ :rule | 
 			rule leaves
@@ -26,6 +26,6 @@ CBUnBanCriticMenu class >> runOn: aCriticBrowser [
 ]
 
 { #category : #accessing }
-CBUnBanCriticMenu class >> title [ 
+CBUnBanRuleMenu class >> title [ 
 	^ 'Unban from selected packages'
 ]

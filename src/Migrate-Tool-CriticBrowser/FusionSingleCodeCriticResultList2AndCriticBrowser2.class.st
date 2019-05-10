@@ -102,16 +102,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open [
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
 	| cbr |
-	1halt.
 	cbr := self new
 		rules: aRule;
 		environment: aEnv;
-		removeTestCase: false;"replace by enable the "
+		removeTestCase: false;
 		yourself.
 	cbr applyRules.
-	cbr openWithSpec.
-	
-	"cbr rulesPresenter changed: #listElementAt:"
+	cbr openWithSpec
 ]
 
 { #category : #specs }
@@ -122,14 +119,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> title [
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToToDo [
-
 	criticsPresenter selectedItems
-		ifNotNil: [ :items | items do: [ :item |
-			cache
-				addToDo: item
-				forRule: self rule ]].
-		
+		ifNotNil:
+			[ :items | items do: [ :item | cache addToDo: item forRule: self rule ] ]
+]
 
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addFalsePositive: aCritic forRule: aRule [
+	cache addFalsePositive: aCritic forRule: aRule
 ]
 
 { #category : #menu }
@@ -158,11 +155,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addNavigationMenuItemsTo: 
 ]
 
 { #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addRuleToFalsePositive [
-
-	criticsPresenter selectedItems ifNotNil: [ :criticss |
-		criticss do: [ :critic |
-			cache addFalsePositiveRule: self rule forPackage: critic mcWorkingCopy]].
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addToDo: aCritic forRule: aRule [
+	cache addToDo: aCritic forRule: aRule
 ]
 
 { #category : #menu }
@@ -195,6 +189,24 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  acache [ 
 	cache := acache
+]
+
+{ #category : #initialize }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticMenuGenerator [
+	| aMenu |
+	"this is your generat Menu from Architecture CBAbstractCriticMenu"
+	aMenu := self menuGenerator: CBAbstractCriticMenu.
+	"and now i add all action from Critic it's ugly but i depend on ReProperty in package: renraku" 
+	criticsPresenter selection selectedItem actions
+		do: [ :aCritic | 
+			aMenu
+				addItem: [ :newItem | 
+					newItem
+						name: aCritic description;
+						icon: nil;
+						action: aCritic action ] ].
+
+	^ aMenu
 ]
 
 { #category : #private }
@@ -310,9 +322,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 { #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter [
 	criticsPresenter
-		displayBlock: [ :selec | selec description ];
-		itemFilterBlock: [ :item :string | 1halt. '*' , string , '*' match: item contents ];
-		contextMenu: [ :a :b | self menu: a shifted: b ];"see some example"
+		displayBlock: [ :selec |  selec sourceAnchor entity  ];
+		itemFilterBlock: [ :item :string |  '*' , string , '*' match: item contents ];
+		contextMenu: [ self criticMenuGenerator ];
 		icons: [ :item | self iconFor: item ]
 ]
 
@@ -381,6 +393,23 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 		do: [ :class | criticsActionsPresenter add: (self newButtonFor: class) ].
 	self initializeRulesPresenter.
 	self initializeCriticsPresenter
+]
+
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isFalsePositive: aCritic forRule: aRule [
+	
+]
+
+{ #category : #TOCATEGORISE }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isSelectedCriticIsToDo [
+	^ cache isToDo: self selectedCritic forRule: self selectedRule
+]
+
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isSelectedRuleIsFalsePositive [
+	^ cache
+		isFalsePositive: self selectedCritic
+		forRule: self selectedRule
 ]
 
 { #category : #TOCATEGORISE }
@@ -495,6 +524,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToToDo [
 ]
 
 { #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositive: aCritic forRule: aRule [
+	cache removeFalsePositive: self selectedCritic forRule: self selectedRule. 
+]
+
+{ #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositiveRule: aRule forPackage: aPackage [
 	cache removeFalsePositiveRule: aRule forPackage: aPackage
 ]
@@ -510,6 +544,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeRuleToFalsePositive 
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeTestCase: aBoolean [
 	removeTestCase := aBoolean 
+]
+
+{ #category : #menu }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeToDo: aCritic forRule: aRule [
+	cache removeToDo: aCritic forRule: aRule
 ]
 
 { #category : #accessing }
@@ -617,4 +656,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toDoColor [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
 
 	SystemAnnouncer uniqueInstance unsubscribe: self
+]
+
+{ #category : #api }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
+	rulesPresenter update
 ]
