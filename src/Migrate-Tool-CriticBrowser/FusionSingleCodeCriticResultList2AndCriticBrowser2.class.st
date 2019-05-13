@@ -281,13 +281,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
-	self flag: #pharoTodo. "It is weird than in a branch of the condition there is no icon returned"
+	self flag: #pharoTodo.	"It is weird than in a branch of the condition there is no icon returned"
 	^ (cache isFalsePositive: anItem forRule: self rule)
 		ifFalse: [ self
 				iconNamed:
 					((cache isToDo: anItem forRule: self rule)
 						ifTrue: [ #repair ]
 						ifFalse: [ #error ]) ]
+		ifTrue: [ self iconNamed:  #changeRemove ]
 ]
 
 { #category : #initialize }
