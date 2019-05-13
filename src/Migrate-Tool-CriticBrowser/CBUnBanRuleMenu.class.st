@@ -18,7 +18,7 @@ CBUnBanRuleMenu class >> itemPriority [
 CBUnBanRuleMenu class >> runOn: aCriticBrowser [
 	aCriticBrowser selectedRule
 		ifNotNil: [ :rule | 
-			rule leaves
+			rule rules
 				do: [ :r | 
 					aCriticBrowser allPackages
 						do:

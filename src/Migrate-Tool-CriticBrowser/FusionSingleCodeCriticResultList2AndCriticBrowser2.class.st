@@ -420,7 +420,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> logInManifest [
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurrentRule: aCritic [
-	1halt.
 	cache addFalsePositive: aCritic forRule: self rule
 ]
 
