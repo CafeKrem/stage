@@ -66,4 +66,11 @@
 	* Cyril m’as proposer au lieu de desactiver le button lorsqu’il ne rentre pas dans le cas d’utilisation de laisser l’utilisateur clicker dessus mais juste lui afficher un popup qui dit comment ‘activer’ ce button
 * vendredi : conference avec une equipe qui vient de brussels 
 
+## Semaine du 3 Mai
+
+* utilisation de Mocketery (framework de Mock)
+* continue CriticsBrowser
+* erreur de ma part j’ai report une issue qui avait deja etait report
+* 1er contribution a Spec  
+* aide Dayne , une stagiaire de master , menbre de l’equipe , sur l'interface de dcTest  
 
