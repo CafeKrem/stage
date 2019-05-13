@@ -322,8 +322,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 { #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter [
 	criticsPresenter
-		displayBlock: [ :selec |  selec sourceAnchor entity  ];
-		itemFilterBlock: [ :item :string |  '*' , string , '*' match: item contents ];
+		displayBlock: [ :selec | self formatCritic: selec ];
+		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
 		contextMenu: [ self criticMenuGenerator ];
 		icons: [ :item | self iconFor: item ]
 ]
