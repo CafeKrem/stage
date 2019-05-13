@@ -332,6 +332,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	self criticsPresenterAction.
 	self rulesPresenterActions.
+	self sourceCodePresenterAcceptAction
 ]
 
 { #category : #'initialize-widgets' }
@@ -424,31 +425,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurr
 ]
 
 { #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menu: aMenu shifted: aBoolean [
-	(self rule notNil and: [ criticsPresenter selectedItems notEmpty ])
-		ifFalse: [ ^ aMenu ]. 
-		
-	self addNavigationMenuItemsTo: aMenu.
-	aMenu addLine.
-	self addMarkingMenuItemsTo: aMenu.
-			
-	criticsPresenter selectedItem
-		ifNotNil: [ :critique |
-		critique actions ifNotEmpty: [ :actions |
-			aMenu addLine.
-			actions do: [ :action |
-				aMenu
-					add: action description
-					target: action
-					selector: #actOnCritic:ofEntity:
-					argumentList: {
-						critique .
-						critique sourceAnchor entity } ] ] ].
-			
-	^ aMenu
-]
-
-{ #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGenerator: aClassName [
 	| newMenu |
 	newMenu := MenuPresenter new.
@@ -505,25 +481,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
 ]
 
 { #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToFalsePositive [
-	
-	criticsPresenter selectedItems
-		ifNotNil: [ :items | items do: [ :item |
-			cache removeFalsePositive: item forRule: self rule ]].
-	
-]
-
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeCriticToToDo [
-
-	criticsPresenter selectedItems
-		ifNotNil: [:items | items do: [ :item |
-			cache removeToDo: item forRule: self rule ]].
-	
-	
-]
-
-{ #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositive: aCritic forRule: aRule [
 	cache removeFalsePositive: self selectedCritic forRule: self selectedRule. 
 ]
@@ -531,14 +488,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositive: aCrit
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositiveRule: aRule forPackage: aPackage [
 	cache removeFalsePositiveRule: aRule forPackage: aPackage
-]
-
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeRuleToFalsePositive [
-
-	criticsPresenter selectedItems ifNotNil: [ :criticss |
-		criticss do: [ :critic |
-			cache removeFalsePositiveRule: self rule forPackage: critic sourceAnchor entity mcWorkingCopy]].
 ]
 
 { #category : #accessing }
@@ -611,45 +560,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAcceptAction [
 	| selectedItem |
+	1halt.
 	^ [ :text | 
 	selectedItem := criticsPresenter selection selectedItem sourceAnchor
 		entity.
 	(selectedItem isCompiledMethod and: [ self rule isTransformationRule not ])
 		ifTrue: [ selectedItem methodClass compile: text ]
 		ifFalse: [ Smalltalk compiler evaluate: text ] ]
-]
-
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterActions [
-	sourceCodePresenter
-		acceptBlock: [ :text | 
-			| selectedItem |
-			selectedItem := criticsPresenter selection selectedItem
-				sourceAnchor entity.
-			(selectedItem isCompiledMethod
-				and: [ self rule isTransformationRule not ])
-				ifTrue: [ selectedItem methodClass compile: text ]
-				ifFalse: [ Smalltalk compiler evaluate: text ] ]
-]
-
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> textInputFieldPresenterAction [
-	^ [ :text | 
-	| matchText critics |
-	critics := cache criticsOf: self rule.
-	matchText := '*' , text , '*'.
-	criticsPresenter
-		items:
-			(text isEmpty
-				ifTrue: [ critics ]
-				ifFalse: [ critics
-						select: [ :critic | matchText match: (self formatCritic: critic) ] ]).
-	criticsPresenter updateList ]
-]
-
-{ #category : #private }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> toDoColor [
-	^ Color orange
 ]
 
 { #category : #'system annoucements' }
