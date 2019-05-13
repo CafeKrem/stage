@@ -16,8 +16,7 @@ CBBrowseRuleMenu class >> itemPriority [
 
 { #category : #accessing }
 CBBrowseRuleMenu class >> runOn: aCriticBrowser [
-	^ aCriticBrowser selectedRule
-		ifNotNil: [ :aRule | aRule content browse ]
+	^ aCriticBrowser selectedRule ifNotNil: [ :aRule | aRule browse ]
 ]
 
 { #category : #accessing }
