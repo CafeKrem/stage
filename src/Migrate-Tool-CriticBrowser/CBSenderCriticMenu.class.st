@@ -20,7 +20,8 @@ CBSenderCriticMenu class >> itemPriority [
 { #category : #accessing }
 CBSenderCriticMenu class >> runOn: aCriticBrowser [
 	^ aCriticBrowser selectedCritic
-		ifNotNil: [ :aCritic | ClyQueryBrowser browseSendersOf: aCritic sourceAnchor entity ]
+		ifNotNil:
+			[ :aCritic | ClyQueryBrowser browseSendersOf: aCritic sourceAnchor entity selector ]
 ]
 
 { #category : #accessing }
