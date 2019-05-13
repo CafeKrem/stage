@@ -19,3 +19,32 @@
 		* UIManager seras remplacer plus tard par un composant Spec.je suis abonné à l’issue sur ce probleme 
 	* Merlin ( un outils qui permettras de créer des wizard plus facilement dans Moose  )  **PAS ENCORE COMMENCER**
 
+
+## Semaine du 8 Avril
+
+
+* pair programming avec mon tuteur de stage , ce que j’en tire
+	* meilleur utilisation du débogueur pharo et de l’IDE de manière générale  
+	* compréhension global de spec 2
+	* utilisation de git (rédaction d’issue , le coté OpenDev)
+	* formation sur spec 2
+	* fin de semaine 1er projet :
+		* migration de leur ancienne interface de refactoring vers Spec 2
+
+## Semaine du 14 Avril 
+
+
+* continue sur le projet de migration
+* pair programming avec mon tuteur de stage :
+	* découverte de  Moose ( plateforme d’analyse de projet informatique  ) 
+		* formation sur les meta-modèle , comment faire des requettes sur des arbres de contenance et de dépendances
+		* https://moosequery.ferlicot.fr/ 
+	* Téléscope (outil de visualisation)
+* commence à prendre des note sur spec (quel widget , layout ) pour servir de base de test
+ le projet de doctorat de Benoit ,membre de l’équipe RMoD. 
+* migration des outils de refactoring interrompu , besoin de composant qui ne sont pas encore intégré  
+* (vendredi 19 Avril) je commence à travailler sur la migration du systemReporter 
+* certaines classes que je devais migrais on était stoppé étant donné qu’il manque certain composant dans Spec 2  
+* (vendredi 19 Avril) Je commence à travailler sur CriticBrowser  
+
+
