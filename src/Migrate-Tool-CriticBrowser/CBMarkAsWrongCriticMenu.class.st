@@ -6,21 +6,22 @@ Class {
 
 { #category : #accessing }
 CBMarkAsWrongCriticMenu class >> itemPriority [ 
-	^ 1
+	^ 10
 ]
 
 { #category : #accessing }
 CBMarkAsWrongCriticMenu class >> runOn: aCriticBrowser [
-	^ aCriticBrowser isSelectedCriticIsToDo
+	aCriticBrowser isSelectedRuleIsFalsePositive
 		ifTrue: [ aCriticBrowser
-				removeToDo: aCriticBrowser selectedCritic
+				removeFalsePositive: aCriticBrowser selectedCritic
 				forRule: aCriticBrowser selectedRule ]
 		ifFalse: [ aCriticBrowser
-				addToDo: aCriticBrowser selectedCritic
-				forRule: aCriticBrowser selectedRule ]
+				addFalsePositive: aCriticBrowser selectedCritic
+				forRule: aCriticBrowser selectedRule ].
+	aCriticBrowser updateTree
 ]
 
 { #category : #accessing }
 CBMarkAsWrongCriticMenu class >> title [ 
-	^ 'Mark / unMark  as TODO'
+	^ 'Mark / UnMark as Wrong'
 ]

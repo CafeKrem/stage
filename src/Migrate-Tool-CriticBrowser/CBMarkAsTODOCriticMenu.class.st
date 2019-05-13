@@ -6,21 +6,23 @@ Class {
 
 { #category : #accessing }
 CBMarkAsTODOCriticMenu class >> itemPriority [ 
-	^ 10
+	^ 1
 ]
 
 { #category : #accessing }
 CBMarkAsTODOCriticMenu class >> runOn: aCriticBrowser [
-	^ aCriticBrowser isSelectedRuleIsFalsePositive
+	aCriticBrowser isSelectedCriticIsToDo
 		ifTrue: [ aCriticBrowser
-				removeFalsePositive: aCriticBrowser selectedCritic
-				forRule: aCriticBrowser selectedRule ]
+				removeToDo: aCriticBrowser selectedCritic
+				forRule: aCriticBrowser selectedRule.
+			aCriticBrowser selectedCritic icon	"Smalltalk ui  icons iconNamed: #changeRemove " ]
 		ifFalse: [ aCriticBrowser
-				addFalsePositive: self selectedCritic
-				forRule: aCriticBrowser selectedRule ]
+				addToDo: aCriticBrowser selectedCritic
+				forRule: aCriticBrowser selectedRule ].
+	aCriticBrowser updateTree
 ]
 
 { #category : #accessing }
 CBMarkAsTODOCriticMenu class >> title [ 
-	^ 'Mark / UnMark as wrong'
+	^ 'Mark / unMark  as TODO'
 ]
