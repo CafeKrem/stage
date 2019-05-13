@@ -135,26 +135,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addFalsePositiveRule: aRul
 ]
 
 { #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addMarkingMenuItemsTo: aMenu [
-	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isFalsePositive: critic forRule: self rule ]) 
-		ifTrue: [ aMenu add: 'Unmark as wrong' target: self selector: #removeCriticToFalsePositive ].
-	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isFalsePositive: critic forRule: self rule) not ]) 
-		ifTrue: [ aMenu add: 'Mark as wrong' target: self selector: #addCriticToFalsePositive ].
-	(criticsPresenter selectedItems anySatisfy: [ :critic | cache isToDo: critic forRule: self rule ]) 
-		ifTrue: [ aMenu add: 'Unmark as TODO' target: self selector: #removeCriticToToDo ].
-	(criticsPresenter selectedItems anySatisfy: [ :critic | (cache isToDo: critic forRule: self rule) not ]) 
-		ifTrue: [ aMenu add: 'Mark as TODO' target: self selector: #addCriticToToDo ].
-	
-]
-
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addNavigationMenuItemsTo: aMenu [
-
-	criticsPresenter selectedItem ifNotNil: [ :critique |
-		critique sourceAnchor entity populateCBMenu: aMenu ]
-]
-
-{ #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addToDo: aCritic forRule: aRule [
 	cache addToDo: aCritic forRule: aRule
 ]
