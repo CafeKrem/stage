@@ -58,3 +58,12 @@
 * mon tuteur de stage a fini d’implémenter le composant qui me manquer dès que j’ai fini la migration du CriticBrowser je finirai les projets laissé en suspens
 * sprint (phase on l’on corrige le maximum d’issue possible et ça permet de bosser sur autre chose ) avec Pierre , membre de l'équipe RMoD , stagiaire de master , sur l'amélioration de l’AST de pharo.
 
+## Smaine du 29 Avril
+
+* continue la migration du CriticBrowser 
+* review du CriticBrowser avec mon tuteur de stage  :
+	* Cyril , mon tuteur de stage  , m’as proposer d’extraire certain fonctionnalité afin qu’elle soit plus flexible et maintenable afin d’eviter une class trop grosse 
+	* Cyril m’as proposer au lieu de desactiver le button lorsqu’il ne rentre pas dans le cas d’utilisation de laisser l’utilisateur clicker dessus mais juste lui afficher un popup qui dit comment ‘activer’ ce button
+* vendredi : conference avec une equipe qui vient de brussels 
+
+
