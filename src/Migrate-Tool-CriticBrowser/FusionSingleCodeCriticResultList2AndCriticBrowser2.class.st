@@ -599,5 +599,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncement
 
 { #category : #api }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
-	rulesPresenter needRebuild: true
+	rulesPresenter needRebuild: false.
+	rulesPresenter buildWithSpec
 ]
