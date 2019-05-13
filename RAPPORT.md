@@ -47,4 +47,14 @@
 * certaines classes que je devais migrais on était stoppé étant donné qu’il manque certain composant dans Spec 2  
 * (vendredi 19 Avril) Je commence à travailler sur CriticBrowser  
 
+## Semaine du 22 Avril
+
+
+* j’ai changer ma méthode de travaille que j’essaie de suivre au mieux , suite au conseil de mon frère ,  la voici(je ferai un point la semaine d'après sur l'efficacité de cette méthode ): 
+	1- ecrire une documentation (comportement de la class , responsabilite , y a t-il des éléments obsolète ? , roadMap du travail de migration)
+	2- ecrire les test (une partie assez dur en fonction des class (je ne voit pas forcément comment tester certaine class ))
+	3- migration 
+* je continue la migration du criticBrowser
+* mon tuteur de stage a fini d’implémenter le composant qui me manquer dès que j’ai fini la migration du CriticBrowser je finirai les projets laissé en suspens
+* sprint (phase on l’on corrige le maximum d’issue possible et ça permet de bosser sur autre chose ) avec Pierre , membre de l'équipe RMoD , stagiaire de master , sur l'amélioration de l’AST de pharo.
 
