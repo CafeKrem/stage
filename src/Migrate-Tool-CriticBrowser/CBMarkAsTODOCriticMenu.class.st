@@ -14,8 +14,7 @@ CBMarkAsTODOCriticMenu class >> runOn: aCriticBrowser [
 	aCriticBrowser isSelectedCriticIsToDo
 		ifTrue: [ aCriticBrowser
 				removeToDo: aCriticBrowser selectedCritic
-				forRule: aCriticBrowser selectedRule.
-			aCriticBrowser selectedCritic icon	"Smalltalk ui  icons iconNamed: #changeRemove " ]
+				forRule: aCriticBrowser selectedRule ]
 		ifFalse: [ aCriticBrowser
 				addToDo: aCriticBrowser selectedCritic
 				forRule: aCriticBrowser selectedRule ].
