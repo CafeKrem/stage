@@ -17,8 +17,11 @@ CBImplementorCriticMenu class >> itemPriority [
 { #category : #accessing }
 CBImplementorCriticMenu class >> runOn: aCriticBrowser [
 	^ aCriticBrowser selectedCritic
-		ifNotNil:
-			[ :aCritic | ClyQueryBrowser browseImplementorsOf: aCritic sourceAnchor entity selector ]
+		ifNotNil: [ :aCritic | 
+			(aCritic sourceAnchor entity respondsTo: #selector)
+				ifFalse: [ ^ self inform: 'you can ask the implementors of this' ].
+			ClyQueryBrowser
+				browseImplementorsOf: aCritic sourceAnchor entity selector ]
 ]
 
 { #category : #accessing }
