@@ -332,7 +332,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	self criticsPresenterAction.
 	self rulesPresenterActions.
-	self sourceCodePresenterAcceptAction
+	self sourceCodePresenterAction
 ]
 
 { #category : #'initialize-widgets' }
@@ -527,7 +527,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 		transform: [ :aRule | 
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
-				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ].
+				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ]
+		postTransmission: [ :destination | destination selectIndex: 0 ].
 	rulesPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :aRule | 
@@ -558,15 +559,18 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 ]
 
 { #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAcceptAction [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction [
 	| selectedItem |
-	1halt.
-	^ [ :text | 
-	selectedItem := criticsPresenter selection selectedItem sourceAnchor
-		entity.
-	(selectedItem isCompiledMethod and: [ self rule isTransformationRule not ])
-		ifTrue: [ selectedItem methodClass compile: text ]
-		ifFalse: [ Smalltalk compiler evaluate: text ] ]
+	self flag: #incomplete.
+	sourceCodePresenter
+		acceptBlock: [ :text | 
+			selectedItem := criticsPresenter selection selectedItem sourceAnchor
+				entity.
+			selectedItem isCompiledMethod
+				ifTrue: [ selectedItem methodClass compile: text ]
+				ifFalse: [ Smalltalk compiler evaluate: text ]
+			"and: [  self rule isTransformationRule not ]"
+			"i don't manage all case but isTransformationRule is'nt defined in Rule" ]
 ]
 
 { #category : #'system annoucements' }
