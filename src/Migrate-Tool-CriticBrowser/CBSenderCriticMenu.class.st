@@ -1,3 +1,6 @@
+"
+test
+"
 Class {
 	#name : #CBSenderCriticMenu,
 	#superclass : #CBGroupACriticMenu,
@@ -17,7 +20,7 @@ CBSenderCriticMenu class >> itemPriority [
 { #category : #accessing }
 CBSenderCriticMenu class >> runOn: aCriticBrowser [
 	^ aCriticBrowser selectedCritic
-		ifNotNil: [ :aCritic | aCritic senders ]
+		ifNotNil: [ :aCritic | ClyQueryBrowser browseSendersOf: aCritic sourceAnchor entity ]
 ]
 
 { #category : #accessing }
