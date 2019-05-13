@@ -1,3 +1,6 @@
+"
+ts
+"
 Class {
 	#name : #CBBrowseRuleMenu,
 	#superclass : #CBGroupARuleMenu,

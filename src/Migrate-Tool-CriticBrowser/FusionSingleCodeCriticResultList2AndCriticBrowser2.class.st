@@ -465,6 +465,25 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
 	self applyRules
 ]
 
+{ #category : #TOCATEGORISE }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyRule: aRule [
+	cache removeRule: aRule.
+	cache checker resetResult.
+	rbEnvironment packages
+		do: [ :package | 
+			cache checker
+				runRules: {aRule}
+				onPackage: package
+				withoutTestCase: removeTestCase ].
+	(cache checker criticsOf: aRule)
+		do: [ :crit | cache addCritic: crit forRule: aRule ].
+	(cache checker falsePositiveOf: aRule)
+		do: [ :crit | cache addFalsePositive: crit forRule: aRule ].
+	(cache checker toDoOf: aRule)
+		do: [ :crit | cache addToDo: crit forRule: aRule ].
+	cache updateBrowser
+]
+
 { #category : #'system annoucements' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
 	 
@@ -580,5 +599,5 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncement
 
 { #category : #api }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
-	rulesPresenter update
+	rulesPresenter needRebuild: true
 ]

@@ -1,3 +1,6 @@
+"
+tet
+"
 Class {
 	#name : #CBAbstractRuleMenu,
 	#superclass : #CBAbstractMenu,

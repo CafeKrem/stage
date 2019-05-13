@@ -18,10 +18,9 @@ CBReapplyRuleMenu class >> itemPriority [
 CBReapplyRuleMenu class >> runOn: aCriticBrowser [
 	^ aCriticBrowser selectedRule
 		ifNotNil: [ :aRule | 
-			aRule content isComposite
-				ifTrue:
-					[ aRule content rules do: [ :each | aCriticBrowser reapplyRule: each ] ]
-				ifFalse: [ aCriticBrowser reapplyRule: aRule content ] ]
+			aRule isComposite
+				ifTrue: [ aRule rules do: [ :each | aCriticBrowser reapplyRule: each ] ]
+				ifFalse: [ aCriticBrowser reapplyRule: aRule ] ]
 ]
 
 { #category : #accessing }
