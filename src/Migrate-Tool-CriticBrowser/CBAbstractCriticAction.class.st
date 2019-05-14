@@ -36,8 +36,3 @@ CBAbstractCriticAction class >> isAbstract [
 CBAbstractCriticAction class >> runOn: aCriticBrowser [
 	^ self subclassResponsibility
 ]
-
-{ #category : #accessing }
-CBAbstractCriticAction class >> title [
-	^ self subclassResponsibility
-]

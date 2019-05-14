@@ -89,6 +89,27 @@ CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescript
 			'Instance variable names on the instance- and class-side should start with a lowercase letter.'
 ]
 
+{ #category : #'action-SourceCodePresenter' }
+CriticsBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCompiledMethod [
+	| beforeModif indexRule rulePresenterTmp |
+	indexRule := (rulePresenterTmp := (criticBrowserPresenter
+		rulesPresenter roots at: 1) rules)
+		indexOf:
+			(rulePresenterTmp
+				detect: [ :e | e isKindOf: RBUnclassifiedMethodsRule ]).
+	criticBrowserPresenter rulesPresenter
+		selectPath: #(1) , indexRule asArray.
+	criticBrowserPresenter criticsPresenter selectIndex: 1.
+	beforeModif := criticBrowserPresenter sourceCodePresenter text.
+	self flag: #upgrade.
+	criticBrowserPresenter sourceCodePresenter
+		text: beforeModif , '"klm"'.
+	criticBrowserPresenter sourceCodePresenter accept.
+	self
+		assert: criticBrowserPresenter sourceCodePresenter text
+		equals: criticBrowserPresenter selectedCritic sourceAnchor entity sourceCode
+]
+
 { #category : #initialize }
 CriticsBrowserTest >> testSourceCodePresenterIsEmpty [
 	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
