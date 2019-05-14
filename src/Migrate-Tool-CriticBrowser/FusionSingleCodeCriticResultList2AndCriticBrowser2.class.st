@@ -565,10 +565,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction 
 		acceptBlock: [ :text | 
 			selectedItem := criticsPresenter selection selectedItem sourceAnchor
 				entity.
-			selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]"	
+			selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]"
 				ifTrue: [ selectedItem methodClass compile: text ]
-				ifFalse: [ Smalltalk compiler evaluate: text ]
-			"i don't manage all case but isTransformationRule is'nt defined in Rule" ]
+				ifFalse:
+					[  Smalltalk compiler evaluate: text ].
+				self updateTree]
+			"i don't manage all case but isTransformationRule is'nt defined in Rule" 
 ]
 
 { #category : #'system annoucements' }
