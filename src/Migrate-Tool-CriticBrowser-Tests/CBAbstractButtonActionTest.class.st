@@ -1,6 +1,9 @@
 Class {
 	#name : #CBAbstractButtonActionTest,
-	#superclass : #CBAbstractTest,
+	#superclass : #TestCase,
+	#instVars : [
+		'criticBrowserPresenter'
+	],
 	#category : #'Migrate-Tool-CriticBrowser-Tests'
 }
 

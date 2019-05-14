@@ -24,7 +24,7 @@ CBAbstractCriticAction class >> actions [
 
 { #category : #accessing }
 CBAbstractCriticAction class >> groupPriority [
-	^ self subclassResponsibility
+	^ self subclassResponsibility 
 ]
 
 { #category : #testing }

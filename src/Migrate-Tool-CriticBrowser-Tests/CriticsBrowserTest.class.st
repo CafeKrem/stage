@@ -1,8 +1,9 @@
 Class {
 	#name : #CriticsBrowserTest,
-	#superclass : #CBAbstractTest,
+	#superclass : #CBAbstractCriticBrowserTest,
 	#instVars : [
-		'criticBrowserWindow'
+		'criticBrowserWindow',
+		'criticBrowserPresenter'
 	],
 	#category : #'Migrate-Tool-CriticBrowser-Tests'
 }
@@ -10,8 +11,10 @@ Class {
 { #category : #running }
 CriticsBrowserTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
+
 	super setUp.
-	criticBrowserWindow := criticBrowserPresenter openWithSpec. 
+	criticBrowserPresenter := FusionSingleCodeCriticResultList2AndCriticBrowser2
+		new.
 ]
 
 { #category : #running }
@@ -25,7 +28,6 @@ CriticsBrowserTest >> tearDown [
 CriticsBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCriticsToSourceCodePresenter [
 	"this test check if he transmit the location of the critics and the range "
 
-	self setupSelectionRulesPresenter.
 	criticBrowserPresenter criticsPresenter selectIndex: 1.
 	self
 		assert: criticBrowserPresenter sourceCodePresenter text

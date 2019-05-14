@@ -206,6 +206,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
+	"                  "
 	criticsPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :selection | 
@@ -318,6 +319,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 
 { #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
+	
 	rulesPresenter
 		addColumn:
 			(StringTableColumn new
@@ -563,13 +565,16 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction 
 	self flag: #incomplete.
 	sourceCodePresenter
 		acceptBlock: [ :text | 
+			1halt.
 			selectedItem := criticsPresenter selection selectedItem sourceAnchor
 				entity.
 			selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]"
 				ifTrue: [ selectedItem methodClass compile: text ]
 				ifFalse:
 					[  Smalltalk compiler evaluate: text ].
-				self updateTree]
+				self needRebuild: true.
+				self buildWithSpec
+				]
 			"i don't manage all case but isTransformationRule is'nt defined in Rule" 
 ]
 
@@ -577,6 +582,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction 
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
 
 	SystemAnnouncer uniqueInstance unsubscribe: self
+]
+
+{ #category : #update }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateCritics [
+	self criticsPresenter needRebuild: false.
+	self criticsPresenter buildWithSpec
 ]
 
 { #category : #api }

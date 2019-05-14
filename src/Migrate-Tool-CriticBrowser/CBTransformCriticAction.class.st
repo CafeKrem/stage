@@ -19,7 +19,7 @@ CBTransformCriticAction class >> groupPriority [
 CBTransformCriticAction class >> runOn: aCriticBrowser [
 	aCriticBrowser selectedCritic 
 		ifNotNil: [ :itemCritic | itemCritic change execute ]
-		ifNil: [ self inform: 'i don ' , $' , 't known how  ' ]
+		ifNil: [ self inform: 'i don ' , $' , 't known how  to active' ]
 ]
 
 { #category : #accessing }
