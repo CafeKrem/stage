@@ -99,6 +99,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open [
 	self openOnRule: rules onEnvironment: env
 ]
 
+{ #category : #'as yet unclassified' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open: aWindowPresenter withExtent: aPoint [ 
+	aWindowPresenter extent: aPoint.
+]
+
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
 	| cbr |
@@ -108,7 +113,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule on
 		removeTestCase: false;
 		yourself.
 	cbr applyRules.
-	cbr openWithSpec
+	self open: cbr openWithSpec withExtent: 700 @ 700
 ]
 
 { #category : #specs }
