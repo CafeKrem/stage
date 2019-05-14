@@ -18,14 +18,18 @@ CBUnBanRuleMenu class >> itemPriority [
 CBUnBanRuleMenu class >> runOn: aCriticBrowser [
 	aCriticBrowser selectedRule
 		ifNotNil: [ :rule | 
-			rule rules
-				do: [ :r | 
-					aCriticBrowser allPackages
+			rule isComposite
+				ifTrue: [ rule rules
+						do: [ :r | 
+							aCriticBrowser allPackages
+								do:
+									[ :package | aCriticBrowser removeFalsePositiveRule: r forPackage: package ] ] ]
+				ifFalse: [ aCriticBrowser allPackages
 						do:
-							[ :package | aCriticBrowser removeFalsePositiveRule: r forPackage: package ] ] ]
+							[ :package | aCriticBrowser removeFalsePositiveRule: rule forPackage: package ] ] ]
 ]
 
 { #category : #accessing }
 CBUnBanRuleMenu class >> title [ 
-	^ 'Unban from selected packages'
+	^ 'Unban from selected packages it`s like unMark as FalsePositive'
 ]

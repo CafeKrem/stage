@@ -16,16 +16,20 @@ CBBanRuleMenu class >> itemPriority [
 
 { #category : #accessing }
 CBBanRuleMenu class >> runOn: aCriticBrowser [
-	^ aCriticBrowser selectedCritic
-		ifNotNil: [ :criticsCollection | 
-			criticsCollection
-				do: [ :critic | 
-					aCriticBrowser
-						addFalsePositiveRule: aCriticBrowser rule
-						forPackage: critic mcWorkingCopy ] ]
+	^ aCriticBrowser selectedRule
+		ifNotNil: [ :rule | 
+			rule isComposite
+				ifTrue: [ rule rules
+						do: [ :aRule | 
+							aCriticBrowser allPackages
+								do:
+									[ :package | aCriticBrowser addFalsePositiveRule: aRule forPackage: package ] ] ]
+				ifFalse: [ aCriticBrowser allPackages
+						do:
+							[ :package | aCriticBrowser addFalsePositiveRule: rule forPackage: package ] ] ]
 ]
 
 { #category : #accessing }
 CBBanRuleMenu class >> title [ 
-	^ 'Ban from selected packages'
+	^ 'Ban from selected packages. it`s like mark as FalsePositive '
 ]
