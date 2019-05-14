@@ -11,13 +11,13 @@ Class {
 CriticsBrowserTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
 	super setUp.
-	
 	criticBrowserWindow := criticBrowserPresenter openWithSpec. 
 ]
 
 { #category : #running }
-CriticsBrowserTest >> tearDown [ 
+CriticsBrowserTest >> tearDown [
 	criticBrowserPresenter delete.
+	criticBrowserWindow close.
 	super tearDown
 ]
 
@@ -35,12 +35,6 @@ UseForTestCriticBrowser addInstVarName: #a!
 '
 ]
 
-{ #category : #'action-CriticsPresenter' }
-CriticsBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitRangeOfCriticsToSourceCodePresenter [
-	"this test check if he transmit the location of the critics and the range "
-	
-]
-
 { #category : #initialize }
 CriticsBrowserTest >> testCriticsPresenterEmpty [
 	
@@ -49,7 +43,7 @@ CriticsBrowserTest >> testCriticsPresenterEmpty [
 
 { #category : #initialize }
 CriticsBrowserTest >> testRulePresenterAnySelectedItem [
-	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
+	self assert: criticBrowserPresenter sourceCodePresenter text equals: nil.
 ]
 
 { #category : #initialize }

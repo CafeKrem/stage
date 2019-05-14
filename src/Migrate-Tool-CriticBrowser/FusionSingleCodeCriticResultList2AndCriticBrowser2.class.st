@@ -268,11 +268,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> environment: aEnv [
 ]
 
 { #category : #private }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> falsePositiveColor [
-	^ Color darkGray
-]
-
-{ #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 	
 	^  String streamContents: [:s | aCritic sourceAnchor entity criticNameOn: s ]
@@ -531,10 +526,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 	rulesPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :aRule | 
+			"rulesPresenter selectPath: #(1)"
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
-				ifFalse: [ aRule rationale ] ].
-	rulesPresenter selectPath: #(1)
+				ifFalse: [ aRule rationale ] ]
 ]
 
 { #category : #accessing }
