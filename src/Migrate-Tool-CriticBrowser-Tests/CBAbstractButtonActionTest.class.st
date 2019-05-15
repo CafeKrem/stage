@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'criticBrowserPresenter'
 	],
-	#category : #'Migrate-Tool-CriticBrowser-Tests'
+	#category : #'Migrate-Tool-CriticBrowser-Tests-Test-Button'
 }
 
 { #category : #running }

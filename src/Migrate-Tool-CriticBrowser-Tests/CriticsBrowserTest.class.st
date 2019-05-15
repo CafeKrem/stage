@@ -5,7 +5,7 @@ Class {
 		'criticBrowserWindow',
 		'criticBrowserPresenter'
 	],
-	#category : #'Migrate-Tool-CriticBrowser-Tests'
+	#category : #'Migrate-Tool-CriticBrowser-Tests-Test-CriticBrowser'
 }
 
 { #category : #running }
@@ -15,6 +15,8 @@ CriticsBrowserTest >> setUp [
 	super setUp.
 	criticBrowserPresenter := FusionSingleCodeCriticResultList2AndCriticBrowser2
 		new.
+	self initializeCriticBrowser: criticBrowserPresenter.
+	criticBrowserWindow := criticBrowserPresenter openWithSpec
 ]
 
 { #category : #running }
@@ -45,7 +47,7 @@ CriticsBrowserTest >> testCriticsPresenterEmpty [
 
 { #category : #initialize }
 CriticsBrowserTest >> testRulePresenterAnySelectedItem [
-	self assert: criticBrowserPresenter sourceCodePresenter text equals: nil.
+	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
 ]
 
 { #category : #initialize }
@@ -72,18 +74,17 @@ CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCriticsT
 	"1second wait."
 
 	"hasSameElements: (criticBrowserPresenter criticsOf: criticBrowserPresenter rule)"
-	self setupSelectionRulesPresenter.
+
+	self setupSelectionRulesPresenter: criticBrowserPresenter.
 	self deny: criticBrowserPresenter rule isComposite.
 	self
 		assert: criticBrowserPresenter criticsPresenter items size
 		equals: 3.
-	self flag: 'good test ?'
 ]
 
 { #category : #'action-RulesPresenter' }
 CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescriptionToSourceCodePresenter [
-	| rulePresenterTmp indexRule |
-	self setupSelectionRulesPresenter.
+	self setupSelectionRulesPresenter: criticBrowserPresenter.
 	self deny: criticBrowserPresenter rule isComposite.
 	self
 		assert: criticBrowserPresenter sourceCodePresenter text

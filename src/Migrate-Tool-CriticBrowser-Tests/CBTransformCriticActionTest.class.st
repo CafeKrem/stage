@@ -4,7 +4,7 @@ A CBTransformCriticActionTest is a test class for testing the behavior of CBTran
 Class {
 	#name : #CBTransformCriticActionTest,
 	#superclass : #CBAbstractButtonActionTest,
-	#category : #'Migrate-Tool-CriticBrowser-Tests'
+	#category : #'Migrate-Tool-CriticBrowser-Tests-Test-Button'
 }
 
 { #category : #running }

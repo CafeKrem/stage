@@ -1,11 +1,16 @@
 Class {
 	#name : #CBAbstractCriticBrowserTest,
 	#superclass : #TestCase,
-	#category : #'Migrate-Tool-CriticBrowser-Tests'
+	#category : #'Migrate-Tool-CriticBrowser-Tests-Test-CriticBrowser'
 }
 
 { #category : #'as yet unclassified' }
 CBAbstractCriticBrowserTest >> initializeCriticBrowser: aCriticBrowser [
+"param: 
+	aCriticBrowser : <CriticBrowser>
+sideEffect :
+	this method fill the CriticBrowser with the rule Style and with an test environment"
+	self flag: #needToUGeneralise.
 	aCriticBrowser
 		rules: ((ReRuleManager uniqueInstance allRules groupedBy: #group) at: #Style);
 		environment:

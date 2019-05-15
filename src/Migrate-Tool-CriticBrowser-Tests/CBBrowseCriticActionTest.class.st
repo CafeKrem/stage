@@ -7,5 +7,5 @@ Class {
 	#instVars : [
 		'isMessageCall'
 	],
-	#category : #'Migrate-Tool-CriticBrowser-Tests'
+	#category : #'Migrate-Tool-CriticBrowser-Tests-Test-Button'
 }
