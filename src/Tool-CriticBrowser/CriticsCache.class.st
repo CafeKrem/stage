@@ -92,7 +92,6 @@ CriticsCache >> addCritic: aCritic forRule: aRule [
 
 { #category : #'add/remove' }
 CriticsCache >> addFalsePositive: aCritic forRule: aRule [
-
 	(falsePositives includesKey: aRule) 
 		ifFalse: [ falsePositives at: aRule put: IdentitySet new ].
 	(falsePositives at: aRule) add: aCritic. 
@@ -101,8 +100,10 @@ CriticsCache >> addFalsePositive: aCritic forRule: aRule [
 
 { #category : #'add/remove' }
 CriticsCache >> addFalsePositiveClass: aClass [ 
-	
+	 
 	| fp |
+	self flag: #testIt.
+	"this method isn't test i only test method use"
 	falsePositiveClasses add: aClass instanceSide. 
 	critics keysAndValuesDo: [ :rule :criticss |
 		fp := criticss select: [ :critic | aClass = critic criticTheNonMetaclassClass ].
@@ -113,14 +114,15 @@ CriticsCache >> addFalsePositiveClass: aClass [
 
 { #category : #'add/remove' }
 CriticsCache >> addFalsePositiveRule: aRule forPackage: aPackage [
-	
 	| fp |
-	(falsePositiveRules includesKey: aPackage) 
+	(falsePositiveRules includesKey: aPackage)
 		ifFalse: [ falsePositiveRules at: aPackage put: Set new ].
-	(falsePositiveRules at: aPackage) add: (aRule class uniqueIdentifierName). 
-	fp := (critics at: aRule ifAbsent: [^ self])
-				select: [ :c |  (self packageOf: c) package name = aPackage packageName ].	
-	fp do: [ :c | self addFalsePositive: c forRule: aRule ]
+	(falsePositiveRules at: aPackage)
+		add: aRule class uniqueIdentifierName.
+	fp := (critics at: aRule ifAbsent: [ ^ self ])
+		select:
+			[ :aCritic | (self packageOf: aCritic) package name = aPackage packageName ].
+	fp do: [ :aCritic | self addFalsePositive: aCritic forRule: aRule ]
 ]
 
 { #category : #'add/remove' }
@@ -162,6 +164,11 @@ CriticsCache >> checker: aSmallLintChercker [
 	checker := aSmallLintChercker
 ]
 
+{ #category : #accessing }
+CriticsCache >> critics [
+	^ critics
+]
+
 { #category : #protocol }
 CriticsCache >> criticsOf: aRule [
 
@@ -182,18 +189,34 @@ CriticsCache >> falsePositiveOf: aRule [
 	
 ]
 
+{ #category : #accessing }
+CriticsCache >> falsePositiveRules [
+	^ falsePositiveRules
+]
+
+{ #category : #accessing }
+CriticsCache >> falsePositives [
+	^ falsePositives
+]
+
 { #category : #initialization }
 CriticsCache >> initCache [
-
-	checker rule leaves do: [ :rule | 
-		falsePositives at: rule put: (IdentitySet newFrom: (checker falsePositiveOf: rule)).
-		toDos at: rule put: (IdentitySet newFrom: (checker toDoOf: rule)).
-		critics at: rule put: (IdentitySet newFrom: rule critics) 
-	].
-	packages do: [ :package |	
-		falsePositiveRules at: package put: (checker rejectRulesOf: package) asSet.
-		falsePositiveClasses addAll: (checker rejectClassesOf: package) asIdentitySet.
-	]
+	checker rule
+		do: [ :rule | 
+			falsePositives
+				at: rule
+				put: (IdentitySet newFrom: (checker falsePositiveOf: rule)).
+			toDos at: rule put: (IdentitySet newFrom: (checker toDoOf: rule)).
+			critics
+				at: rule
+				put: (IdentitySet newFrom: (checker criticsOf: rule)) ].
+	packages
+		do: [ :package | 
+			falsePositiveRules
+				at: package
+				put: (checker rejectRulesOf: package) asSet.
+			falsePositiveClasses
+				addAll: (checker rejectClassesOf: package) asIdentitySet ]
 ]
 
 { #category : #initialization }
@@ -221,7 +244,6 @@ CriticsCache >> isToDo: aCritic forRule: aRule [
 
 { #category : #'add/remove' }
 CriticsCache >> itemRemoved: anItem [
-
 	{ critics . toDos . falsePositives } do: [ :ruleDict |
 		ruleDict valuesDo: [ :crits |
 			crits removeAllSuchThat: [ :crit |
@@ -295,7 +317,7 @@ CriticsCache >> logToDosInManifest [
 
 { #category : #private }
 CriticsCache >> packageOf: aCritc [
-	^ aCritc sourceAnchor entity mcWorkingCopy 
+	^ aCritc sourceAnchor entity package
 ]
 
 { #category : #accessing }
@@ -366,18 +388,18 @@ CriticsCache >> removeFalsePositiveClass: aClass [
 { #category : #'add/remove' }
 CriticsCache >> removeFalsePositiveRule: aRule forPackage: aPackage [
 	| fp |
-	
-	(falsePositiveRules includesKey: aPackage) 
-		ifFalse: [^ self].
-	
-	(falsePositiveRules at:aPackage) remove: (aRule class uniqueIdentifierName) ifAbsent: [^ self]. 
-
-	fp := (critics at: aRule ifAbsent: [^ self])
-		select: [:c | ((self packageOf: c) package name) = (aPackage packageName) and: [
-						(falsePositiveClasses includes: c criticTheNonMetaclassClass) not]].			
-	fp do: [:c | self removeFalsePositive: c forRule: aRule]. 
-	
-	self updateBrowser 
+	(falsePositiveRules includesKey: aPackage)
+		ifFalse: [ ^ self ].
+	(falsePositiveRules at: aPackage)
+		remove: aRule class uniqueIdentifierName
+		ifAbsent: [ ^ self ].
+	fp := (critics at: aRule ifAbsent: [ ^ self ])
+		select: [ :c | 1 halt.
+			(self packageOf: c) package name = aPackage packageName
+				and: [ (falsePositiveClasses
+						includes: c sourceAnchor entity criticTheNonMetaclassClass) not ] ].
+	fp do: [ :c | self removeFalsePositive: c forRule: aRule ].
+	self updateBrowser
 ]
 
 { #category : #'add/remove' }
@@ -419,6 +441,11 @@ CriticsCache >> replaceAll: oldMethod by: newMethod [
 				each remove: oldMethod.
 				each add: newMethod ]]
 	
+]
+
+{ #category : #accessing }
+CriticsCache >> toDos [
+	^ toDos
 ]
 
 { #category : #protocol }

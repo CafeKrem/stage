@@ -107,6 +107,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open: aWindowPresent
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
 	| cbr |
+	1 halt.
 	cbr := self new
 		rules: aRule;
 		environment: aEnv;
@@ -161,6 +162,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 	checker := cache checker.
 	rbEnvironment packages
 		do: [ :package | 
+			1 halt.
 			checker
 				runRules: rules
 				onPackage: package
