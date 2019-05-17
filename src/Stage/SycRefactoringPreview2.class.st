@@ -7,7 +7,8 @@ Class {
 		'textArea',
 		'changes',
 		'scopeDropList',
-		'table'
+		'table',
+		'selectedCheckBoxs'
 	],
 	#category : #'Stage-things'
 }
@@ -63,7 +64,9 @@ SycRefactoringPreview2 class >> title [
 SycRefactoringPreview2 >> accept [
 	self okToChange
 		ifFalse: [ ^ self ].
-	[ self pickedChanges do: [ :change | RBRefactoryChangeManager instance performChange: change ] ] asJob
+	[ self pickedChanges 
+		do: [ :change | RBRefactoryChangeManager instance performChange: change ] ]
+		asJob
 		title: 'Refactoring';
 		run.
 	self window delete
@@ -90,6 +93,17 @@ SycRefactoringPreview2 >> asEpiceaEvent [
 	^ changes size > 1
 		ifTrue: [ EpCompositeRefactoring withAll: changes ]
 		ifFalse: [ changes anyOne asEpiceaEvent ].
+]
+
+{ #category : #private }
+SycRefactoringPreview2 >> buildDiffFor: aChange [
+
+	^ aChange
+		ifNil: [ '' ]
+		ifNotNil: [
+			TextDiffBuilder 
+				buildDisplayPatchFrom: aChange oldVersionTextToDisplay 
+				to: aChange textToDisplay ].
 ]
 
 { #category : #controlling }
@@ -134,28 +148,41 @@ SycRefactoringPreview2 >> generateChanges [
 ]
 
 { #category : #initialization }
-SycRefactoringPreview2 >> initializePresenter [
-	table
-		whenSelectionChangedDo: [  ].
-
+SycRefactoringPreview2 >> initialize [
+	selectedCheckBoxs := OrderedCollection new.
+	super initialize
 ]
 
 { #category : #initialization }
-SycRefactoringPreview2 >> initializeScopeDropList [
+SycRefactoringPreview2 >> initializePresenter [
+	table
+		transmitTo: textArea
+		transform: [ :selectedItem | self buildDiffFor: selectedItem ].
 	scopeDropList
-		displayBlock: [ :scope | scope description capitalized ];
 		whenSelectedItemChangedDo: [ :scope | scope ifNotNil: [ self updateChanges ] ]
 ]
 
-{ #category : #initialization }
-SycRefactoringPreview2 >> initializeTable [
-	self flag: #needCheckBoxTable.	
-	table 
-		addColumn: (ImageTableColumn title: 'checkbox' evaluated: []);
-		addColumn: (StringTableColumn title: 'methods' evaluated: [:x | x name]) 		
+{ #category : #'initialize-widgets' }
+SycRefactoringPreview2 >> initializeScopeDropList [
+	scopeDropList
+		displayBlock: [ :scope | scope description capitalized ]
+		
 ]
 
-{ #category : #initialization }
+{ #category : #'initialize-widgets' }
+SycRefactoringPreview2 >> initializeTable [
+	table
+		addColumn:
+			((CheckBoxTableColumn
+				title: ' '
+				evaluated: [ :x | selectedCheckBoxs includes: x ])
+				onActivation: [ :class | selectedCheckBoxs add: class ];
+				onDesactivation: [ :class | selectedCheckBoxs remove: class ];
+				width: 20);
+		addColumn: (StringTableColumn title: 'methods' evaluated: [ :x | x name ])
+]
+
+{ #category : #'initialize-widgets' }
 SycRefactoringPreview2 >> initializeTextArea [
 	textArea 
 		enabled: false;
@@ -174,10 +201,7 @@ SycRefactoringPreview2 >> initializeWidgets [
 	self initializeTable.
 	self initializeTextArea.
 	self initializeScopeDropList.
-	self setFocus.
-	self
-		bindKeyCombination: PharoShortcuts current acceptShortcut toAction: [ self accept ];
-		bindKeyCombination: Character escape toAction: [ self cancel ]
+	self setShortcuts.
 ]
 
 { #category : #'epicea support' }
@@ -194,11 +218,11 @@ SycRefactoringPreview2 >> open [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : #private }
 SycRefactoringPreview2 >> pickedChanges [
 	| selectedItems |
-	selectedItems := table selectedItems collect: #content.
-	^ table roots select: [ :i | selectedItems includes: i ]
+	selectedItems := table items.
+	^ selectedItems select: [ :item |selectedCheckBoxs  includes: item ]
 ]
 
 { #category : #accessing }
@@ -218,16 +242,11 @@ SycRefactoringPreview2 >> scopes: anObject [
 ]
 
 { #category : #initialization }
-SycRefactoringPreview2 >> setFocus [
-	self focusOrder
-		add: table;
-		add: textArea;
-		yourself
-]
-
-{ #category : #initialization }
 SycRefactoringPreview2 >> setShortcuts [
-	self changesTree attachKeymapCategory: #ChangesBrowserGlobalShortcuts targetting: self
+	self changesTree attachKeymapCategory: #ChangesBrowserGlobalShortcuts targetting: self.
+	self
+		bindKeyCombination: PharoShortcuts current acceptShortcut toAction: [ self accept ];
+		bindKeyCombination: Character escape toAction: [ self cancel ]
 ]
 
 { #category : #accessing }
