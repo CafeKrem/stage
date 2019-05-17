@@ -36,13 +36,11 @@ SycRefactoringPreview2 class >> defaultSpec [
 	^ SpecBoxLayout newVertical
 		add: #table;
 		add: #scopeDropList withConstraints: [ :x | x height: 30 ];
-		"addSplitter;"
-			add: #textArea
+		add: #textArea
 ]
 
 { #category : #'instance creation' }
 SycRefactoringPreview2 class >> for: aCommand scopes: scopes [
-
 	^ self new
 		command: aCommand;
 		scopes: scopes
