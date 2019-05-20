@@ -13,8 +13,8 @@
 		* Reflexivité  
 * sujet de stage:  développement d’interfaces graphiques avec Spec  ( une framework  écrit en pharo )
 * listing des projet 
-	* migration des interfaces de refactoring **STOP**
-	* migration du SystemReporter (une fenêtre qui donne des info sur le système ) STOP 
+	* migration des interfaces de refactoring  **STOP**
+	* migration du SystemReporter (une fenêtre qui donne des info sur le système ) **STOP** 
 	* migration du CriticBrowser (interface utilise pour verifier que certain package verifie certaine regle donne a la creation de la class ) **EN COURS**
 		* UIManager seras remplacer plus tard par un composant Spec.je suis abonné à l’issue sur ce probleme 
 	* Merlin ( un outils qui permettras de créer des wizard plus facilement dans Moose  )  **PAS ENCORE COMMENCER**
@@ -66,7 +66,7 @@
 	* Cyril m’as proposer au lieu de desactiver le button lorsqu’il ne rentre pas dans le cas d’utilisation de laisser l’utilisateur clicker dessus mais juste lui afficher un popup qui dit comment ‘activer’ ce button
 * vendredi : conference avec une equipe qui vient de brussels 
 
-## Semaine du 3 Mai
+## Semaine du 6 Mai
 
 * utilisation de Mocketery (framework de Mock)
 * continue CriticsBrowser
@@ -74,3 +74,8 @@
 * 1er contribution a Spec  
 * aide Dayne , une stagiaire de master , menbre de l’equipe , sur l'interface de dcTest  
 
+## semaine du 13 Mai
+
+* je continue la migration du criticBrowser
+* j'ai fait du pair Programming avec Benoit , un doctorant qui travail sur l'autmatisation de la migration d'interface , nous avons donc travailler sur l'automatisation de la migration de Spec 1 vers Spec 2 . c'est resultat seront donc publier dans un article de recherche pour  [IWST](http://esug.org/wiki/pier/Conferences/2018/International-Workshop-IWST_18)  , j'ecrirais un paragraphe dans cette article  
+* j'ai decidé de faire une petite pause du CriticBrowser et de reprendre un projet plus petit (interface de refactoring). le CriticBrowser que je reprendrais apres avoir finie cette tache 
