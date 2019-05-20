@@ -104,10 +104,7 @@ SycMethodNameEditor2 >> acceptButtonAction [
 	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that it freeze the global window and we can only interact with the local window )"
 	^ [ :presenter | 
 	self previewResult label = '(invalid)'
-		ifTrue: [ self inform: 'Invalid method name'.
-			presenter
-				beCancel;
-				close ]
+		ifTrue: [ self inform: 'Invalid method name' ]
 		ifFalse: [ self inform: 'Ok action'.
 			compiledMethod
 				arguments: argumentsList items;
