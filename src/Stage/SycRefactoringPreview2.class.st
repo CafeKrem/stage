@@ -13,10 +13,10 @@ I a UI use to select modification that you want to sdo
 	changes:		<Array<RBRefactroring>>
 	scopeDropList:		<DropListPresenter>
 	scopes:		<ClyScope>
-	selectedCheckBoxs:		<OrderedCollection>
+	selectedCheckBoxs:		<Dictionary>
 	table:		<TablePresenter>
 	textArea:		<SourceCodePresenter>
-
+	
 
     Implementation Points
 "
@@ -105,7 +105,7 @@ SycRefactoringPreview2 >> activeScope [
 
 { #category : #'epicea support' }
 SycRefactoringPreview2 >> asEpiceaEvent [
-
+	"thanks to this method epicia know that is a refactoring"
 	self flag: #todo. "This is a workaround for a problem found by RewriteTool"
 	(changes allSatisfy: [ :each | each respondsTo: #asEpiceaEvent ])
 		ifFalse: [ ^ EpCompositeRefactoring withAll: #() ].

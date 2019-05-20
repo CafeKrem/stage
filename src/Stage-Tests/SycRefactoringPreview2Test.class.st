@@ -61,30 +61,38 @@ SycRefactoringPreview2Test >> testDoubleClickAnTableItemShouldChangeTheValueAsso
 
 { #category : #tests }
 SycRefactoringPreview2Test >> testDropListChangeShouldChangeTableItems [
-	| tableItemBeforeChangeDropList tableItemAfterChangeDropList className |
-	self initializeForInitializeTest.
+	"this method can't be test because i can't isolate the command"
+	| tableItemBeforeChangeDropList className |
+	self flag: #toTest.
+	self assert: false.
+	"self initializeForInitializeTest.
 	tableItemBeforeChangeDropList := sycRefactoringPreview table items.
 	sycRefactoringPreview scopeDropList selectIndex: 2.
 	className := sycRefactoringPreview table items at: 1.
 	self
 		assert:
 			(sycRefactoringPreview table items
-				allSatisfy: [ :element | element class = className ])
+				allSatisfy: [ :element | element class = className ])"
 ]
 
 { #category : #'initialize-test' }
 SycRefactoringPreview2Test >> testInitAllCheckBoxDictionarySetTrue [
-	self initializeForInitializeTest.
+	"this method can't be test because i can't isolate the command"
+	self assert: false.
+	"self initializeForInitializeTest.
 	self
 		assert:
 			(sycRefactoringPreview selectedCheckBoxs
-				allSatisfy: [ :key | sycRefactoringPreview selectedCheckBoxs at: key ])
+				allSatisfy: [ :key | sycRefactoringPreview selectedCheckBoxs at: key ])"
+			
 ]
 
 { #category : #'initialize-test' }
 SycRefactoringPreview2Test >> testInitTextAreaShouldEmpty [
-	self initializeForInitializeTest.
-	self assert: sycRefactoringPreview textArea text equals: ''.
+	"this method can't be test because i can't isolate the command"
+	self assert: false.
+	"self initializeForInitializeTest.
+	self assert: sycRefactoringPreview textArea text equals: ''."
 ]
 
 { #category : #tests }
