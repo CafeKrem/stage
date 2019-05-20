@@ -1,14 +1,36 @@
+"
+HOW TO RUN 
+	scopePackage := ClyPackageScope of: 'Stage' asPackage in: ClyNavigationEnvironment currentImage.
+	scopeClass := ClyClassScope of: 'SycRefactoringPreview' in: ClyNavigationEnvironment currentImage.
+	
+	SycRefactoringPreview2 for:  scope: { scopePackage . scopeClass } 
+Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
+
+I a UI use to select modification that you want to sdo 
+(add Method remove method) when you want to rename a Method
+
+    Instance Variables
+	changes:		<Array<RBRefactroring>>
+	scopeDropList:		<DropListPresenter>
+	scopes:		<ClyScope>
+	selectedCheckBoxs:		<OrderedCollection>
+	table:		<TablePresenter>
+	textArea:		<SourceCodePresenter>
+
+
+    Implementation Points
+"
 Class {
 	#name : #SycRefactoringPreview2,
 	#superclass : #ComposablePresenter,
 	#instVars : [
-		'command',
 		'scopes',
 		'textArea',
 		'changes',
 		'scopeDropList',
 		'table',
-		'selectedCheckBoxs'
+		'selectedCheckBoxs',
+		'command'
 	],
 	#category : #'Stage-things'
 }
@@ -120,16 +142,6 @@ SycRefactoringPreview2 >> changes: aCollection [
 ]
 
 { #category : #accessing }
-SycRefactoringPreview2 >> changesTree [
-	^ table
-]
-
-{ #category : #accessing }
-SycRefactoringPreview2 >> command [
-	^ command
-]
-
-{ #category : #accessing }
 SycRefactoringPreview2 >> command: aCommand [
 	command := aCommand
 ]
@@ -147,15 +159,20 @@ SycRefactoringPreview2 >> generateChanges [
 
 { #category : #initialization }
 SycRefactoringPreview2 >> initialize [
-	selectedCheckBoxs := OrderedCollection new.
 	super initialize
 ]
 
 { #category : #initialization }
 SycRefactoringPreview2 >> initializePresenter [
+	super initializePresenter.
 	table
 		transmitTo: textArea
 		transform: [ :selectedItem | self buildDiffFor: selectedItem ].
+	table
+		whenActivatedDo: [ :selectedElement | 
+			self
+				modifCheckBoxSelection: selectedElement widget selection selectedItem.
+			self rebuild ].
 	scopeDropList
 		whenSelectedItemChangedDo: [ :scope | scope ifNotNil: [ self updateChanges ] ]
 ]
@@ -173,9 +190,9 @@ SycRefactoringPreview2 >> initializeTable [
 		addColumn:
 			((CheckBoxTableColumn
 				title: ' '
-				evaluated: [ :x | selectedCheckBoxs includes: x ])
-				onActivation: [ :class | selectedCheckBoxs add: class ];
-				onDesactivation: [ :class | selectedCheckBoxs remove: class ];
+				evaluated: [ :x | selectedCheckBoxs at: x ])
+				onActivation: [ :class | self modifCheckBoxSelection: class ];
+				onDesactivation: [ :class | self modifCheckBoxSelection: class ];
 				width: 20);
 		addColumn: (StringTableColumn title: 'methods' evaluated: [ :x | x name ])
 ]
@@ -199,6 +216,7 @@ SycRefactoringPreview2 >> initializeWidgets [
 	self initializeTable.
 	self initializeTextArea.
 	self initializeScopeDropList.
+	self selectectAllCheckBox.
 	self setShortcuts.
 ]
 
@@ -206,6 +224,13 @@ SycRefactoringPreview2 >> initializeWidgets [
 SycRefactoringPreview2 >> isEpiceaInterestingJobOwner [
 
 	^ true
+]
+
+{ #category : #private }
+SycRefactoringPreview2 >> modifCheckBoxSelection: anItem [
+	"it's normal it's impossible that anItem dosn't store in dictionary because at initialize i fill the dictionary and at each scope change"
+
+	selectedCheckBoxs at: anItem put: (selectedCheckBoxs at: anItem) not
 ]
 
 { #category : #controlling }
@@ -218,9 +243,13 @@ SycRefactoringPreview2 >> open [
 
 { #category : #private }
 SycRefactoringPreview2 >> pickedChanges [
-	| selectedItems |
-	selectedItems := table items.
-	^ selectedItems select: [ :item |selectedCheckBoxs  includes: item ]
+	^ table items select: [:item |selectedCheckBoxs includesKey: item  ] 
+]
+
+{ #category : #update }
+SycRefactoringPreview2 >> rebuild [
+	self needRebuild: false.
+	self buildWithSpec
 ]
 
 { #category : #accessing }
@@ -239,12 +268,23 @@ SycRefactoringPreview2 >> scopes: anObject [
 	scopeDropList items: scopes "It also sets up first item as selection"
 ]
 
+{ #category : #accessing }
+SycRefactoringPreview2 >> selectectAllCheckBox [
+	selectedCheckBoxs := Dictionary new.
+	table items
+		do: [ :tableItem | selectedCheckBoxs at: tableItem put: true ]
+]
+
 { #category : #initialization }
 SycRefactoringPreview2 >> setShortcuts [
-	self changesTree attachKeymapCategory: #ChangesBrowserGlobalShortcuts targetting: self.
 	self
 		bindKeyCombination: PharoShortcuts current acceptShortcut toAction: [ self accept ];
 		bindKeyCombination: Character escape toAction: [ self cancel ]
+]
+
+{ #category : #accessing }
+SycRefactoringPreview2 >> table [
+	^ table
 ]
 
 { #category : #accessing }
@@ -257,8 +297,7 @@ SycRefactoringPreview2 >> updateChanges [
 	| aCompositeChange |
 	self generateChanges.
 	aCompositeChange := RBCompositeRefactoryChange new.
-	changes do: [:each | aCompositeChange addChange: each ].
-	
+	changes do: [ :each | aCompositeChange addChange: each ].
 	table items: (aCompositeChange whatToDisplayIn: self).
-	table selectAll
+	self selectectAllCheckBox
 ]
