@@ -53,6 +53,12 @@ SycRefactoringPreview2Test >> testBuilDiffMethod [
 ]
 
 { #category : #tests }
+SycRefactoringPreview2Test >> testDiffBuilderNilSendMustReturnEmptyChar [
+	sycRefactoringPreview := SycRefactoringPreview2 new.
+	self assert:  (sycRefactoringPreview buildDiffFor: nil) equals: ''.
+]
+
+{ #category : #tests }
 SycRefactoringPreview2Test >> testDoubleClickAnTableItemShouldChangeTheValueAssociateToKey [
 	| mockTreeTableItem1 mockTreeTableItem2 mockTreeTableItem3 |
 	mockTreeTableItem1 := MockTreeTableItem new.
