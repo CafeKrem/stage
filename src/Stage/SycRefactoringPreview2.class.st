@@ -24,13 +24,12 @@ Class {
 	#name : #SycRefactoringPreview2,
 	#superclass : #ComposablePresenter,
 	#instVars : [
-		'scopes',
 		'textArea',
 		'changes',
 		'scopeDropList',
 		'table',
-		'selectedCheckBoxs',
-		'command'
+		'command',
+		'selectedRefactorings'
 	],
 	#category : #'Stage-things'
 }
@@ -94,18 +93,18 @@ SycRefactoringPreview2 >> accept [
 
 { #category : #accessing }
 SycRefactoringPreview2 >> activeRBEnvironment [
-	
-	^self activeScope asRBEnvironment
+	^ self activeScope asRBEnvironment
 ]
 
 { #category : #accessing }
 SycRefactoringPreview2 >> activeScope [
-	^scopeDropList selectedItem
+	^ scopeDropList selectedItem
 ]
 
 { #category : #'epicea support' }
 SycRefactoringPreview2 >> asEpiceaEvent [
 	"thanks to this method epicia know that is a refactoring"
+	
 	self flag: #todo. "This is a workaround for a problem found by RewriteTool"
 	(changes allSatisfy: [ :each | each respondsTo: #asEpiceaEvent ])
 		ifFalse: [ ^ EpCompositeRefactoring withAll: #() ].
@@ -146,7 +145,7 @@ SycRefactoringPreview2 >> command: aCommand [
 	command := aCommand
 ]
 
-{ #category : #accessing }
+{ #category : #update }
 SycRefactoringPreview2 >> generateChanges [
 
 	| rbEnvironment |
@@ -158,8 +157,9 @@ SycRefactoringPreview2 >> generateChanges [
 ]
 
 { #category : #initialization }
-SycRefactoringPreview2 >> initialize [
-	super initialize
+SycRefactoringPreview2 >> initializeDialogWindow: aDialogWindowPresenter [
+	super initializeDialogWindow: aDialogWindowPresenter.
+	aDialogWindowPresenter title: self title
 ]
 
 { #category : #initialization }
@@ -168,56 +168,42 @@ SycRefactoringPreview2 >> initializePresenter [
 	table
 		transmitTo: textArea
 		transform: [ :selectedItem | self buildDiffFor: selectedItem ].
+		
 	table
 		whenActivatedDo: [ :selectedElement | 
-			self
-				modifCheckBoxSelection: selectedElement widget selection selectedItem.
+			self toggleSelectionOf: selectedElement widget selection selectedItem.
 			self rebuild ].
-	scopeDropList
-		whenSelectedItemChangedDo: [ :scope | scope ifNotNil: [ self updateChanges ] ]
-]
-
-{ #category : #'initialize-widgets' }
-SycRefactoringPreview2 >> initializeScopeDropList [
-	scopeDropList
-		displayBlock: [ :scope | scope description capitalized ]
 		
+	scopeDropList
+		whenSelectedItemChangedDo: [ :scope | self updateChanges ]
 ]
 
-{ #category : #'initialize-widgets' }
+{ #category : #initialization }
 SycRefactoringPreview2 >> initializeTable [
 	table
 		addColumn:
-			((CheckBoxTableColumn
-				title: ' '
-				evaluated: [ :x | selectedCheckBoxs at: x ])
-				onActivation: [ :class | self modifCheckBoxSelection: class ];
-				onDesactivation: [ :class | self modifCheckBoxSelection: class ];
+			((CheckBoxTableColumn evaluated: [ :x | selectedRefactorings at: x ])
+				onActivation: [ :class | self toggleSelectionOf: class ];
+				onDesactivation: [ :class | self toggleSelectionOf: class ];
 				width: 20);
-		addColumn: (StringTableColumn title: 'methods' evaluated: [ :x | x name ])
-]
-
-{ #category : #'initialize-widgets' }
-SycRefactoringPreview2 >> initializeTextArea [
-	textArea 
-		enabled: false;
-		"make sure we can cycle over the text field"
-		bindKeyCombination: Character tab toAction: [ self giveFocusToNextFrom: textArea ];
-		bindKeyCombination: Character tab shift toAction: [ self giveFocusToPreviousFrom: textArea ].
+		addColumn: (StringTableColumn evaluated: [ :x | x name ]);
+		hideColumnHeaders
 ]
 
 { #category : #initialization }
 SycRefactoringPreview2 >> initializeWidgets [
-
 	table := self newTable.
 	textArea := self newCode.
 	scopeDropList := self newDropList.
 	
 	self initializeTable.
-	self initializeTextArea.
-	self initializeScopeDropList.
-	self selectectAllCheckBox.
-	self setShortcuts.
+	textArea enabled: false.
+	scopeDropList displayBlock: [ :scope | scope description capitalized ].
+	
+	self
+		selectectAllCheckBox;
+		setShortcuts;
+		setFocus
 ]
 
 { #category : #'epicea support' }
@@ -226,24 +212,10 @@ SycRefactoringPreview2 >> isEpiceaInterestingJobOwner [
 	^ true
 ]
 
-{ #category : #private }
-SycRefactoringPreview2 >> modifCheckBoxSelection: anItem [
-	"it's normal it's impossible that anItem dosn't store in dictionary because at initialize i fill the dictionary and at each scope change"
-
-	selectedCheckBoxs at: anItem put: (selectedCheckBoxs at: anItem) not
-]
-
-{ #category : #controlling }
-SycRefactoringPreview2 >> open [
-	^ self openDialogWithSpec
-		okAction: [ self accept ];
-		cancelAction: [ self cancel ];
-		yourself
-]
-
-{ #category : #private }
+{ #category : #accessing }
 SycRefactoringPreview2 >> pickedChanges [
-	^ table items select: [:item |selectedCheckBoxs includesKey: item  ] 
+	^ table items
+		select: [ :item | selectedRefactorings at: item ]
 ]
 
 { #category : #update }
@@ -258,21 +230,23 @@ SycRefactoringPreview2 >> scopeDropList [
 ]
 
 { #category : #accessing }
-SycRefactoringPreview2 >> scopes [
-	^ scopes
+SycRefactoringPreview2 >> scopes: aCollectionOfScopes [
+	scopeDropList items: aCollectionOfScopes "It also sets up first item as selection"
 ]
 
-{ #category : #accessing }
-SycRefactoringPreview2 >> scopes: anObject [
-	scopes := anObject.
-	scopeDropList items: scopes "It also sets up first item as selection"
-]
-
-{ #category : #accessing }
+{ #category : #update }
 SycRefactoringPreview2 >> selectectAllCheckBox [
-	selectedCheckBoxs := Dictionary new.
+	selectedRefactorings := Dictionary new.
 	table items
-		do: [ :tableItem | selectedCheckBoxs at: tableItem put: true ]
+		do: [ :refactoring | selectedRefactorings at: refactoring put: true ]
+]
+
+{ #category : #initialization }
+SycRefactoringPreview2 >> setFocus [
+	self focusOrder
+		add: table;
+		add: scopeDropList;
+		add: textArea
 ]
 
 { #category : #initialization }
@@ -293,11 +267,28 @@ SycRefactoringPreview2 >> textArea [
 ]
 
 { #category : #accessing }
+SycRefactoringPreview2 >> title [
+	^ self class title
+]
+
+{ #category : #private }
+SycRefactoringPreview2 >> toggleSelectionOf: aRefactoring [
+	"it's normal it's impossible that anItem dosn't store in dictionary because at initialize i fill the dictionary and at each scope change"
+
+	selectedRefactorings at: aRefactoring put: (selectedRefactorings at: aRefactoring) not
+]
+
+{ #category : #update }
 SycRefactoringPreview2 >> updateChanges [
-	| aCompositeChange |
 	self generateChanges.
+	self updateTablePresenter.
+	self selectectAllCheckBox
+]
+
+{ #category : #update }
+SycRefactoringPreview2 >> updateTablePresenter [
+	| aCompositeChange |
 	aCompositeChange := RBCompositeRefactoryChange new.
 	changes do: [ :each | aCompositeChange addChange: each ].
-	table items: (aCompositeChange whatToDisplayIn: self).
-	self selectectAllCheckBox
+	table items: (aCompositeChange whatToDisplayIn: self)
 ]
