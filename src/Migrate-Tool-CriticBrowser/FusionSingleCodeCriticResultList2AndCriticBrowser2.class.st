@@ -107,14 +107,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open: aWindowPresent
 { #category : #'instance creation' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
 	| cbr |
-	1 halt.
 	cbr := self new
 		rules: aRule;
 		environment: aEnv;
 		removeTestCase: false;
 		yourself.
 	cbr applyRules.
-	self open: cbr openWithSpec withExtent: 700 @ 700
+	self open: cbr openWithSpec withExtent: 700 @ 700.
+	^ cbr
 ]
 
 { #category : #specs }
@@ -162,7 +162,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 	checker := cache checker.
 	rbEnvironment packages
 		do: [ :package | 
-			1 halt.
 			checker
 				runRules: rules
 				onPackage: package
@@ -174,8 +173,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 ]
 
 { #category : #accessing }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  acache [ 
-	cache := acache
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  aCache [ 
+	cache := aCache
 ]
 
 { #category : #initialize }
@@ -270,8 +269,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> diffTextForChange: aRefact
 ]
 
 { #category : #accessing }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> environment: aEnv [
-	rbEnvironment := aEnv
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> environment: aEnvironment [
+	rbEnvironment := aEnvironment
  
 ]
 
@@ -567,7 +566,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction 
 	self flag: #incomplete.
 	sourceCodePresenter
 		acceptBlock: [ :text | 
-			1halt.
 			selectedItem := criticsPresenter selection selectedItem sourceAnchor
 				entity.
 			selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]"

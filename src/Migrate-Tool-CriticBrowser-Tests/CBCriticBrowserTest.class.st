@@ -1,38 +1,61 @@
 Class {
-	#name : #CriticsBrowserTest,
-	#superclass : #CBAbstractCriticBrowserTest,
-	#instVars : [
-		'criticBrowserWindow',
-		'criticBrowserPresenter'
-	],
+	#name : #CBCriticBrowserTest,
+	#superclass : #CBAbstractTest,
 	#category : #'Migrate-Tool-CriticBrowser-Tests-Test-CriticBrowser'
 }
 
-{ #category : #running }
-CriticsBrowserTest >> setUp [
-	"Hooks that subclasses may override to define the fixture of test."
+{ #category : #setup }
+CBCriticBrowserTest >> environement [
+	^ RBPackageEnvironment
+		packageName: 'Migrate-Tool-CriticBrowser-environementTest'
+]
 
-	super setUp.
-	criticBrowserPresenter := FusionSingleCodeCriticResultList2AndCriticBrowser2
-		new.
-	self initializeCriticBrowser: criticBrowserPresenter.
-	criticBrowserWindow := criticBrowserPresenter openWithSpec
+{ #category : #setup }
+CBCriticBrowserTest >> instanceOfCriticBrowser [
+	^ FusionSingleCodeCriticResultList2AndCriticBrowser2
+]
+
+{ #category : #setup }
+CBCriticBrowserTest >> rulesToTest [
+	^ (ReRuleManager uniqueInstance allRules groupedBy: #group) at: #Style
 ]
 
 { #category : #running }
-CriticsBrowserTest >> tearDown [
-	criticBrowserPresenter delete.
-	criticBrowserWindow close.
-	super tearDown
+CBCriticBrowserTest >> setUp [
+	"Hooks that subclasses may override to define the fixture of test."
+
+	super setUp
+]
+
+{ #category : #UIModification }
+CBCriticBrowserTest >> setupCriticBrowser: aCriticBrowser [
+	self setupSelectionRulesPresenter: aCriticBrowser.
+	self setupSelectionCriticPresenter: aCriticBrowser
+]
+
+{ #category : #UIModification }
+CBCriticBrowserTest >> setupSelectionCriticPresenter: aCriticBrowser [
+	aCriticBrowser criticsPresenter selectIndex: 1
+]
+
+{ #category : #UIModification }
+CBCriticBrowserTest >> setupSelectionRulesPresenter: aCriticBrowser [
+	| indexRule rulePresenterTmp |
+	indexRule := (rulePresenterTmp := (aCriticBrowser rulesPresenter
+		roots at: 1) rules)
+		indexOf:
+			(rulePresenterTmp
+				detect: [ :e | e isKindOf: GRInstanceVariableCapitalizationRule ]).
+	aCriticBrowser rulesPresenter selectPath: #(1) , indexRule asArray
 ]
 
 { #category : #'action-CriticsPresenter' }
-CriticsBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCriticsToSourceCodePresenter [
+CBCriticBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCriticsToSourceCodePresenter [
 	"this test check if he transmit the location of the critics and the range "
 
-	criticBrowserPresenter criticsPresenter selectIndex: 1.
+	self setupCriticBrowser: criticBrowser.
 	self
-		assert: criticBrowserPresenter sourceCodePresenter text
+		assert: criticBrowser sourceCodePresenter text
 		equals:
 			'UseForTestCriticBrowser removeInstVarName: #A!
 UseForTestCriticBrowser addInstVarName: #a!
@@ -40,37 +63,37 @@ UseForTestCriticBrowser addInstVarName: #a!
 ]
 
 { #category : #initialize }
-CriticsBrowserTest >> testCriticsPresenterEmpty [
+CBCriticBrowserTest >> testCriticsPresenterEmpty [
 	
 	self assert: criticBrowserPresenter criticsPresenter items isEmpty 
 ]
 
 { #category : #initialize }
-CriticsBrowserTest >> testRulePresenterAnySelectedItem [
+CBCriticBrowserTest >> testRulePresenterAnySelectedItem [
 	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
 ]
 
 { #category : #initialize }
-CriticsBrowserTest >> testRulesPresenterAnySelectedItem [
+CBCriticBrowserTest >> testRulesPresenterAnySelectedItem [
 	self assert: criticBrowserPresenter rulesPresenter  selectedItem equals: nil.
 ]
 
 { #category : #'action-RulesPresenter' }
-CriticsBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToCriticsPresenter [
+CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToCriticsPresenter [
 	criticBrowserPresenter rulesPresenter selectPath: #(1).
 	self assert: criticBrowserPresenter rule isComposite.
 	self assert: criticBrowserPresenter criticsPresenter items isEmpty 
 ]
 
 { #category : #'action-RulesPresenter' }
-CriticsBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToSourceCodePresenter [
+CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToSourceCodePresenter [
 	criticBrowserPresenter rulesPresenter selectPath: #(1).
 	self assert: criticBrowserPresenter rule isComposite.
 	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
 ]
 
 { #category : #'action-RulesPresenter' }
-CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCriticsToCriticsPresenter [
+CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCriticsToCriticsPresenter [
 	"1second wait."
 
 	"hasSameElements: (criticBrowserPresenter criticsOf: criticBrowserPresenter rule)"
@@ -83,7 +106,7 @@ CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCriticsT
 ]
 
 { #category : #'action-RulesPresenter' }
-CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescriptionToSourceCodePresenter [
+CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescriptionToSourceCodePresenter [
 	self setupSelectionRulesPresenter: criticBrowserPresenter.
 	self deny: criticBrowserPresenter rule isComposite.
 	self
@@ -93,7 +116,7 @@ CriticsBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescript
 ]
 
 { #category : #'action-SourceCodePresenter' }
-CriticsBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCompiledMethod [
+CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCompiledMethod [
 	| beforeModif indexRule rulePresenterTmp |
 	indexRule := (rulePresenterTmp := (criticBrowserPresenter
 		rulesPresenter roots at: 1) rules)
@@ -110,10 +133,11 @@ CriticsBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsComp
 	criticBrowserPresenter sourceCodePresenter accept.
 	self
 		assert: criticBrowserPresenter sourceCodePresenter text
-		equals: criticBrowserPresenter selectedCritic sourceAnchor entity sourceCode
+		equals: criticBrowserPresenter selectedCritic sourceAnchor entity sourceCode.
+	criticBrowserPresenter sourceCodePresenter text: beforeModif 
 ]
 
 { #category : #initialize }
-CriticsBrowserTest >> testSourceCodePresenterIsEmpty [
+CBCriticBrowserTest >> testSourceCodePresenterIsEmpty [
 	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
 ]
