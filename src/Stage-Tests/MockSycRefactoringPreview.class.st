@@ -1,6 +1,9 @@
 Class {
 	#name : #MockSycRefactoringPreview,
 	#superclass : #SycRefactoringPreview2,
+	#instVars : [
+		'title'
+	],
 	#category : #'Stage-Tests-util'
 }
 
@@ -13,7 +16,7 @@ MockSycRefactoringPreview >> buildDiffFor: aChange [
 { #category : #update }
 MockSycRefactoringPreview >> generateChanges [
 	"do nothing"
-	1 halt.
+	
 ]
 
 { #category : #accessing }
@@ -24,10 +27,9 @@ MockSycRefactoringPreview >> selectedRefactorings [
 { #category : #update }
 MockSycRefactoringPreview >> updateTablePresenter [
 	| mockTreeTableItem2 mockTreeTableItem3 mockTreeTableItem1 |
-	1 halt.
-	mockTreeTableItem1 := MockTreeTableItem new.
-	mockTreeTableItem2 := MockTreeTableItem new.
-	mockTreeTableItem3 := MockTreeTableItem new.
+	mockTreeTableItem1 := MockTreeTableItem title: 'mockTreeTableItem1'.
+	mockTreeTableItem2 := MockTreeTableItem title: 'mockTreeTableItem2'.
+	mockTreeTableItem3 := MockTreeTableItem title: 'mockTreeTableItem3'.
 	table
 		items:
 			{mockTreeTableItem1.

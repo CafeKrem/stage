@@ -7,6 +7,11 @@ Class {
 	#category : #'Stage-Tests-util'
 }
 
+{ #category : #accessing }
+MockTreeTableItem class >> title: aName [
+	^ self new title: aName
+]
+
 { #category : #comparing }
 MockTreeTableItem >> = anObject [
 	"Answer whether the receiver and anObject represent the same object."

@@ -92,10 +92,11 @@ SycRefactoringPreview2Test >> testDropListChangeShouldChangeTableItems [
 SycRefactoringPreview2Test >> testInitAllCheckBoxDictionarySetTrue [
 	"this method can't be test because i can't isolate the command"
 	self initializeForInitializeTest.
+	self assert: sycRefactoringPreview selectedRefactorings size equals: 3.
 	self
 		assert:
 			(sycRefactoringPreview selectedRefactorings
-				allSatisfy: [ :key | sycRefactoringPreview selectedRefactorings at: key ])
+				allSatisfy: [ :key | key ])
 			
 ]
 
