@@ -218,7 +218,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 							entity := selection sourceAnchor entity.
 							(entity respondsTo: #definition)
 								ifTrue: [ entity definition ]
-								ifFalse: [ entity asString ] ] ] ]
+								ifFalse: [ entity asString ] ] ]ifNil: [ ''  ]. ]
+					
 		postTransmission: [ :dest :origin :location | 
 			origin selection selectedItem
 				ifNotNil: [ :critic | 
@@ -528,9 +529,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 		transmitTo: criticsPresenter
 		transform: [ :aRule | 
 			(aRule isNil or: [ aRule isComposite ])
-				ifTrue: [ '' ]
-				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ]
-		postTransmission: [ :destination | destination selectIndex: 0 ].
+				ifTrue: [ #() ]
+				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ].
 	rulesPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :aRule | 
@@ -566,16 +566,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction 
 	self flag: #incomplete.
 	sourceCodePresenter
 		acceptBlock: [ :text | 
+			"i don't manage all case but isTransformationRule is'nt defined in Rule"
 			selectedItem := criticsPresenter selection selectedItem sourceAnchor
 				entity.
 			selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]"
 				ifTrue: [ selectedItem methodClass compile: text ]
-				ifFalse:
-					[  Smalltalk compiler evaluate: text ].
-				self needRebuild: true.
-				self buildWithSpec
-				]
-			"i don't manage all case but isTransformationRule is'nt defined in Rule" 
+				ifFalse: [ Smalltalk compiler evaluate: text ].	
+			self needRebuild: true.
+			self buildWithSpec ]
 ]
 
 { #category : #'system annoucements' }

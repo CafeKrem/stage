@@ -96,8 +96,6 @@ CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothin
 
 { #category : #'action-RulesPresenter' }
 CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCriticsToCriticsPresenter [
-	"1second wait."
-
 	"hasSameElements: (criticBrowserPresenter criticsOf: criticBrowserPresenter rule)"
 
 	self setupSelectionRulesPresenter: criticBrowser.
@@ -107,10 +105,11 @@ CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCritics
 
 { #category : #'action-RulesPresenter' }
 CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescriptionToSourceCodePresenter [
-	self setupSelectionRulesPresenter: criticBrowserPresenter.
-	self deny: criticBrowserPresenter rule isComposite.
+	self flag: #error.
+	self setupSelectionRulesPresenter: criticBrowser.
+	self deny: criticBrowser rule isComposite.
 	self
-		assert: criticBrowserPresenter sourceCodePresenter text
+		assert: criticBrowser sourceCodePresenter text
 		equals:
 			'Instance variable names on the instance- and class-side should start with a lowercase letter.'
 ]
@@ -118,23 +117,22 @@ CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescrip
 { #category : #'action-SourceCodePresenter' }
 CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCompiledMethod [
 	| beforeModif indexRule rulePresenterTmp |
-	indexRule := (rulePresenterTmp := (criticBrowserPresenter
-		rulesPresenter roots at: 1) rules)
+	indexRule := (rulePresenterTmp := (criticBrowser rulesPresenter roots
+		at: 1) rules)
 		indexOf:
 			(rulePresenterTmp
 				detect: [ :e | e isKindOf: RBUnclassifiedMethodsRule ]).
-	criticBrowserPresenter rulesPresenter
-		selectPath: #(1) , indexRule asArray.
-	criticBrowserPresenter criticsPresenter selectIndex: 1.
-	beforeModif := criticBrowserPresenter sourceCodePresenter text.
+	criticBrowser rulesPresenter selectPath: #(1) , indexRule asArray.
+	criticBrowser criticsPresenter selectIndex: 1.
+	beforeModif := criticBrowser sourceCodePresenter text.
 	self flag: #upgrade.
-	criticBrowserPresenter sourceCodePresenter
-		text: beforeModif , '"klm"'.
-	criticBrowserPresenter sourceCodePresenter accept.
+	criticBrowser sourceCodePresenter text: beforeModif , '"klm"'.
+	criticBrowser sourceCodePresenter accept.
 	self
-		assert: criticBrowserPresenter sourceCodePresenter text
-		equals: criticBrowserPresenter selectedCritic sourceAnchor entity sourceCode.
-	criticBrowserPresenter sourceCodePresenter text: beforeModif 
+		assert: criticBrowser sourceCodePresenter text
+		equals: (UseForTestCriticBrowser >>#stringUseInsteadOfStream )sourceCode.
+	criticBrowser sourceCodePresenter text: beforeModif.
+	criticBrowser accept
 ]
 
 { #category : #initialize }
