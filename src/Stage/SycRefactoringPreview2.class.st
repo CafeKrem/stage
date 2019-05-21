@@ -34,30 +34,13 @@ Class {
 	#category : #'Stage-things'
 }
 
-{ #category : #shortcuts }
-SycRefactoringPreview2 class >> buildShortcutsOn: aBuilder [
-	<keymap>
-
-	(aBuilder shortcut: #close)
-		category: #ChangesBrowserGlobalShortcuts
-		default: PharoShortcuts current cancelShortcut
-		do: [ :target | target cancel ]
-		description: 'Close this dialog'.
-		
-	(aBuilder shortcut: #accept)
-		category: #ChangesBrowserGlobalShortcuts
-		default: PharoShortcuts current acceptShortcut
-		do: [ :target | target accept ]
-		description: 'Accept the proposed changes'.
-]
-
 { #category : #specs }
 SycRefactoringPreview2 class >> defaultSpec [
-	<spec>
 	^ SpecBoxLayout newVertical
 		add: #table;
-		add: #scopeDropList withConstraints: [ :x | x height: 30 ];
-		add: #textArea
+		add: #scopeDropList withConstraints: [ :constraints | constraints height: 30 ];
+		add: #textArea;
+		yourself
 ]
 
 { #category : #'instance creation' }
@@ -65,12 +48,6 @@ SycRefactoringPreview2 class >> for: aCommand scopes: scopes [
 	^ self new
 		command: aCommand;
 		scopes: scopes
-]
-
-{ #category : #accessing }
-SycRefactoringPreview2 class >> main [ 
-	<script>
-		self new openDialogWithSpec 
 ]
 
 { #category : #specs }
