@@ -103,9 +103,9 @@ SycRefactoringPreview2Test >> testInitAllCheckBoxDictionarySetTrue [
 { #category : #'initialize-test' }
 SycRefactoringPreview2Test >> testInitTextAreaShouldEmpty [
 	"this method can't be test because i can't isolate the command"
-	self assert: false.
-	"self initializeForInitializeTest.
-	self assert: sycRefactoringPreview textArea text equals: ''."
+
+	self initializeForInitializeTest.
+	self assert: sycRefactoringPreview textArea text equals: ''
 ]
 
 { #category : #tests }
