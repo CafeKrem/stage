@@ -69,20 +69,21 @@ CBCriticBrowserTest >> testCriticsPresenterEmpty [
 ]
 
 { #category : #initialize }
-CBCriticBrowserTest >> testRulePresenterAnySelectedItem [
-	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
+CBCriticBrowserTest >> testRulePresenterNoSelectedItem [
+	self flag: #errorTextReturnSomeTimeNil.
+	self assert: criticBrowser sourceCodePresenter text equals: ''.
 ]
 
 { #category : #initialize }
 CBCriticBrowserTest >> testRulesPresenterAnySelectedItem [
-	self assert: criticBrowserPresenter rulesPresenter  selectedItem equals: nil.
+	self assert: criticBrowser rulesPresenter  selectedItem equals: nil.
 ]
 
 { #category : #'action-RulesPresenter' }
 CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToCriticsPresenter [
-	criticBrowserPresenter rulesPresenter selectPath: #(1).
-	self assert: criticBrowserPresenter rule isComposite.
-	self assert: criticBrowserPresenter criticsPresenter items isEmpty 
+	criticBrowser rulesPresenter selectPath: #(1).
+	self assert: criticBrowser rule isComposite.
+	self assert: criticBrowser criticsPresenter items isEmpty
 ]
 
 { #category : #'action-RulesPresenter' }
