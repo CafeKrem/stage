@@ -49,7 +49,18 @@ SycRefactoringPreview2Test >> setUp [
 
 { #category : #tests }
 SycRefactoringPreview2Test >> testBuilDiffMethod [
-	self assert: false.
+	| mockBuilDiff returnBuildDiffFor |
+	sycRefactoringPreview := SycRefactoringPreview2 new.
+	mockBuilDiff := SycMockBuildDiff
+		oldVersionTextToDisplay: 'k' , String cr , ' ^ je suis une banane'
+		textToDisplay: 'klm' , String cr , ' ^ je sius une banane'.
+	returnBuildDiffFor := sycRefactoringPreview
+		buildDiffFor: mockBuilDiff.
+	self
+		assert: returnBuildDiffFor 
+		equals:
+			mockBuilDiff textToDisplay   , String cr
+				, mockBuilDiff oldVersionTextToDisplay , String cr
 ]
 
 { #category : #tests }
