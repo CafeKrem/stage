@@ -65,7 +65,7 @@ UseForTestCriticBrowser addInstVarName: #a!
 { #category : #initialize }
 CBCriticBrowserTest >> testCriticsPresenterEmpty [
 	
-	self assert: criticBrowserPresenter criticsPresenter items isEmpty 
+	self assert: criticBrowser criticsPresenter items isEmpty 
 ]
 
 { #category : #initialize }
