@@ -88,9 +88,10 @@ CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothin
 
 { #category : #'action-RulesPresenter' }
 CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToSourceCodePresenter [
-	criticBrowserPresenter rulesPresenter selectPath: #(1).
-	self assert: criticBrowserPresenter rule isComposite.
-	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
+	self flag: #error.
+	criticBrowser rulesPresenter selectPath: #(1).
+	self assert: criticBrowser rule isComposite.
+	self assert: criticBrowser sourceCodePresenter text equals: ''
 ]
 
 { #category : #'action-RulesPresenter' }
@@ -99,11 +100,9 @@ CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCritics
 
 	"hasSameElements: (criticBrowserPresenter criticsOf: criticBrowserPresenter rule)"
 
-	self setupSelectionRulesPresenter: criticBrowserPresenter.
-	self deny: criticBrowserPresenter rule isComposite.
-	self
-		assert: criticBrowserPresenter criticsPresenter items size
-		equals: 3.
+	self setupSelectionRulesPresenter: criticBrowser.
+	self deny: criticBrowser rule isComposite.
+	self assert: criticBrowser criticsPresenter items size equals: 3
 ]
 
 { #category : #'action-RulesPresenter' }
