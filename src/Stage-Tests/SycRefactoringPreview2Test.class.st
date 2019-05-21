@@ -10,18 +10,31 @@ Class {
 	#category : #'Stage-Tests-test'
 }
 
+{ #category : #tests }
+SycRefactoringPreview2Test >> fillTableWith3MockItem [
+	| mockTreeTableItem2 mockTreeTableItem3 mockTreeTableItem1 |
+	mockTreeTableItem1 := MockTreeTableItem new.
+	mockTreeTableItem2 := MockTreeTableItem new.
+	mockTreeTableItem3 := MockTreeTableItem new.
+	sycRefactoringPreview table
+		items:
+			{mockTreeTableItem1.
+			mockTreeTableItem2.
+			mockTreeTableItem3}
+]
+
 { #category : #setup }
 SycRefactoringPreview2Test >> initializeForInitializeTest [
-	| scopeClass scopePackage mockRBMethodRefactoringPreview |
-	mockRBMethodRefactoringPreview := MockRBRenameMethodRefactoring new.
+	| scopeClass scopePackage |
 	scopePackage := ClyPackageScope
 		of: 'Stage' asPackage
 		in: ClyNavigationEnvironment currentImage.
 	scopeClass := ClyClassScope
 		of: 'SycRefactoringPreview'
 		in: ClyNavigationEnvironment currentImage.
+		
 	sycRefactoringPreview := MockSycRefactoringPreview
-		for: {MockRBRenameMethodRefactoring new}
+		for: SycRefactoringPreviewMockCommand new
 		scopes:
 			{scopePackage.
 			scopeClass}
@@ -31,7 +44,7 @@ SycRefactoringPreview2Test >> initializeForInitializeTest [
 SycRefactoringPreview2Test >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
 	super setUp.
-	sycRefactoringPreview := MockSycRefactoringPreview new.
+	sycRefactoringPreview := MockSycRefactoringPreview  new.
 ]
 
 { #category : #tests }
@@ -50,13 +63,13 @@ SycRefactoringPreview2Test >> testDoubleClickAnTableItemShouldChangeTheValueAsso
 			{mockTreeTableItem1.
 			mockTreeTableItem2.
 			mockTreeTableItem3}.
-	sycRefactoringPreview selectedCheckBoxs
+	sycRefactoringPreview selectedRefactorings
 		at: mockTreeTableItem3
 		put: true.
 	sycRefactoringPreview table selectIndex: 3.
 	sycRefactoringPreview table doActivateAtIndex: 3.
 	self
-		deny: (sycRefactoringPreview selectedCheckBoxs at: mockTreeTableItem3)
+		deny: (sycRefactoringPreview selectedRefactorings at: mockTreeTableItem3)
 ]
 
 { #category : #tests }
@@ -78,12 +91,11 @@ SycRefactoringPreview2Test >> testDropListChangeShouldChangeTableItems [
 { #category : #'initialize-test' }
 SycRefactoringPreview2Test >> testInitAllCheckBoxDictionarySetTrue [
 	"this method can't be test because i can't isolate the command"
-	self assert: false.
-	"self initializeForInitializeTest.
+	self initializeForInitializeTest.
 	self
 		assert:
-			(sycRefactoringPreview selectedCheckBoxs
-				allSatisfy: [ :key | sycRefactoringPreview selectedCheckBoxs at: key ])"
+			(sycRefactoringPreview selectedRefactorings
+				allSatisfy: [ :key | sycRefactoringPreview selectedRefactorings at: key ])
 			
 ]
 
@@ -96,16 +108,21 @@ SycRefactoringPreview2Test >> testInitTextAreaShouldEmpty [
 ]
 
 { #category : #tests }
+SycRefactoringPreview2Test >> testPickedChanges [
+	self fillTableWith3MockItem.
+	sycRefactoringPreview selectectAllCheckBox.
+	self flag: #MAUCHEEEEEEEEEEEEEEEEEEEEE.
+	sycRefactoringPreview table selectIndex: 2.
+	sycRefactoringPreview table doActivateAtIndex: 2.
+	self
+		deny:
+			(sycRefactoringPreview selectedRefactorings
+				includesKey: sycRefactoringPreview table selection selectedIndex)
+]
+
+{ #category : #tests }
 SycRefactoringPreview2Test >> testSelectAnElementTreeTablePresenterShouldSendBuilDiffForToTextArea [
-	| mockTreeTableItem1 mockTreeTableItem2 mockTreeTableItem3 |
-	mockTreeTableItem1 := MockTreeTableItem new.
-	mockTreeTableItem2 := MockTreeTableItem new.
-	mockTreeTableItem3 := MockTreeTableItem new.
-	sycRefactoringPreview table
-		items:
-			{mockTreeTableItem1.
-			mockTreeTableItem2.
-			mockTreeTableItem3}.
+	self fillTableWith3MockItem.
 	self assert: sycRefactoringPreview textArea text isEmpty.
 	sycRefactoringPreview table selectIndex: 2.
 	self assert: sycRefactoringPreview textArea text equals: 'useForTest'

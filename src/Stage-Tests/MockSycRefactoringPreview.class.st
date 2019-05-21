@@ -10,7 +10,27 @@ MockSycRefactoringPreview >> buildDiffFor: aChange [
 	^ 'useForTest'
 ]
 
+{ #category : #update }
+MockSycRefactoringPreview >> generateChanges [
+	"do nothing"
+	1 halt.
+]
+
 { #category : #accessing }
-MockSycRefactoringPreview >> selectedCheckBoxs [
-	^ selectedCheckBoxs
+MockSycRefactoringPreview >> selectedRefactorings [
+	^ selectedRefactorings
+]
+
+{ #category : #update }
+MockSycRefactoringPreview >> updateTablePresenter [
+	| mockTreeTableItem2 mockTreeTableItem3 mockTreeTableItem1 |
+	1 halt.
+	mockTreeTableItem1 := MockTreeTableItem new.
+	mockTreeTableItem2 := MockTreeTableItem new.
+	mockTreeTableItem3 := MockTreeTableItem new.
+	table
+		items:
+			{mockTreeTableItem1.
+			mockTreeTableItem2.
+			mockTreeTableItem3}
 ]
