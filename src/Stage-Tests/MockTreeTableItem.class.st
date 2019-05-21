@@ -2,7 +2,9 @@ Class {
 	#name : #MockTreeTableItem,
 	#superclass : #Object,
 	#instVars : [
-		'title'
+		'title',
+		'classsName',
+		'package'
 	],
 	#category : #'Stage-Tests-util'
 }

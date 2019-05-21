@@ -26,14 +26,21 @@ SycRefactoringPreview2Test >> fillTableWith3MockItem [
 { #category : #setup }
 SycRefactoringPreview2Test >> initializeForInitializeTest [
 	| scopeClass scopePackage |
-	scopePackage := ClyPackageScope
-		of: 'Stage' asPackage
-		in: ClyNavigationEnvironment currentImage.
-	scopeClass := ClyClassScope
-		of: 'SycRefactoringPreview'
-		in: ClyNavigationEnvironment currentImage.
-		
+	scopePackage := SycMockPackageScope new.
+	scopeClass := SycMockClassScope new.
 	sycRefactoringPreview := MockSycRefactoringPreview
+		for: SycRefactoringPreviewMockCommand new
+		scopes:
+			{scopePackage.
+			scopeClass}
+]
+
+{ #category : #initialization }
+SycRefactoringPreview2Test >> initializeSycRefactoringUsingForScope [
+	| scopeClass scopePackage |
+	scopePackage := SycMockPackageScope new .
+	scopeClass := SycMockClassScope new.
+	sycRefactoringPreview := MockSycRefactoringPreview2
 		for: SycRefactoringPreviewMockCommand new
 		scopes:
 			{scopePackage.
@@ -61,6 +68,16 @@ SycRefactoringPreview2Test >> testBuilDiffMethod [
 		equals:
 			mockBuilDiff textToDisplay   , String cr
 				, mockBuilDiff oldVersionTextToDisplay , String cr
+]
+
+{ #category : #tests }
+SycRefactoringPreview2Test >> testCheckBoxTickShouldUseToggleSelection [
+	self flag: #toTest.
+]
+
+{ #category : #tests }
+SycRefactoringPreview2Test >> testCheckBoxUnTickShouldUseToggleSelection [
+	self flag:#toTest.
 ]
 
 { #category : #tests }
@@ -92,17 +109,13 @@ SycRefactoringPreview2Test >> testDoubleClickAnTableItemShouldChangeTheValueAsso
 { #category : #tests }
 SycRefactoringPreview2Test >> testDropListChangeShouldChangeTableItems [
 	"this method can't be test because i can't isolate the command"
+
 	| tableItemBeforeChangeDropList className |
-	self flag: #toTest.
-	self assert: false.
-	"self initializeForInitializeTest.
-	tableItemBeforeChangeDropList := sycRefactoringPreview table items.
-	sycRefactoringPreview scopeDropList selectIndex: 2.
-	className := sycRefactoringPreview table items at: 1.
+	self initializeSycRefactoringUsingForScope.
+	sycRefactoringPreview scopeDropList selectedIndex: 2.
 	self
-		assert:
-			(sycRefactoringPreview table items
-				allSatisfy: [ :element | element class = className ])"
+		assert: sycRefactoringPreview table items
+		equals: {'banane' . 'Tournai Triple'} asOrderedCollection
 ]
 
 { #category : #'initialize-test' }
@@ -129,7 +142,6 @@ SycRefactoringPreview2Test >> testInitTextAreaShouldEmpty [
 SycRefactoringPreview2Test >> testPickedChanges [
 	self fillTableWith3MockItem.
 	sycRefactoringPreview selectectAllCheckBox.
-	self flag: #MAUCHEEEEEEEEEEEEEEEEEEEEE.
 	sycRefactoringPreview table selectIndex: 2.
 	sycRefactoringPreview table doActivateAtIndex: 2.
 	self

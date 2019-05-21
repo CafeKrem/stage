@@ -1,6 +1,9 @@
 Class {
 	#name : #SycMockRBRefactoring,
 	#superclass : #Object,
+	#instVars : [
+		'class'
+	],
 	#category : #'Stage-Tests-util'
 }
 
@@ -20,6 +23,7 @@ SycMockRBRefactoring >> primitiveExecute [
 ]
 
 { #category : #accessing }
-SycMockRBRefactoring >> whatToDisplayIn: aThing [
-	^ true
+SycMockRBRefactoring >> whatToDisplayIn: aBrowser [ 
+	^ aBrowser scopeDropList selectedItem content
+	
 ]
