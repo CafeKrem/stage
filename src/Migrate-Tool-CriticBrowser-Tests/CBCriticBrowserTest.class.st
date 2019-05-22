@@ -27,28 +27,6 @@ CBCriticBrowserTest >> setUp [
 	super setUp
 ]
 
-{ #category : #UIModification }
-CBCriticBrowserTest >> setupCriticBrowser: aCriticBrowser [
-	self setupSelectionRulesPresenter: aCriticBrowser.
-	self setupSelectionCriticPresenter: aCriticBrowser
-]
-
-{ #category : #UIModification }
-CBCriticBrowserTest >> setupSelectionCriticPresenter: aCriticBrowser [
-	aCriticBrowser criticsPresenter selectIndex: 1
-]
-
-{ #category : #UIModification }
-CBCriticBrowserTest >> setupSelectionRulesPresenter: aCriticBrowser [
-	| indexRule rulePresenterTmp |
-	indexRule := (rulePresenterTmp := (aCriticBrowser rulesPresenter
-		roots at: 1) rules)
-		indexOf:
-			(rulePresenterTmp
-				detect: [ :e | e isKindOf: GRInstanceVariableCapitalizationRule ]).
-	aCriticBrowser rulesPresenter selectPath: #(1) , indexRule asArray
-]
-
 { #category : #'action-CriticsPresenter' }
 CBCriticBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCriticsToSourceCodePresenter [
 	"this test check if he transmit the location of the critics and the range "

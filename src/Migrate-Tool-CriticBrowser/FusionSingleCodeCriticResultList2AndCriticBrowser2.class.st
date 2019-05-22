@@ -159,6 +159,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allRules [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 	| rules checker |
 	rules := self allRules.
+	cache checker: ReSmalllintChecker new.
 	checker := cache checker.
 	rbEnvironment packages
 		do: [ :package | 
@@ -175,6 +176,15 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  aCache [ 
 	cache := aCache
+]
+
+{ #category : #private }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
+	| total falsePositives toDos |
+	falsePositives := (cache falsePositiveOf: aRules) size.
+	toDos := (cache toDosOf: aRules) size.
+	total := (cache criticsOf: aRules) size.
+	^ total - falsePositives - toDos
 ]
 
 { #category : #initialize }
@@ -308,7 +318,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 
 { #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
-	
 	rulesPresenter
 		addColumn:
 			(StringTableColumn new
@@ -319,12 +328,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 			(StringTableColumn new
 				width: 40;
 				title: 'toSort';
-				evaluated: [ :aRules | 
-					| falsePositives toDos total |
-					falsePositives := (cache falsePositiveOf: aRules) size.
-					toDos := (cache toDosOf: aRules) size.
-					total := (cache criticsOf: aRules) size.
-					total - falsePositives - toDos ];
+				evaluated:
+						[ :aRules | self computeToSort: aRules ];
 				yourself);
 		addColumn:
 			(StringTableColumn new

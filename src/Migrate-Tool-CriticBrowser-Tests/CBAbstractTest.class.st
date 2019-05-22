@@ -53,6 +53,28 @@ CBAbstractTest >> setUp [
 	
 ]
 
+{ #category : #UIModification }
+CBAbstractTest >> setupCriticBrowser: aCriticBrowser [
+	self setupSelectionRulesPresenter: aCriticBrowser.
+	self setupSelectionCriticPresenter: aCriticBrowser
+]
+
+{ #category : #UIModification }
+CBAbstractTest >> setupSelectionCriticPresenter: aCriticBrowser [
+	aCriticBrowser criticsPresenter selectIndex: 1
+]
+
+{ #category : #UIModification }
+CBAbstractTest >> setupSelectionRulesPresenter: aCriticBrowser [
+	| indexRule rulePresenterTmp |
+	indexRule := (rulePresenterTmp := (aCriticBrowser rulesPresenter
+		roots at: 1) rules)
+		indexOf:
+			(rulePresenterTmp
+				detect: [ :e | e isKindOf: GRInstanceVariableCapitalizationRule ]).
+	aCriticBrowser rulesPresenter selectPath: #(1) , indexRule asArray
+]
+
 { #category : #running }
 CBAbstractTest >> tearDown [
 	criticBrowser delete.
