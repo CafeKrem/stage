@@ -187,10 +187,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
 	^ total - falsePositives - toDos
 ]
 
-{ #category : #initialize }
+{ #category : #'menu-generator' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticMenuGenerator [
 	| aMenu |
-	"this is your generat Menu from Architecture CBAbstractCriticMenu"
+	"below it's generate the contextMenu of Critics"
 	aMenu := self menuGenerator: CBAbstractCriticMenu.
 	"and now i add all action from Critic it's ugly but i depend on ReProperty in package: renraku" 
 	criticsPresenter selection selectedItem actions
@@ -220,6 +220,23 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 	"                  "
 
 	criticsPresenter
+		whenSelectionChangedDo: [ :selectedCritic | 
+			| newBookPage |
+			newBookPage := self
+				generateBookPageForClassSquelleton: CBCriticLocationBookPage.
+			selectedCritic
+				ifNotNil: [ selectedCritic providesChange
+						ifTrue: [ newBookPage presenterProvider
+								text: (self diffTextForChange: selectedCritic change) ]
+						ifFalse: [ | entity |
+							entity := selectedCritic sourceAnchor entity.
+							(entity respondsTo: #definition)
+								ifTrue: [ newBookPage presenterProvider text: entity definition ]
+								ifFalse: [ newBookPage presenterProvider text: entity asString ] ] ]
+				ifNil: [ '' ].
+			self send: criticsPresenter to: newBookPage presenterProvider.
+			sourceCodePresenter addPage: newBookPage ]
+	"criticsPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :selection | 
 			selection
@@ -230,10 +247,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 							(entity respondsTo: #definition)
 								ifTrue: [ entity definition ]
 								ifFalse: [ entity asString ] ] ]
-				ifNil: [ '' ] ]
-		postTransmission: [ :dest :origin :location | self send: origin to: dest ].
-	criticsPresenter
-		whenActivatedDo: [ self send: criticsPresenter to: sourceCodePresenter ]
+				ifNil: [ '' ] ]"
+	"criticsPresenter
+		whenActivatedDo: [ self send: criticsPresenter to: sourceCodePresenter selectedItem  ]"
 ]
 
 { #category : #private }
@@ -277,6 +293,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 	
 	^  String streamContents: [:s | aCritic sourceAnchor entity criticNameOn: s ]
 
+]
+
+{ #category : #'generators-BookPage' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> generateBookPageForClassSquelleton: aClass [
+	^ NotebookPage
+		title: aClass title
+		icon: (aClass icon ifNil: [ nil ] ifNotNil: [ self iconNamed: aClass icon ])
+		provider: [ self instantiate: aClass provider ]
 ]
 
 { #category : #private }
@@ -361,7 +385,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeShortcuts [
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	criticsPresenter := self newList.
-	sourceCodePresenter := self newCode.
+	sourceCodePresenter := self newNotebook.
 	criticsActionsPresenter := self newActionBar.
 	rulesActionsPresenter := self newActionBar.
 	rulesPresenter := self newTreeTable.
@@ -400,7 +424,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurr
 	cache addFalsePositive: aCritic forRule: self rule
 ]
 
-{ #category : #menu }
+{ #category : #'menu-generator' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGenerator: aClassName [
 	| newMenu |
 	newMenu := MenuPresenter new.
@@ -410,14 +434,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGenerator: aClassName 
 	^ newMenu
 ]
 
-{ #category : #menu }
+{ #category : #'menu-generator' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGroupGenerator: aGroupClass [
 	^ [ :newGroup | 
 	aGroupClass actionsGroup
 		do: [ :item | newGroup addItem: (self menuItemGenerator: item) ] ]
 ]
 
-{ #category : #menu }
+{ #category : #'menu-generator' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuItemGenerator: anItem [
 	^ [ :newItem | 
 	newItem
@@ -522,13 +546,16 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ #() ]
 				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ].
-		"postTransmission: [ :dest | dest selectedIndex: 0." "but warning it'run the transmission between CriticPresenter and sourceCodePresenter " "]."
+	"postTransmission: [ :dest | dest selectedIndex: 0."	"but warning it'run the transmission between CriticPresenter and sourceCodePresenter "	"]."
 	rulesPresenter
-		transmitTo: sourceCodePresenter
-		transform: [ :aRule |
-			(aRule isNil or: [ aRule isComposite ])
-				ifTrue: [ '' ]
-				ifFalse: [ aRule rationale ] ]
+		whenSelectionChangedDo: [ :selectedRule | 
+			| newBookPage |
+			newBookPage := self
+				generateBookPageForClassSquelleton: CBRuleCommentBookPage.
+			(selectedRule isNil or: [ selectedRule isComposite ])
+				ifTrue: [ newBookPage presenterProvider text: '' ]
+				ifFalse: [ newBookPage presenterProvider text: selectedRule rationale ].
+			sourceCodePresenter addPage: newBookPage ].
 ]
 
 { #category : #accessing }
@@ -575,16 +602,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction [
 	| selectedItem |
 	self flag: #incomplete.
-	sourceCodePresenter
-		acceptBlock: [ :text | 
-			"i don't manage all case but isTransformationRule is'nt defined in Rule"
-			selectedItem := criticsPresenter selection selectedItem sourceAnchor
-				entity.
-			(selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]")
-				ifTrue: [ selectedItem methodClass compile: text ]
-				ifFalse: [ Smalltalk compiler evaluate: text ].	
-			self needRebuild: true.
-			self buildWithSpec ]
 ]
 
 { #category : #'system annoucements' }
