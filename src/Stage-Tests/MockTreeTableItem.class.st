@@ -2,10 +2,17 @@ Class {
 	#name : #MockTreeTableItem,
 	#superclass : #Object,
 	#instVars : [
-		'title'
+		'title',
+		'classsName',
+		'package'
 	],
 	#category : #'Stage-Tests-util'
 }
+
+{ #category : #accessing }
+MockTreeTableItem class >> title: aName [
+	^ self new title: aName
+]
 
 { #category : #comparing }
 MockTreeTableItem >> = anObject [

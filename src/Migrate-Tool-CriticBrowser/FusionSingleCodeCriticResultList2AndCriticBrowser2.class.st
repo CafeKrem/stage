@@ -105,10 +105,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> open: aWindowPresent
 ]
 
 { #category : #'instance creation' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRule onEnvironment: aEnv [
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> openOnRule: aRules onEnvironment: aEnv [
 	| cbr |
 	cbr := self new
-		rules: aRule;
+		rules: aRules;
 		environment: aEnv;
 		removeTestCase: false;
 		yourself.
