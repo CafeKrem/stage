@@ -208,6 +208,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 	"                  "
+
 	criticsPresenter
 		transmitTo: sourceCodePresenter
 		transform: [ :selection | 
@@ -218,25 +219,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 							entity := selection sourceAnchor entity.
 							(entity respondsTo: #definition)
 								ifTrue: [ entity definition ]
-								ifFalse: [ entity asString ] ] ]ifNil: [ ''  ]. ]
-					
-		postTransmission: [ :dest :origin :location | 
-			origin selection selectedItem
-				ifNotNil: [ :critic | 
-					critic providesChange
-						ifTrue: [ dest behavior: nil ]
-						ifFalse: [ | entity |
-							entity := critic sourceAnchor entity.
-							self
-								flag:
-									'Another hack. We need a better way to display entities (because now we may get not only classes and methods. Maybe something like GTInspector presentations could work)'.
-							dest
-								behavior:
-									(entity isCompiledMethod
-										ifTrue: [ entity methodClass ]
-										ifFalse: [ nil ]).
-							critic sourceAnchor providesInterval
-								ifTrue: [ dest setSelection: critic sourceAnchor interval ] ] ] ]
+								ifFalse: [ entity asString ] ] ]
+				ifNil: [ '' ] ]
+		postTransmission: [ :dest :origin :location | self send: origin to: dest ].
+	criticsPresenter
+		whenActivatedDo: [ self send: criticsPresenter to: sourceCodePresenter ]
 ]
 
 { #category : #private }
@@ -472,7 +459,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyRule: aRule [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
 	 
 	self unregisterFromAnnouncements.
-	self flag:'to do when finish'.
 	"SystemAnnouncer uniqueInstance weak
 		when: ClassAdded send: #handleClassAdded: to: self;
 		when: ClassModifiedClassDefinition send: #handleClassModified: to: self;
@@ -531,10 +517,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ #() ]
 				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ].
+		"postTransmission: [ :dest | dest selectedIndex: 0." "but warning it'run the transmission between CriticPresenter and sourceCodePresenter " "]."
 	rulesPresenter
 		transmitTo: sourceCodePresenter
-		transform: [ :aRule | 
-			"rulesPresenter selectPath: #(1)"
+		transform: [ :aRule |
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ '' ]
 				ifFalse: [ aRule rationale ] ]
@@ -555,6 +541,26 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectionIntervalFor: aStr
 	^ self rule result selectionIntervalFor: aString
 ]
 
+{ #category : #private }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> send: origin to: dest [
+	^ origin selection selectedItem
+		ifNotNil: [ :critic | 
+			critic providesChange
+				ifTrue: [ dest behavior: nil ]
+				ifFalse: [ | entity |
+					entity := critic sourceAnchor entity.
+					self
+						flag:
+							'Another hack. We need a better way to display entities (because now we may get not only classes and methods. Maybe something like GTInspector presentations could work)'.
+					dest
+						behavior:
+							(entity isCompiledMethod
+								ifTrue: [ entity methodClass ]
+								ifFalse: [ nil ]).
+					critic sourceAnchor providesInterval
+						ifTrue: [ dest setSelection: critic sourceAnchor interval ] ] ]
+]
+
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 	^ sourceCodePresenter
@@ -569,7 +575,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction 
 			"i don't manage all case but isTransformationRule is'nt defined in Rule"
 			selectedItem := criticsPresenter selection selectedItem sourceAnchor
 				entity.
-			selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]"
+			(selectedItem isCompiledMethod "and: [  self rule isTransformationRule not ]")
 				ifTrue: [ selectedItem methodClass compile: text ]
 				ifFalse: [ Smalltalk compiler evaluate: text ].	
 			self needRebuild: true.

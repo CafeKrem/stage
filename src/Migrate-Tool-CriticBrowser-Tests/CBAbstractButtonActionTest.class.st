@@ -1,6 +1,6 @@
 Class {
 	#name : #CBAbstractButtonActionTest,
-	#superclass : #TestCase,
+	#superclass : #CBAbstractTest,
 	#instVars : [
 		'criticBrowserPresenter'
 	],

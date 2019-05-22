@@ -68,6 +68,10 @@ CBCriticBrowserTest >> testCriticsPresenterEmpty [
 	self assert: criticBrowser criticsPresenter items isEmpty 
 ]
 
+{ #category : #'as yet unclassified' }
+CBCriticBrowserTest >> testDoubleOnCriticShouldSendSourceCodeToSourceCodePresenter [
+]
+
 { #category : #initialize }
 CBCriticBrowserTest >> testRulePresenterNoSelectedItem [
 	self flag: #errorTextReturnSomeTimeNil.
@@ -117,6 +121,7 @@ CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescrip
 { #category : #'action-SourceCodePresenter' }
 CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCompiledMethod [
 	| beforeModif indexRule rulePresenterTmp |
+	"n'enregistre pas les modification"
 	indexRule := (rulePresenterTmp := (criticBrowser rulesPresenter roots
 		at: 1) rules)
 		indexOf:
@@ -128,14 +133,16 @@ CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCom
 	self flag: #upgrade.
 	criticBrowser sourceCodePresenter text: beforeModif , '"klm"'.
 	criticBrowser sourceCodePresenter accept.
+	criticBrowser criticsPresenter clickOnSelectedItem.
+	criticBrowser criticsPresenter clickOnSelectedItem.
 	self
 		assert: criticBrowser sourceCodePresenter text
-		equals: (UseForTestCriticBrowser >>#stringUseInsteadOfStream )sourceCode.
+		equals: beforeModif , '"klm"'.
 	criticBrowser sourceCodePresenter text: beforeModif.
-	criticBrowser accept
+	criticBrowser sourceCodePresenter accept
 ]
 
 { #category : #initialize }
 CBCriticBrowserTest >> testSourceCodePresenterIsEmpty [
-	self assert: criticBrowserPresenter sourceCodePresenter text equals: ''.
+	self assert: criticBrowser sourceCodePresenter text equals: ''
 ]
