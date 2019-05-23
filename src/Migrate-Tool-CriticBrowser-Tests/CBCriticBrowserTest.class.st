@@ -27,13 +27,28 @@ CBCriticBrowserTest >> setUp [
 	super setUp
 ]
 
+{ #category : #'action-SourceCodePresenter' }
+CBCriticBrowserTest >> setupSelectRBUnclassifiedMethodRule [
+	| indexRule rulePresenterTmp |
+	indexRule := (rulePresenterTmp := (criticBrowser rulesPresenter roots
+		at: 1) rules)
+		indexOf:
+			(rulePresenterTmp
+				detect: [ :e | e isKindOf: RBUnclassifiedMethodsRule ]).
+	criticBrowser rulesPresenter selectPath: #(1) , indexRule asArray.
+	criticBrowser criticsPresenter selectIndex: 1
+]
+
 { #category : #'action-CriticsPresenter' }
 CBCriticBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCriticsToSourceCodePresenter [
 	"this test check if he transmit the location of the critics and the range "
 
 	self setupCriticBrowser: criticBrowser.
 	self
-		assert: criticBrowser sourceCodePresenter text
+		assert: criticBrowser sourceCodePresenter selectedPageIndex
+		equals: 2.
+	self
+		assert: criticBrowser criticErrorPresenter text
 		equals:
 			'UseForTestCriticBrowser removeInstVarName: #A!
 UseForTestCriticBrowser addInstVarName: #a!
@@ -48,12 +63,29 @@ CBCriticBrowserTest >> testCriticsPresenterEmpty [
 
 { #category : #'as yet unclassified' }
 CBCriticBrowserTest >> testDoubleOnCriticShouldSendSourceCodeToSourceCodePresenter [
+	| textBefore |
+	self setupSelectRBUnclassifiedMethodRule.
+	criticBrowser criticsPresenter selectedIndex: 1.
+	textBefore := criticBrowser criticErrorPresenter text.
+	self setupSelectionRulesPresenter: criticBrowser.
+	criticBrowser criticsPresenter selectedIndex: 2.
+	self setupSelectRBUnclassifiedMethodRule.
+	"simulate double click"
+	criticBrowser criticsPresenter selectedIndex: 1.
+	criticBrowser criticsPresenter selectedIndex: 1.
+	self
+		assert: criticBrowser criticErrorPresenter text
+		equals: textBefore
 ]
 
 { #category : #initialize }
-CBCriticBrowserTest >> testRulePresenterNoSelectedItem [
-	self flag: #errorTextReturnSomeTimeNil.
-	self assert: criticBrowser sourceCodePresenter text equals: ''.
+CBCriticBrowserTest >> testInitCriticErrorPresenterIsEmpty [
+	self assert: criticBrowser criticErrorPresenter text equals: ''
+]
+
+{ #category : #initialize }
+CBCriticBrowserTest >> testInitRuleCommentPresenterIsEmpty [
+	self assert: criticBrowser ruleCommentPresenter text equals: ''
 ]
 
 { #category : #initialize }
@@ -62,18 +94,17 @@ CBCriticBrowserTest >> testRulesPresenterAnySelectedItem [
 ]
 
 { #category : #'action-RulesPresenter' }
+CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldRuleCommentPresenterShouldEmpty [
+	criticBrowser rulesPresenter selectPath: #(1).
+	self assert: criticBrowser rule isComposite.
+	self assert: criticBrowser ruleCommentPresenter text equals: ''
+]
+
+{ #category : #'action-RulesPresenter' }
 CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToCriticsPresenter [
 	criticBrowser rulesPresenter selectPath: #(1).
 	self assert: criticBrowser rule isComposite.
 	self assert: criticBrowser criticsPresenter items isEmpty
-]
-
-{ #category : #'action-RulesPresenter' }
-CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldTransmitNothingToSourceCodePresenter [
-	self flag: #error.
-	criticBrowser rulesPresenter selectPath: #(1).
-	self assert: criticBrowser rule isComposite.
-	self assert: criticBrowser sourceCodePresenter text equals: ''
 ]
 
 { #category : #'action-RulesPresenter' }
@@ -87,40 +118,32 @@ CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitCritics
 
 { #category : #'action-RulesPresenter' }
 CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescriptionToSourceCodePresenter [
-	self flag: #error.
 	self setupSelectionRulesPresenter: criticBrowser.
 	self deny: criticBrowser rule isComposite.
 	self
-		assert: criticBrowser sourceCodePresenter text
+		assert: criticBrowser ruleCommentPresenter text
 		equals:
 			'Instance variable names on the instance- and class-side should start with a lowercase letter.'
 ]
 
+{ #category : #initialize }
+CBCriticBrowserTest >> testSelectedRuleIsNilShouldRuleCommentPresenterIsEmpty [
+	self assert: criticBrowser ruleCommentPresenter text equals: ''.
+]
+
 { #category : #'action-SourceCodePresenter' }
 CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCompiledMethod [
-	| beforeModif indexRule rulePresenterTmp |
+	| beforeModif |
 	"n'enregistre pas les modification"
-	indexRule := (rulePresenterTmp := (criticBrowser rulesPresenter roots
-		at: 1) rules)
-		indexOf:
-			(rulePresenterTmp
-				detect: [ :e | e isKindOf: RBUnclassifiedMethodsRule ]).
-	criticBrowser rulesPresenter selectPath: #(1) , indexRule asArray.
-	criticBrowser criticsPresenter selectIndex: 1.
-	beforeModif := criticBrowser sourceCodePresenter text.
-	self flag: #upgrade.
-	criticBrowser sourceCodePresenter text: beforeModif , '"klm"'.
-	criticBrowser sourceCodePresenter accept.
+	self setupSelectRBUnclassifiedMethodRule.
+	beforeModif := criticBrowser criticErrorPresenter text.
+	criticBrowser criticErrorPresenter text: beforeModif , '"klm"'.
+	criticBrowser criticErrorPresenter accept.
 	criticBrowser criticsPresenter clickOnSelectedItem.
 	criticBrowser criticsPresenter clickOnSelectedItem.
 	self
-		assert: criticBrowser sourceCodePresenter text
+		assert: criticBrowser criticErrorPresenter text
 		equals: beforeModif , '"klm"'.
-	criticBrowser sourceCodePresenter text: beforeModif.
-	criticBrowser sourceCodePresenter accept
-]
-
-{ #category : #initialize }
-CBCriticBrowserTest >> testSourceCodePresenterIsEmpty [
-	self assert: criticBrowser sourceCodePresenter text equals: ''
+	criticBrowser criticErrorPresenter text: beforeModif.
+	criticBrowser criticErrorPresenter accept
 ]

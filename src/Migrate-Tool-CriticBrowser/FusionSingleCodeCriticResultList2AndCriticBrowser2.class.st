@@ -52,14 +52,16 @@ Class {
 	#name : #FusionSingleCodeCriticResultList2AndCriticBrowser2,
 	#superclass : #ComposablePresenter,
 	#instVars : [
-		'cache',
 		'criticsPresenter',
-		'sourceCodePresenter',
 		'rulesPresenter',
 		'rbEnvironment',
 		'removeTestCase',
 		'criticsActionsPresenter',
-		'rulesActionsPresenter'
+		'rulesActionsPresenter',
+		'noteBookPresenter',
+		'criticCache',
+		'noteBookPageCriticErrorPresenter',
+		'noteBookPageRuleCommentPresenter'
 	],
 	#category : #'Migrate-Tool-CriticBrowser-main'
 }
@@ -127,22 +129,22 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> title [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToToDo [
 	criticsPresenter selectedItems
 		ifNotNil:
-			[ :items | items do: [ :item | cache addToDo: item forRule: self rule ] ]
+			[ :items | items do: [ :item | criticCache addToDo: item forRule: self rule ] ]
 ]
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addFalsePositive: aCritic forRule: aRule [
-	cache addFalsePositive: aCritic forRule: aRule
+	criticCache addFalsePositive: aCritic forRule: aRule
 ]
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addFalsePositiveRule: aRule forPackage: aPackage [
-	cache addFalsePositiveRule: aRule forPackage: aPackage
+	criticCache addFalsePositiveRule: aRule forPackage: aPackage
 ]
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addToDo: aCritic forRule: aRule [
-	cache addToDo: aCritic forRule: aRule
+	criticCache addToDo: aCritic forRule: aRule
 ]
 
 { #category : #menu }
@@ -159,8 +161,8 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allRules [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 	| rules checker |
 	rules := self allRules.
-	cache checker: ReSmalllintChecker new.
-	checker := cache checker.
+	criticCache checker: ReSmalllintChecker new.
+	checker := criticCache checker.
 	rbEnvironment packages
 		do: [ :package | 
 			checker
@@ -168,23 +170,28 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 				onPackage: package
 				withoutTestCase: removeTestCase.
 			checker rule: rules.
-			cache packages: rbEnvironment.
-			cache initCache.
+			criticCache packages: rbEnvironment.
+			criticCache initCache.
 			self registerToAnnouncements ]
 ]
 
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  aCache [ 
-	cache := aCache
+	criticCache := aCache
 ]
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
 	| total falsePositives toDos |
-	falsePositives := (cache falsePositiveOf: aRules) size.
-	toDos := (cache toDosOf: aRules) size.
-	total := (cache criticsOf: aRules) size.
+	falsePositives := (criticCache falsePositiveOf: aRules) size.
+	toDos := (criticCache toDosOf: aRules) size.
+	total := (criticCache criticsOf: aRules) size.
 	^ total - falsePositives - toDos
+]
+
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticErrorPresenter [
+	^ noteBookPageCriticErrorPresenter
 ]
 
 { #category : #'menu-generator' }
@@ -207,7 +214,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticMenuGenerator [
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsOf: aRule [
-	^ cache criticsOf: aRule
+	^ criticCache criticsOf: aRule
 ]
 
 { #category : #accessing }
@@ -220,36 +227,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 	"                  "
 
 	criticsPresenter
-		whenSelectionChangedDo: [ :selectedCritic | 
-			| newBookPage |
-			newBookPage := self
-				generateBookPageForClassSquelleton: CBCriticLocationBookPage.
-			selectedCritic
-				ifNotNil: [ selectedCritic providesChange
-						ifTrue: [ newBookPage presenterProvider
-								text: (self diffTextForChange: selectedCritic change) ]
-						ifFalse: [ | entity |
-							entity := selectedCritic sourceAnchor entity.
-							(entity respondsTo: #definition)
-								ifTrue: [ newBookPage presenterProvider text: entity definition ]
-								ifFalse: [ newBookPage presenterProvider text: entity asString ] ] ]
-				ifNil: [ '' ].
-			self send: criticsPresenter to: newBookPage presenterProvider.
-			sourceCodePresenter addPage: newBookPage ]
-	"criticsPresenter
-		transmitTo: sourceCodePresenter
-		transform: [ :selection | 
-			selection
-				ifNotNil: [ selection providesChange
-						ifTrue: [ self diffTextForChange: selection change ]
-						ifFalse: [ | entity |
-							entity := selection sourceAnchor entity.
-							(entity respondsTo: #definition)
-								ifTrue: [ entity definition ]
-								ifFalse: [ entity asString ] ] ]
-				ifNil: [ '' ] ]"
-	"criticsPresenter
-		whenActivatedDo: [ self send: criticsPresenter to: sourceCodePresenter selectedItem  ]"
+		whenActivatedDo: [ :singleSelection | self sendSelectedCriticCriticErrorPresenter: singleSelection ].
+	criticsPresenter
+		whenSelectionChangedDo: [ :singleSelection | 
+			self sendSelectedCriticCriticErrorPresenter: singleSelection.
+			self send: criticsPresenter to: noteBookPageCriticErrorPresenter ]
 ]
 
 { #category : #private }
@@ -300,16 +282,17 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> generateBookPageForClassSq
 	^ NotebookPage
 		title: aClass title
 		icon: (aClass icon ifNil: [ nil ] ifNotNil: [ self iconNamed: aClass icon ])
-		provider: [ self instantiate: aClass provider ]
+		provider: [ aClass provider: self ]
+		layoutSpec: aClass layoutSpec
 ]
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
 	self flag: #pharoTodo.	"It is weird than in a branch of the condition there is no icon returned"
-	^ (cache isFalsePositive: anItem forRule: self rule)
+	^ (criticCache isFalsePositive: anItem forRule: self rule)
 		ifFalse: [ self
 				iconNamed:
-					((cache isToDo: anItem forRule: self rule)
+					((criticCache isToDo: anItem forRule: self rule)
 						ifTrue: [ #repair ]
 						ifFalse: [ #error ]) ]
 		ifTrue: [ self iconNamed:  #changeRemove ]
@@ -319,9 +302,21 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 	super initialize.
 	self initializeShortcuts.
-	cache := ReCriticsCache new.
-	cache checker: ReSmalllintChecker new.
-	cache browser: self
+	criticCache := ReCriticsCache new.
+	criticCache checker: ReSmalllintChecker new.
+	criticCache browser: self
+]
+
+{ #category : #initialize }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticErrorPresenter [
+	noteBookPageCriticErrorPresenter
+		acceptBlock: [ :text | 
+			| selectedItem |
+			selectedItem := self criticsPresenter selectedItem sourceAnchor
+				entity.
+			selectedItem isCompiledMethod "and: [ rule isTransformationRule not ]"
+				ifTrue: [ selectedItem methodClass compile: text ]
+				ifFalse: [ Smalltalk compiler evaluate: text ]	 ]
 ]
 
 { #category : #'initialize-widgets' }
@@ -331,6 +326,18 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
 		contextMenu: [ self criticMenuGenerator ];
 		icons: [ :item | self iconFor: item ]
+]
+
+{ #category : #initialize }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeNoteBookPresenter [
+	noteBookPresenter
+		addPage:
+			(NotebookPage title: 'Rule comment' provider: [ noteBookPageRuleCommentPresenter ]).
+	noteBookPresenter
+		addPage:
+			(NotebookPage
+				title: 'Critic location'
+				provider: [ noteBookPageCriticErrorPresenter ])
 ]
 
 { #category : #initialize }
@@ -359,13 +366,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 			(StringTableColumn new
 				width: 40;
 				title: 'toDo';
-				evaluated: [ :aRules | (cache toDosOf: aRules) size ];
+				evaluated: [ :aRules | (criticCache toDosOf: aRules) size ];
 				yourself);
 		addColumn:
 			(StringTableColumn new
 				width: 40;
 				title: 'Wrong';
-				evaluated: [ :aRules | (cache falsePositiveOf: aRules) size ];
+				evaluated: [ :aRules | (criticCache falsePositiveOf: aRules) size ];
 				yourself);
 		yourself.
 	rulesPresenter
@@ -385,14 +392,18 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeShortcuts [
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	criticsPresenter := self newList.
-	sourceCodePresenter := self newNotebook.
+	noteBookPresenter := self newNotebook.
 	criticsActionsPresenter := self newActionBar.
 	rulesActionsPresenter := self newActionBar.
 	rulesPresenter := self newTreeTable.
+	noteBookPageRuleCommentPresenter := self newText.
+	noteBookPageCriticErrorPresenter := self newCode.
 	CBAbstractRuleAction actions
 		do: [ :class | rulesActionsPresenter add: (self newButtonFor: class) ].
 	CBAbstractCriticAction actions
 		do: [ :class | criticsActionsPresenter add: (self newButtonFor: class) ].
+	self initializeNoteBookPresenter.
+	self initializeCriticErrorPresenter.	"and: [ rule isTransformationRule not ]"
 	self initializeRulesPresenter.
 	self initializeCriticsPresenter
 ]
@@ -404,24 +415,24 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isFalsePositive: aCritic f
 
 { #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isSelectedCriticIsToDo [
-	^ cache isToDo: self selectedCritic forRule: self selectedRule
+	^ criticCache isToDo: self selectedCritic forRule: self selectedRule
 ]
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isSelectedRuleIsFalsePositive [
-	^ cache
+	^ criticCache
 		isFalsePositive: self selectedCritic
 		forRule: self selectedRule
 ]
 
 { #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> logInManifest [
-	cache logInManifest 
+	criticCache logInManifest 
 ]
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurrentRule: aCritic [
-	cache addFalsePositive: aCritic forRule: self rule
+	criticCache addFalsePositive: aCritic forRule: self rule
 ]
 
 { #category : #'menu-generator' }
@@ -461,27 +472,27 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> newButtonFor: aClass [
 
 { #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
-	cache initialize.
+	criticCache initialize.
 	self applyRules
 ]
 
 { #category : #TOCATEGORISE }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyRule: aRule [
-	cache removeRule: aRule.
-	cache checker resetResult.
+	criticCache removeRule: aRule.
+	criticCache checker resetResult.
 	rbEnvironment packages
 		do: [ :package | 
-			cache checker
+			criticCache checker
 				runRules: {aRule}
 				onPackage: package
 				withoutTestCase: removeTestCase ].
-	(cache checker criticsOf: aRule)
-		do: [ :crit | cache addCritic: crit forRule: aRule ].
-	(cache checker falsePositiveOf: aRule)
-		do: [ :crit | cache addFalsePositive: crit forRule: aRule ].
-	(cache checker toDoOf: aRule)
-		do: [ :crit | cache addToDo: crit forRule: aRule ].
-	cache updateBrowser
+	(criticCache checker criticsOf: aRule)
+		do: [ :crit | criticCache addCritic: crit forRule: aRule ].
+	(criticCache checker falsePositiveOf: aRule)
+		do: [ :crit | criticCache addFalsePositive: crit forRule: aRule ].
+	(criticCache checker toDoOf: aRule)
+		do: [ :crit | criticCache addToDo: crit forRule: aRule ].
+	criticCache updateBrowser
 ]
 
 { #category : #'system annoucements' }
@@ -500,12 +511,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositive: aCritic forRule: aRule [
-	cache removeFalsePositive: self selectedCritic forRule: self selectedRule. 
+	criticCache removeFalsePositive: self selectedCritic forRule: self selectedRule. 
 ]
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositiveRule: aRule forPackage: aPackage [
-	cache removeFalsePositiveRule: aRule forPackage: aPackage
+	criticCache removeFalsePositiveRule: aRule forPackage: aPackage
 ]
 
 { #category : #accessing }
@@ -515,12 +526,17 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeTestCase: aBoolean [
 
 { #category : #menu }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeToDo: aCritic forRule: aRule [
-	cache removeToDo: aCritic forRule: aRule
+	criticCache removeToDo: aCritic forRule: aRule
 ]
 
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule [
 	^ self rulesPresenter selection selectedItem
+]
+
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> ruleCommentPresenter [
+	^ noteBookPageRuleCommentPresenter
 ]
 
 { #category : #accessing }
@@ -545,17 +561,15 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rulesPresenterActions [
 		transform: [ :aRule | 
 			(aRule isNil or: [ aRule isComposite ])
 				ifTrue: [ #() ]
-				ifFalse: [ (cache criticsOf: aRule) sorted: #printString ascending ] ].
-	"postTransmission: [ :dest | dest selectedIndex: 0."	"but warning it'run the transmission between CriticPresenter and sourceCodePresenter "	"]."
+				ifFalse: [ (criticCache criticsOf: aRule) sorted: #printString ascending ] ].
 	rulesPresenter
-		whenSelectionChangedDo: [ :selectedRule | 
-			| newBookPage |
-			newBookPage := self
-				generateBookPageForClassSquelleton: CBRuleCommentBookPage.
+		whenSelectionChangedDo: [ :singleSelection | 
+			| selectedRule |
+			selectedRule := singleSelection selectedItem.
 			(selectedRule isNil or: [ selectedRule isComposite ])
-				ifTrue: [ newBookPage presenterProvider text: '' ]
-				ifFalse: [ newBookPage presenterProvider text: selectedRule rationale ].
-			sourceCodePresenter addPage: newBookPage ].
+				ifTrue: [ noteBookPageRuleCommentPresenter text: '' ]
+				ifFalse: [ noteBookPageRuleCommentPresenter text: selectedRule rationale ].
+			noteBookPresenter selectPageIndex: 1 ]
 ]
 
 { #category : #accessing }
@@ -593,9 +607,26 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> send: origin to: dest [
 						ifTrue: [ dest setSelection: critic sourceAnchor interval ] ] ]
 ]
 
+{ #category : #'initialize-actions' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendSelectedCriticCriticErrorPresenter: singleSelection [
+	| selectedCritic |
+	selectedCritic := singleSelection selectedItem.
+	selectedCritic
+		ifNotNil: [ selectedCritic providesChange
+				ifTrue: [ noteBookPageCriticErrorPresenter 
+						text: (self diffTextForChange: selectedCritic change) ]
+				ifFalse: [ | entity |
+					entity := selectedCritic sourceAnchor entity.
+					(entity respondsTo: #definition)
+						ifTrue: [ noteBookPageCriticErrorPresenter text: entity definition ]
+						ifFalse: [ noteBookPageCriticErrorPresenter text: entity asString ] ].
+			noteBookPresenter selectPageIndex: 2 ]
+		ifNil: [ '' ]
+]
+
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
-	^ sourceCodePresenter
+	^ noteBookPresenter
 ]
 
 { #category : #'initialize-actions' }

@@ -27,7 +27,12 @@ CBAbstractNoteBookPage class >> isAbstract [
 ]
 
 { #category : #accessing }
-CBAbstractNoteBookPage class >> provider [
+CBAbstractNoteBookPage class >> layoutSpec [
+	^ self subclassResponsibility
+]
+
+{ #category : #accessing }
+CBAbstractNoteBookPage class >> provider: aCriticBrowser [
 	^ self subclassResponsibility 
 ]
 

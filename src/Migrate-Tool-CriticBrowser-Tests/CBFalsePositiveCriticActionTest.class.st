@@ -15,11 +15,5 @@ CBFalsePositiveCriticActionTest >> setUp [
 
 { #category : #tests }
 CBFalsePositiveCriticActionTest >> testSelectedCriticNotNilShouldCallMarkAsFalsePositiveForCurrentRule [
-	| mock |
-	criticBrowserPresenter := MockCriticBrowserFalsePositiveButton new.
-	self setupSelectionRulesPresenter.
-	criticBrowserPresenter  criticsPresenter selectedIndex: 1.
-	criticBrowserPresenter  selectedCritic ifNil: [ self fail ].
-	CBFalsePositiveCriticAction runOn: mock.
-	self assert: mock messageCall equals: 1
+	
 ]

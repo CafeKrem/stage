@@ -4,9 +4,27 @@ Class {
 	#category : #'Migrate-Tool-CriticBrowser-data-noteBookPage'
 }
 
+{ #category : #visiting }
+CBCriticLocationBookPage class >> acceptBlock [
+]
+
 { #category : #accessing }
-CBCriticLocationBookPage class >> provider [
-	^ CodePresenter new acceptBlock: [ self acceptBlock]
+CBCriticLocationBookPage class >> layoutSpec [
+	^ #criticLocationBookPage
+]
+
+{ #category : #accessing }
+CBCriticLocationBookPage class >> provider: aCriticBrowser [
+	aCriticBrowser
+		criticLocationBookPage:
+			((aCriticBrowser instantiate: CodePresenter new)
+				acceptBlock: [ :text | 
+					| selectedItem |
+					selectedItem := aCriticBrowser criticsPresenter selectedItem
+						sourceAnchor entity.
+					selectedItem isCompiledMethod 	"and: [ rule isTransformationRule not ]"
+						ifTrue: [ selectedItem methodClass compile: text ]
+						ifFalse: [ Smalltalk compiler evaluate: text ] ])
 ]
 
 { #category : #accessing }
