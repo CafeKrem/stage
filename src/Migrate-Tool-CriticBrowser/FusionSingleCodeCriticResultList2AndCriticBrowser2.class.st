@@ -88,7 +88,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> defaultSpec [
 				elt
 					beNotResizable;
 					beShrinkable ];
-		add: #sourceCodePresenter;
+		add: #noteBookPresenter;
 		yourself
 ]
 

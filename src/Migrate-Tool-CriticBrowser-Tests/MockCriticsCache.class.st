@@ -1,8 +1,18 @@
 Class {
 	#name : #MockCriticsCache,
-	#superclass : #CriticsCache,
+	#superclass : #CriticsCache2,
 	#category : #'Migrate-Tool-CriticBrowser-Tests-MockCriticCache'
 }
+
+{ #category : #accessing }
+MockCriticsCache >> critics [
+	^ critics
+]
+
+{ #category : #accessing }
+MockCriticsCache >> falsePositives [
+	^ falsePositives 
+]
 
 { #category : #initialization }
 MockCriticsCache >> initCache [
