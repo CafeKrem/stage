@@ -65,14 +65,14 @@ CBCriticBrowserTest >> testCriticsPresenterEmpty [
 CBCriticBrowserTest >> testDoubleOnCriticShouldSendSourceCodeToSourceCodePresenter [
 	| textBefore |
 	self setupSelectRBUnclassifiedMethodRule.
-	criticBrowser criticsPresenter selectedIndex: 1.
+	criticBrowser criticsPresenter selectIndex: 1.
 	textBefore := criticBrowser criticErrorPresenter text.
 	self setupSelectionRulesPresenter: criticBrowser.
-	criticBrowser criticsPresenter selectedIndex: 2.
+	criticBrowser criticsPresenter selectIndex: 2.
 	self setupSelectRBUnclassifiedMethodRule.
 	"simulate double click"
-	criticBrowser criticsPresenter selectedIndex: 1.
-	criticBrowser criticsPresenter selectedIndex: 1.
+	criticBrowser criticsPresenter selectIndex: 1.
+	criticBrowser criticsPresenter selectIndex: 1.
 	self
 		assert: criticBrowser criticErrorPresenter text
 		equals: textBefore
