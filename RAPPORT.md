@@ -78,4 +78,13 @@
 
 * je continue la migration du criticBrowser
 * j'ai fait du pair Programming avec Benoit , un doctorant qui travail sur l'autmatisation de la migration d'interface , nous avons donc travailler sur l'automatisation de la migration de Spec 1 vers Spec 2 . c'est resultat seront donc publier dans un article de recherche pour  [IWST](http://esug.org/wiki/pier/Conferences/2018/International-Workshop-IWST_18)  , j'ecrirais un paragraphe dans cette article  
-* j'ai decidé de faire une petite pause du CriticBrowser et de reprendre un projet plus petit (interface de refactoring). le CriticBrowser que je reprendrais apres avoir finie cette tache 
+* j'ai decidé de faire une petite pause du CriticBrowser et de reprendre un projet plus petit (interface de refactoring). le CriticBrowser que je reprendrais apres avoir finie cette tache
+
+## semaine 20 Mai
+
+* interface de refactoring fini review en cours ,  erreur dans mon code:
+	* typologie 
+* je continue le CriticBrowser :
+	* test en cours 
+	* je dois changer un des composant de l'interface par un système d'onglet ( exemple navigateur web )
+* vendredi : Pharo Sprint / Moose dojo ( la même chose que Pharo sprint )
