@@ -45,9 +45,9 @@ SycRefactoringPreview2 class >> defaultSpec [
 
 { #category : #'instance creation' }
 SycRefactoringPreview2 class >> for: aCommand scopes: scopes [
-	^ self new
+	"^ self new
 		command: aCommand;
-		scopes: scopes
+		scopes: scopes"
 ]
 
 { #category : #specs }
