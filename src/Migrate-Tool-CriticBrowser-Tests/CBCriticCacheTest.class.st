@@ -77,7 +77,153 @@ CBCriticCacheTest >> testAddFalsePositiveRuleForPackageShouldAdd3CriticToFalsePo
 	self assert: (criticCache falsePositiveRules includesKey: package).
 ]
 
-{ #category : #tests }
+{ #category : #initialiazeTest }
+CBCriticCacheTest >> testInitialyseAllDictionaryShouldBeEmpty [
+	self assert: criticCache critics isEmpty.
+	self assert: criticCache falsePositives isEmpty.
+	self assert: criticCache falsePositiveRules isEmpty.
+	self assert: criticCache toDos isEmpty.
+	self assert: criticCache falsePositiveClass isEmpty
+]
+
+{ #category : #adding }
+CBCriticCacheTest >> testRemoveAnItemFromAllDictionary [
+	| mockRule1 mockRule2 mockCritic1 mockCritic2 |
+	mockRule1 := MockRuleUseForAddNumber1 title: 'mockRule1'.
+	mockRule2 := MockRuleUseForAddNumber2 title: 'mockRule2'.
+	mockCritic1 := MockCriticUseForAddNumber1 title: 'mockCritic1'.
+	mockCritic2 := MockCriticUseForAddNumber2 title: 'mockCritic2'.
+	criticCache addFalsePositive: mockCritic1 forRule: mockRule1.
+	criticCache addToDo: mockCritic1 forRule: mockRule1.
+	criticCache addCritic: mockCritic2 forRule: mockRule2.
+	criticCache itemRemoved: MockCriticUseForAddNumber1.
+	self
+		assert: (criticCache falsePositives at: mockRule1)
+		equals: {} asIdentitySet.
+	self
+		assert: (criticCache toDos at: mockRule1)
+		equals: {} asIdentitySet.
+	self
+		assert: (criticCache critics at: mockRule2)
+		equals: {mockCritic2} asIdentitySet
+]
+
+{ #category : #adding }
+CBCriticCacheTest >> testRemoveCriticForRule [
+	| mockRule1 mockRule2 mockCritic1 mockCritic2 |
+	mockRule1 := MockRuleUseForAddNumber1 title: 'mockRule1'.
+	mockRule2 := MockRuleUseForAddNumber2 title: 'mockRule2'.
+	mockCritic1 := MockCriticUseForAddNumber1 title: 'mockCritic1'.
+	mockCritic2 := MockCriticUseForAddNumber2 title: 'mockCritic2'.
+	{mockCritic1.
+	mockCritic2}
+		do: [ :critic | criticCache addCritic: critic forRule: mockRule1 ].
+	criticCache addCritic: mockCritic1 forRule: mockRule2.
+	criticCache removeCritic: mockCritic1 forRule: mockRule1.
+	self
+		assert: (criticCache critics at: mockRule2)
+		equals: {mockCritic1} asIdentitySet.
+	self
+		assert: (criticCache critics at: mockRule1)
+		equals: {mockCritic2} asIdentitySet.
+	criticCache removeCritic: mockCritic1 forRule: mockRule2.
+	self
+		assert: (criticCache critics at: mockRule2)
+		equals: {} asIdentitySet
+]
+
+{ #category : #adding }
+CBCriticCacheTest >> testRemoveFalsePositiveRuleForPackage [
+	| mockRule2 mockRule1 mockPackage1 mockPackage2 |
+	mockRule1 := MockRuleUseForAddNumber1 title: 'mockRule2'.
+	mockRule2 := MockRuleUseForAddNumber2 title: 'mockRule1'.
+	mockPackage1 := CBMockPackage title: 'mockPackage1'.
+	mockPackage2 := CBMockPackage title: 'mockPackage2'.
+	{mockRule1.
+	mockRule2}
+		do:
+			[ :mockRule | criticCache addFalsePositiveRule: mockRule forPackage: mockPackage1 ].
+	criticCache addFalsePositiveRule: mockRule1 forPackage: mockPackage2.
+	criticCache
+		removeFalsePositiveRule: mockRule1
+		forPackage: mockPackage1.
+	self
+		assert: (criticCache falsePositiveRules at: mockPackage1)
+		equals: {MockRuleUseForAddNumber2 uniqueIdentifierName} asIdentitySet.
+	self
+		assert: (criticCache falsePositiveRules at: mockPackage2)
+		equals: {MockRuleUseForAddNumber1 uniqueIdentifierName} asIdentitySet.
+	criticCache
+		removeFalsePositiveRule: mockRule1
+		forPackage: mockPackage2.
+	self
+		assert: (criticCache falsePositiveRules at: mockPackage2)
+		equals: {} asIdentitySet
+]
+
+{ #category : #adding }
+CBCriticCacheTest >> testRemoveFalsePositiveRuleForRule [
+	| mockCritic1  mockCritic3 mockCritic4 mockRule1  |
+	mockCritic1 := MockCriticUseForAddNumber1 title: 'mockCritic1'.
+	mockCritic3 := MockCriticUseForAddNumber1 title: 'mockCritic3'.
+	mockCritic4 := MockCriticUseForAddNumber1 title: 'mockCritic4'.
+	mockRule1 := MockRuleUseForAddNumber1 title: 'mockRule1'.
+	{ mockCritic1 . mockCritic3 . mockCritic4  } do: [:aCritic |criticCache addFalsePositive: aCritic  forRule: mockRule1   ].
+	self assert: (criticCache falsePositives at: mockRule1) equals: { mockCritic1 . mockCritic3 . mockCritic4  } asIdentitySet.
+	criticCache removeFalsePositive: mockCritic3  forRule: mockRule1.
+	self deny: ((criticCache falsePositives at: mockRule1 ) includes: mockCritic3). 
+]
+
+{ #category : #adding }
+CBCriticCacheTest >> testRemoveRule [
+	| mockCritic1  mockCritic3 mockCritic4 mockRule1  mockCritic2 mockRule2 |
+	mockCritic1 := MockCriticUseForAddNumber1 title: 'mockCritic1'.
+	mockCritic2 := MockCriticUseForAddNumber1 title: 'mockCritic2'.
+	mockCritic3 := MockCriticUseForAddNumber1 title: 'mockCritic3'.
+	mockCritic4 := MockCriticUseForAddNumber1 title: 'mockCritic4'.
+	mockRule1 := MockRuleUseForAddNumber1 title: 'mockRule1'.
+	mockRule2 := MockRuleUseForAddNumber1 title: 'mockRule2'.
+	{ mockCritic1 . mockCritic3 . mockCritic4  } do: [:aCritic |criticCache addFalsePositive: aCritic  forRule: mockRule1   ].
+	{ mockCritic1 . mockCritic2 } do: [:aCritic | criticCache addToDo: aCritic  forRule:   mockRule1 ].
+	{ mockCritic3 . mockCritic4  } do: [ :aCritic | criticCache addCritic: aCritic  forRule: mockRule1  ].
+	{ mockCritic3 . mockCritic4  } do: [ :aCritic | criticCache addCritic: aCritic  forRule: mockRule2  ].
+	criticCache removeRule: mockRule1.
+	"should remove all entry mockRule1 in todo , falsePositive and critic dictionary"
+	self assert: (criticCache critics includesKey: mockRule2).	  
+	self deny: (criticCache toDos includesKey: mockRule1).
+	self deny: (criticCache falsePositives includesKey: mockRule1).
+	self deny: (criticCache critics includesKey: mockRule1).
+	
+]
+
+{ #category : #adding }
+CBCriticCacheTest >> testRemoveToDoForRule [
+	| mockCritic1 mockCritic2 mockCritic3 mockCritic4 mockRule1 mockRule2 |
+	mockCritic1 := MockCriticUseForAddNumber1 title: 'mockCritic1'.
+	mockCritic2 := MockCriticUseForAddNumber1 title: 'mockCritic2'.
+	mockCritic3 := MockCriticUseForAddNumber1 title: 'mockCritic3'.
+	mockCritic4 := MockCriticUseForAddNumber1 title: 'mockCritic4'.
+	mockRule1 := MockRuleUseForAddNumber1 title: 'mockRule1'.
+	mockRule2 := MockRuleUseForAddNumber1 title: 'mockRule2'.
+	{mockCritic1.
+	mockCritic2.
+	mockCritic3}
+		do: [ :aCritic | criticCache addToDo: aCritic forRule: mockRule1 ].
+	{mockCritic1.
+	mockCritic2.
+	mockCritic4}
+		do: [ :aCritic | criticCache addToDo: aCritic forRule: mockRule2 ].
+	self
+		assert: (criticCache toDos at: mockRule2)
+		equals:
+			{mockCritic1.
+			mockCritic2.
+			mockCritic4} asIdentitySet.
+	criticCache removeToDo: mockCritic4 forRule: mockRule2.
+	self deny: ((criticCache toDos at: mockRule2) includes: mockCritic4)
+]
+
+{ #category : #adding }
 CBCriticCacheTest >> testRemovedAClass [
 	| rule package|
 	rule := GRInstanceVariableCapitalizationRule new.
@@ -94,7 +240,7 @@ CBCriticCacheTest >> testRemovedAClass [
 	self assert:  (criticCache critics at: rule) size equals: 1. 
 ]
 
-{ #category : #tests }
+{ #category : #adding }
 CBCriticCacheTest >> testToDoForRule [
 	| mockCritic mockRule |
 	mockCritic := MockCriticUseForAddNumber1 new.

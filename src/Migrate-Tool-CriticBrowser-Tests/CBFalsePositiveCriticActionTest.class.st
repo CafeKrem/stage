@@ -7,6 +7,11 @@ Class {
 	#category : #'Migrate-Tool-CriticBrowser-Tests-Test-Button'
 }
 
+{ #category : #setUp }
+CBFalsePositiveCriticActionTest >> instanceOfCriticBrowser [
+	^ MockCriticBrowserFalsePositiveButton
+]
+
 { #category : #running }
 CBFalsePositiveCriticActionTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
@@ -14,6 +19,11 @@ CBFalsePositiveCriticActionTest >> setUp [
 ]
 
 { #category : #tests }
-CBFalsePositiveCriticActionTest >> testSelectedCriticNotNilShouldCallMarkAsFalsePositiveForCurrentRule [
-	
+CBFalsePositiveCriticActionTest >> testCBFalsePositiveActionCallMarkAsFalsePositiveFunction [
+	| mock |
+	self setupSelectionRulesPresenter: criticBrowser.
+	self setupSelectionCriticPresenter: criticBrowser.
+	criticBrowser selectedCritic ifNil: [ self fail ].
+	CBFalsePositiveCriticAction runOn: criticBrowser .
+	self assert: criticBrowser messageCall equals: 1
 ]
