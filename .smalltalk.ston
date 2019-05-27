@@ -1,7 +1,6 @@
 SmalltalkCISpec {
   #loading : [
     SCIMetacelloLoadSpec {
-      #baseline : 'stage',
       #directory : 'src',
       #platforms : [ #pharo ]
     }
