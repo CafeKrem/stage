@@ -1,24 +1,19 @@
 Class {
-	#name : #MockRuleUseForAddNumber1,
+	#name : #CBMockPackage,
 	#superclass : #Object,
 	#instVars : [
 		'title'
 	],
-	#category : #'Migrate-Tool-CriticBrowser-Tests-MockRule'
+	#category : #'Migrate-Tool-CriticBrowser-Tests-mockPackage'
 }
 
 { #category : #accessing }
-MockRuleUseForAddNumber1 class >> title: aString [
+CBMockPackage class >> title: aString [
 	^ self new title: aString
 ]
 
-{ #category : #'as yet unclassified' }
-MockRuleUseForAddNumber1 class >> uniqueIdentifierName [
-	'mock1'.
-]
-
 { #category : #comparing }
-MockRuleUseForAddNumber1 >> = anObject [
+CBMockPackage >> = anObject [
 	"Answer whether the receiver and anObject represent the same object."
 
 	self == anObject
@@ -29,18 +24,18 @@ MockRuleUseForAddNumber1 >> = anObject [
 ]
 
 { #category : #comparing }
-MockRuleUseForAddNumber1 >> hash [
+CBMockPackage >> hash [
 	"Answer an integer value that is related to the identity of the receiver."
 
 	^ title hash
 ]
 
 { #category : #accessing }
-MockRuleUseForAddNumber1 >> title [
+CBMockPackage >> title [
 	^ title
 ]
 
 { #category : #accessing }
-MockRuleUseForAddNumber1 >> title: anObject [
+CBMockPackage >> title: anObject [
 	title := anObject
 ]
