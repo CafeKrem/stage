@@ -88,3 +88,14 @@
 	* test en cours 
 	* je dois changer un des composant de l'interface par un système d'onglet ( exemple navigateur web )
 * vendredi : Pharo Sprint / Moose dojo ( la même chose que Pharo sprint )
+	* moose dojo avec Benoit: on a travailler sur les moosemodel (ce qui va permettre de définir la sémentique du language qu'on souhaite analyser)
+* une étudiante de Google summer of school ,  une sorte de concours qui permet à l'inria d'obtenir des étudiant qui travaillerons pour eux mais payé par google , va vérifier la qualité de mon code avant d'être intégré à pharo
+
+## semaine du 27 Mai
+
+* semaine de 3 jours INRIA fait le pont 
+* Objectif: 
+	* finir le CriticBrowser , plus que certain element à tester 
+ 	* rédiger une partie de l'article pour Benoit , le doctorant que j'ai aider pour la rédaction de son article de recherche pour [IWST](http://esug.org/wiki/pier/Conferences/2018/International-Workshop-IWST_18)
+
+
