@@ -20,25 +20,6 @@ CBCriticBrowserTest >> rulesToTest [
 	^ (ReRuleManager uniqueInstance allRules groupedBy: #group) at: #Style
 ]
 
-{ #category : #running }
-CBCriticBrowserTest >> setUp [
-	"Hooks that subclasses may override to define the fixture of test."
-
-	super setUp
-]
-
-{ #category : #'action-SourceCodePresenter' }
-CBCriticBrowserTest >> setupSelectRBUnclassifiedMethodRule [
-	| indexRule rulePresenterTmp |
-	indexRule := (rulePresenterTmp := (criticBrowser rulesPresenter roots
-		at: 1) rules)
-		indexOf:
-			(rulePresenterTmp
-				detect: [ :e | e isKindOf: RBUnclassifiedMethodsRule ]).
-	criticBrowser rulesPresenter selectPath: #(1) , indexRule asArray.
-	criticBrowser criticsPresenter selectIndex: 1
-]
-
 { #category : #'action-CriticsPresenter' }
 CBCriticBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCriticsToSourceCodePresenter [
 	"this test check if he transmit the location of the critics and the range "
