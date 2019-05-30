@@ -2,10 +2,11 @@ Class {
 	#name : #ChangesBrowser2,
 	#superclass : #ComposablePresenter,
 	#instVars : [
-		'textArea',
+		'diff',
 		'scopeChooser',
 		'changes',
-		'table'
+		'table',
+		'selectedChanges'
 	],
 	#category : #'Stage-things'
 }
@@ -41,7 +42,7 @@ ChangesBrowser2 class >> defaultSpec [
 	^ SpecBoxLayout newVertical
 		add: #table;
 		"addSplitter;"
-			add: #textArea
+			add: #diff
 ]
 
 { #category : #accessing }
@@ -68,13 +69,9 @@ ChangesBrowser2 >> accept [
 
 { #category : #private }
 ChangesBrowser2 >> buildDiffFor: aChange [
-
-	^ aChange
-		ifNil: [ '' ]
-		ifNotNil: [
-			TextDiffBuilder 
-				buildDisplayPatchFrom: aChange oldVersionTextToDisplay 
-				to: aChange textToDisplay ].
+	diff 
+		leftText: aChange oldVersionTextToDisplay;
+		rightText: aChange textToDisplay
 ]
 
 { #category : #api }
@@ -94,39 +91,48 @@ ChangesBrowser2 >> changes: aCollection [
 	self updateChanges
 ]
 
+{ #category : #accessing }
+ChangesBrowser2 >> diff [
+	^ diff
+]
+
 { #category : #initialization }
 ChangesBrowser2 >> initializePresenter [
-	textArea 
-		bindKeyCombination: Character tab toAction: [ self giveFocusToNextFrom: textArea ];
-		bindKeyCombination: Character tab shift toAction: [ self giveFocusToPreviousFrom: textArea ].
-	self
-		bindKeyCombination: PharoShortcuts current acceptShortcut toAction: [ self accept ];
-		bindKeyCombination: Character escape toAction: [ self cancel ]
-	
+	table
+		whenSelectionChangedDo:
+			[ :item | item ifNotNil: [ self buildDiffFor: 
+				(item widget items at: (item selectedIndex))] ]
 ]
 
 { #category : #initialization }
 ChangesBrowser2 >> initializeTable [
-	self flag: #NeedCheckBoxColumn.
+	"self flag: #NeedCheckBoxColumn.
 	table addColumn: (StringTableColumn title: 'method?/ something ' evaluated: #name )
-	"add: (CheckBoxColumn)"
-]
-
-{ #category : #initialization }
-ChangesBrowser2 >> initializeTextArea [
-	textArea 
-		enabled: false.
+	""add: (CheckBoxColumn)"
+	table addColumn:
+		((CheckBoxTableColumn title: ' ' evaluated: [ :class | selectedChanges includes: class ])
+				onActivation: [ :class | selectedChanges add: class.
+					self buildDiffFor: class ];
+				onDesactivation: [ :class | selectedChanges remove: class ];
+				width: 20;
+				yourself);
+			addColumn:  (StringTableColumn title: 'Name' evaluated: #name);
+			beResizable.
+	self whenBuiltDo: [ selectedChanges := table items ]
 ]
 
 { #category : #initialization }
 ChangesBrowser2 >> initializeWidgets [
 
+	selectedChanges := OrderedCollection new.
 	table := self newTable.
-	textArea := self newCode.
+	diff := self newDiff.
 	
 	self initializeTable.
-	self initializeTextArea.
 	self setFocus.
+	self
+		bindKeyCombination: PharoShortcuts current acceptShortcut toAction: [ self accept ];
+		bindKeyCombination: Character escape toAction: [ self cancel ]
 	
 ]
 
@@ -140,10 +146,8 @@ ChangesBrowser2 >> open [
 
 { #category : #accessing }
 ChangesBrowser2 >> pickedChanges [
-	| selectedItems |
-	self flag:#NeedCheckBoxColumn.
-	selectedItems := table selectedItems collect: #content.
-	^ table items select: [ :i | selectedItems includes: i ]
+	
+	^ table items select: [ :i | selectedChanges includes: i ]
 ]
 
 { #category : #accessing }
@@ -162,7 +166,7 @@ ChangesBrowser2 >> scopeChooser [
 ChangesBrowser2 >> setFocus [
 	self focusOrder
 		add: table;
-		add: textArea;
+		add: diff;
 		yourself
 ]
 
@@ -176,11 +180,6 @@ ChangesBrowser2 >> setShortcuts [
 { #category : #accessing }
 ChangesBrowser2 >> table [
 	^ table
-]
-
-{ #category : #accessing }
-ChangesBrowser2 >> textArea [
-	^ textArea
 ]
 
 { #category : #private }
