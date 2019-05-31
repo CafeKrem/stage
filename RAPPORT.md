@@ -97,5 +97,10 @@
 * Objectif: 
 	* finir le CriticBrowser , plus que certain element à tester 
  	* rédiger une partie de l'article pour Benoit , le doctorant que j'ai aider pour la rédaction de son article de recherche pour [IWST](http://esug.org/wiki/pier/Conferences/2018/International-Workshop-IWST_18)
+* Pair programming avec Hugo , un stagiaire de Licence Informatique de Lille. J'ai donc migrer l'interface qu'il utilisé vers Spec.
+* Je continue tousjour la migration du CriticBrowser 
+	* j'extrait des composant qui ne respect pas les principes SOLID 
+* rédaction de l'article de recherche 
 
+ 
 
