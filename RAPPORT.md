@@ -102,5 +102,11 @@
 	* j'extrait des composant qui ne respect pas les principes SOLID 
 * rédaction de l'article de recherche 
 
+## semaine du 3 Juin 
+
+* Objectif:
+	* finir le BISettingPreviewer , projet avec Hugo Lasnier
+	* finir d'écrire l'article pour Benoît 
+	* avancer le plus possible sur le CriticBrowser
  
 
