@@ -128,3 +128,19 @@ CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCom
 	criticBrowser criticErrorPresenter text: beforeModif.
 	criticBrowser criticErrorPresenter accept
 ]
+
+{ #category : #tests }
+CBCriticBrowserTest >> testWhenAddInstanceVariableCapitalisedShouldAddItToTheToSortColumn [
+	self timeLimit: 1 minute.
+	[ | nbOfToSort rule |
+	self setupSelectionRulesPresenter: criticBrowser.
+	rule := ((criticBrowser rulesPresenter roots at: 1) rules
+		select: [ :aRule | aRule isKindOf: GRInstanceVariableCapitalizationRule ])
+		at: 1.	"ugly sorry"
+	nbOfToSort := criticBrowser computeToSort: rule.
+	UseForTestCriticBrowser addInstVarNamed: 'O'.
+	self
+		assert: (criticBrowser computeToSort: rule)
+		equals: nbOfToSort + 1 ]
+		ensure: [ UseForTestCriticBrowser removeInstVarNamed: 'O' ]
+]
