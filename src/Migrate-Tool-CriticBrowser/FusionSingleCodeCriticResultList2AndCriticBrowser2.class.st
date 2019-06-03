@@ -180,6 +180,41 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  aCache [
 	criticCache := aCache
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> checker [
+	^ criticCache checker
+]
+
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> classAdded: aClass [
+
+	| rules |
+
+	(rbEnvironment definesClass: aClass) ifFalse: [ ^ self ].
+
+	rules := self allRules.
+	self checker
+		resetResult;
+		checkClass: aClass.
+		
+	rules do: [ :rule |		
+		(self checker criticsOf: rule) do:	[ :crit |
+			criticCache  addCritic: crit forRule: rule ].
+		(self checker falsePositiveOf: rule) do:	[ :crit |
+			criticCache  addFalsePositive: crit forRule: rule ].
+		(self checker toDoOf: rule) do:	[ :crit |
+			criticCache addToDo: crit forRule: rule ] ].
+	
+	criticCache updateBrowser.
+]
+
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> classRemoved: aClass [
+	(rbEnvironment definesClass: aClass)
+		ifTrue: [ criticCache itemRemoved: aClass ].
+	criticCache updateBrowser
+]
+
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
 	| total falsePositives toDos |
@@ -187,6 +222,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
 	toDos := (criticCache toDosOf: aRules) size.
 	total := (criticCache criticsOf: aRules) size.
 	^ total - falsePositives - toDos
+]
+
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticCache [
+	^ criticCache
 ]
 
 { #category : #accessing }
@@ -284,6 +324,40 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> generateBookPageForClassSq
 		icon: (aClass icon ifNil: [ nil ] ifNotNil: [ self iconNamed: aClass icon ])
 		provider: [ aClass provider: self ]
 		layoutSpec: aClass layoutSpec
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleClassAdded: anAnnouncement [
+	self classAdded: anAnnouncement classAdded
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleClassModified: anAnnouncement [
+	self
+		classRemoved: anAnnouncement newClassDefinition;
+		classAdded: anAnnouncement newClassDefinition
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleClassRemoved: anAnnouncement [
+	self classRemoved: anAnnouncement classRemoved
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleMethodAdded: anAnnouncement [
+	self methodAdded: anAnnouncement methodAdded
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleMethodModified: anAnnouncement [
+	self
+		methodRemoved: anAnnouncement newMethod;
+		methodAdded: anAnnouncement newMethod
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleMethodRemoved: anAnnouncement [
+	self methodRemoved: anAnnouncement methodRemoved
 ]
 
 { #category : #private }
@@ -454,12 +528,51 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuItemGenerator: anItem 
 		yourself ]
 ]
 
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> methodAdded: aMethod [
+	| rules |
+	(rbEnvironment includesMethod: aMethod)
+		ifFalse: [ ^ self ].
+	rules := self allRules.
+	self checker
+		resetResult;
+		getCritiquesAbout: aMethod
+			by: (rules select: [ :r | r class checksMethod ]).
+	rules
+		do: [ :rule | 
+			(self checker criticsOf: rule)
+				do: [ :crit | criticCache addCritic: crit forRule: rule ].
+			(self checker falsePositiveOf: rule)
+				do: [ :crit | criticCache addFalsePositive: crit forRule: rule ].
+			(self checker toDoOf: rule)
+				do: [ :crit | criticCache addToDo: crit forRule: rule ] ].
+	criticCache updateBrowser
+]
+
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> methodRemoved: aMethod [
+	(rbEnvironment includesMethod: aMethod)
+		ifTrue: [ criticCache itemRemoved: aMethod ].
+	criticCache updateBrowser
+]
+
 { #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> newButtonFor: aClass [ 
 	^ self newButton 
 		label: aClass title;
 		action: [ aClass runOn: self ];
 		yourself
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> onWindowClosed [
+	self unregisterFromAnnouncements.
+	criticCache cacheChange
+		ifTrue: [ (UIManager default
+				confirm:
+					'Do you want log all wrong violations in the Manifests
+before closing the Critics Browser ?')
+				ifTrue: [ criticCache logInManifest ] ]
 ]
 
 { #category : #TOCATEGORISE }
@@ -491,14 +604,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyRule: aRule [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
 	 
 	self unregisterFromAnnouncements.
-	"SystemAnnouncer uniqueInstance weak
+	SystemAnnouncer uniqueInstance weak
 		when: ClassAdded send: #handleClassAdded: to: self;
 		when: ClassModifiedClassDefinition send: #handleClassModified: to: self;
 		when: ClassRemoved send: #handleClassRemoved: to: self;
 		when: MethodAdded send: #handleMethodAdded: to: self;
 		when: MethodModified send: #handleMethodModified: to: self;
 		when: MethodRemoved send: #handleMethodRemoved: to: self.
-	self window window announcer when: WindowClosed send: #onWindowClosed to: self"
+	self announcer when: WindowClosed send: #onWindowClosed to: self" Unmatched " "in comment".
 ]
 
 { #category : #menu }
