@@ -108,5 +108,5 @@
 	* finir le BISettingPreviewer , projet avec Hugo Lasnier
 	* finir d'écrire l'article pour Benoît 
 	* avancer le plus possible sur le CriticBrowser
- 
+* rédaction article de recherche j'attend que Benoît me donne son avis.
 
