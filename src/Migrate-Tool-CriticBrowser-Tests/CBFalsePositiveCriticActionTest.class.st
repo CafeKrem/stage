@@ -14,6 +14,19 @@ CBFalsePositiveCriticActionTest >> setUp [
 ]
 
 { #category : #tests }
+CBFalsePositiveCriticActionTest >> testSelectedCriticIsNilShouldCallInformMethod [
+	| mock |
+	mock := MockCriticBrowser2SelectedCriticReturnNil new.
+	CBFalsePositiveCriticAction runOn: mock.
+	self deny: mock callFalsePositiveMethod.
+	
+]
+
+{ #category : #tests }
 CBFalsePositiveCriticActionTest >> testSelectedCriticNotNilShouldCallMarkAsFalsePositiveForCurrentRule [
+	| mock |
+	mock := MockCriticBrowser new.
+	CBFalsePositiveCriticAction runOn: mock.
+	self assert: mock callFalsePositiveMethod.
 	
 ]

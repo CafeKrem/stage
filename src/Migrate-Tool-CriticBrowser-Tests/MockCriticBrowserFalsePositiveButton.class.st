@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'messageCall'
 	],
-	#category : #'Migrate-Tool-CriticBrowser-environementTest'
+	#category : #'Migrate-Tool-CriticBrowser-Tests'
 }
 
 { #category : #initialize }

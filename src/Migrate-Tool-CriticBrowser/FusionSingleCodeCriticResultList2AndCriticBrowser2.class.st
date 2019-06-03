@@ -288,7 +288,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> generateBookPageForClassSq
 
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
-	self flag: #pharoTodo.	"It is weird than in a branch of the condition there is no icon returned"
+	"It is weird than in a branch of the condition there is no icon returned"
 	^ (criticCache isFalsePositive: anItem forRule: self rule)
 		ifFalse: [ self
 				iconNamed:
@@ -301,7 +301,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 	super initialize.
-	self initializeShortcuts.
 	criticCache := ReCriticsCache new.
 	criticCache checker: ReSmalllintChecker new.
 	criticCache browser: self
@@ -344,7 +343,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeNoteBookPresente
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	self criticsPresenterAction.
 	self rulesPresenterActions.
-	self sourceCodePresenterAction
 ]
 
 { #category : #'initialize-widgets' }
@@ -381,12 +379,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 				ifTrue: [ aRule rules ]
 				ifFalse: [ #() ] ];
 		contextMenu: (self menuGenerator: CBAbstractRuleMenu)
-]
-
-{ #category : #initialize }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeShortcuts [
-	self flag: 'last element to migrate'.
-	criticsPresenter bindKeyCombination: PharoShortcuts current browseShortcut toAction: [ self browseCritic ]
 ]
 
 { #category : #initialize }
@@ -627,12 +619,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendSelectedCriticCriticEr
 { #category : #accessing }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 	^ noteBookPresenter
-]
-
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction [
-	| selectedItem |
-	self flag: #incomplete.
 ]
 
 { #category : #'system annoucements' }
