@@ -109,4 +109,6 @@
 	* finir d'écrire l'article pour Benoît 
 	* avancer le plus possible sur le CriticBrowser
 * rédaction article de recherche j'attend que Benoît me donne son avis.
+* migration du BISettingPreviewer fini
 
+## samine du 10 Juin 
