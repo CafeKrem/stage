@@ -1,41 +1,23 @@
 "
-this class is an window for Method name edition 
-
-
-
-Class part 
-	this class represent a window for Method Name edition  
+I am an UI used to rename methods.
 	
-Responsibility part: 
-
-my jobs :
+My jobs is to:
 	- display a preview of your future method name or '(invalid)' when the name is incorrect  (with a LabelPresenter previewResult an instance variable)
 	- display the arguments list of your method and let you modified the order 
-	
-For the Collaborators Part: 
-
-
 
 Public API and Key Messages
 
-HOW TO RUN 
-		MethodNameEditor2 openOn: (SycMethodNameEditor >> #initialize).
-		or see class side 'example' script
+See class side 'example' script to know how to use me.
   
- One simple example is simply gorgeous.
- 
 Internal Representation and Key Implementation Points.
 
     Instance Variables
-	selectorInput: <TextInputFieldPresenter>
-	argumentsList: <ListPresenter>
-	previewResult: <LabelPresenter>
-	upButton: <ButtonPresenter>
-	downButton: <ButtonPresenter>  
-	compiledMethod: <RBMethod>
-	accept and cancel button are manage by the ModalPresenter see 
-		MethodNameEditor2 class  >> #openOn 
-    Implementation Points
+	selectorInput: 		<TextInputFieldPresenter>	An input field containing the new name of the method.
+	argumentsList: 		<ListPresenter>					A list containing the arguments of the method.
+	previewResult: 		<LabelPresenter>				A label to preview the new name of the method with the arguments.
+	upButton: 			<ButtonPresenter>				A button update the order of the arguments.
+	downButton: 			<ButtonPresenter>  			A button update the order of the arguments.
+	methodName 		 	<RBMethod>						A RBMethodName to ensure the validity of the new name.
 "
 Class {
 	#name : #SycMethodNameEditor2,
@@ -46,7 +28,7 @@ Class {
 		'previewResult',
 		'upButton',
 		'downButton',
-		'compiledMethod'
+		'methodName'
 	],
 	#category : #'Stage-things'
 }
@@ -67,51 +49,36 @@ SycMethodNameEditor2 class >> defaultSpec [
 				add: #argumentsList;
 				add:
 					(SpecBoxLayout newVertical
-						add: #upButton;
-						add: #downButton;
+						add: #upButton
+							withConstraints: [ :aConstraints | aConstraints height: 30 ];
+						add: #downButton
+							withConstraints: [ :aConstraints | aConstraints height: 30 ];
 						yourself)
-					withConstraints: [ :aConstraints | aConstraints width: 30  ];
+					withConstraints: [ :aConstraints | aConstraints width: 30 ];
 				yourself);
 		add:
 			(SpecBoxLayout newHorizontal
 				add: 'Preview'
 					withConstraints: [ :aConstraints | aConstraints width: 80 ];
-				add: #previewResult
-				yourself);
+				add: #previewResult yourself);
 		yourself
 ]
 
 { #category : #examples }
-SycMethodNameEditor2 class >> example [ 
+SycMethodNameEditor2 class >> example [
 	<script>
-	SycMethodNameEditor2 openOn: (UseOnlyForTest >> #bug:)
+	SycMethodNameEditor2
+		openOn:
+			(RBMethodName
+				selector: (UseOnlyForTest >> #bug:) selector
+				arguments: ((UseOnlyForTest >> #bug:) ast arguments collect: #name))
 ]
 
 { #category : #specs }
 SycMethodNameEditor2 class >> openOn: aMethod [
-	"
-	argument:
-		- aMethod : it's an RBMethodName
-	be carefull the accept?cancel button are define in the modalPresenter 
-	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that 	it freeze the global window and we can only interact with the local window )
-	"
-	^ (self on: aMethod) openModalWithSpec
-]
+	"I take a RBMethodName as parameter and open the refactoring UI in a modal to rename it."
 
-{ #category : #action }
-SycMethodNameEditor2 >> acceptButtonAction [
-	"be carefull the accept button is define in the modalPresenter 
-	in openOn class method there is 'openModalWithSpec' and it's create a modal (a window 'local'  that it freeze the global window and we can only interact with the local window )"
-	^ [ :presenter | 
-	self previewResult label = '(invalid)'
-		ifTrue: [ self inform: 'Invalid method name' ]
-		ifFalse: [ self inform: 'Ok action'.
-			compiledMethod
-				arguments: argumentsList items;
-				selector: selectorInput text.
-			presenter
-				beOk;
-				close ] ]
+	^ (self on: aMethod) openModalWithSpec
 ]
 
 { #category : #accessing }
@@ -119,118 +86,53 @@ SycMethodNameEditor2 >> argumentsList [
 	^ argumentsList
 ]
 
-{ #category : #action }
-SycMethodNameEditor2 >> argumentsListAction [
-	^ [ | argumentsListSize |
-	argumentsListSize := argumentsList items size.
-	(argumentsListSize = 1)
-		ifTrue: [ upButton disable.
-				downButton disable ];
-		ifFalse: [ (argumentsList selectionMode selectedIndex = 1)
-					ifTrue: [ upButton disable.
-							downButton enable ];
-					ifFalse: [ (argumentsList selectionMode selectedIndex = argumentsListSize)
-								ifTrue: [ upButton enable.
-										downButton disable ];
-								ifFalse: [ upButton enable.
-										downButton enable ] ] ] ]
-]
-
-{ #category : #action }
-SycMethodNameEditor2 >> cancelButtonAction [
-	^ [ :presenter | 
-	self application close.
-	presenter
-		beCancel;
-		close ]
-]
-
-{ #category : #accessing }
-SycMethodNameEditor2 >> compiledMethod: aMethod [
-	"
-	this method is call by openOn  class side method.
-	argument:
-		* aMethod it's an CompiledMethod like (AClass>>#aMethod)
-	return:
-		an instance of MethodeNameEditor with widget 
-		"
-	compiledMethod := aMethod.
-]
-
 { #category : #accessing }
 SycMethodNameEditor2 >> downButton [
 	^ downButton
 ]
 
-{ #category : #action }
-SycMethodNameEditor2 >> downButtonAction [
-	self flag: #RefactoringUpDownButton.
-	^ [ | selectedIndex selectedElement elementBefore |
-	selectedIndex := argumentsList selectionMode selectedIndex.
-	selectedElement := argumentsList items at: selectedIndex.
-	elementBefore := argumentsList items at: selectedIndex + 1.
-	argumentsList items at: selectedIndex put: elementBefore.
-	argumentsList items at: selectedIndex + 1 put: selectedElement.
-	argumentsList selectionMode selectIndex: selectedIndex + 1.
-	previewResult
-		label:
-			(self
-				upDateSelector: self selectorInput text
-				arguments: argumentsList items) ]
-]
-
-{ #category : #'spec-initializer' }
-SycMethodNameEditor2 >> init [
-	| argumentsCollection selectorCollection |
-	self title: 'method name editor'.
-	selectorCollection := compiledMethod selector.
-	argumentsCollection := compiledMethod arguments.
-		"sorted: #start ascending."
-	selectorInput text: selectorCollection.
-	argumentsList items: argumentsCollection.	"collect: [ :eachArgument | eachArgument name]"
-	previewResult
-		label:
-			(self
-				upDateSelector: selectorCollection
-				arguments: argumentsCollection)
-]
-
-{ #category : #'spec-initializer' }
+{ #category : #initialization }
 SycMethodNameEditor2 >> initializeDialogWindow: aModalPresenter [
 	aModalPresenter
 		closeOnBackdropClick: true;
-		addButton: 'Ok' do: self acceptButtonAction;
-		addButton: 'Cancel' do: self cancelButtonAction;
-		initialExtent: 600 @ 300
+		addButton: 'Rename' do: [ :presenter | self renameMethodAndClose: presenter ];
+		addButton: 'Cancel' do: [ :presenter | 
+			presenter
+				beCancel;
+				close ];
+		initialExtent: 600 @ 300;
+		title: 'Method name editor'
 ]
 
-{ #category : #'spec-initializer' }
+{ #category : #initialization }
 SycMethodNameEditor2 >> initializePresenter [
-	self init.
-	selectorInput whenTextChangedDo: self selectorInputAction.
-	argumentsList whenSelectionChangedDo: self argumentsListAction.
-	upButton action: self upButtonAction.
-	downButton action: self downButtonAction.
+	selectorInput whenTextChangedDo: [ :text | self updateLabel ].
+	upButton action: [ self pushUpSelectedArgument ].
+	downButton action: [ self pushDownSelectedArgument ].
+
+	argumentsList
+		whenModelChangedDo: [ :model | 
+			argumentsList selectIndex: 1.
+			model
+				ifEmpty: [ upButton disable.
+					downButton disable ] ].
+
+	argumentsList items: methodName arguments
 ]
 
-{ #category : #'spec-initializer' }
+{ #category : #initialization }
 SycMethodNameEditor2 >> initializeWidgets [
-	selectorInput := (self instantiate: TextInputFieldPresenter)
-		autoAccept: true;
-		yourself.
-	argumentsList := self newList
-		items: OrderedCollection new;
-		"displayBlock: #name;"
-		yourself.
+	selectorInput := self instantiate: TextInputFieldPresenter.
+	argumentsList := self newList.
 	previewResult := self newLabel.
-	upButton := self newButton
-		label: 'Up';
-		disable;
-		yourself.
-	downButton := self newButton
-		label: 'Dn';
-		disable;
-		yourself
+	upButton := self newButton.
+	downButton := self newButton.
+	
+	selectorInput autoAccept: true.
+	upButton label: 'Up'.
+	downButton label: 'Dn'.
+	selectorInput text: methodName selector.
+	previewResult label: methodName methodName
 ]
 
 { #category : #accessing }
@@ -238,22 +140,48 @@ SycMethodNameEditor2 >> previewResult [
 	^ previewResult
 ]
 
+{ #category : #action }
+SycMethodNameEditor2 >> pushDownSelectedArgument [
+	| selectedIndex |
+	selectedIndex := argumentsList selectedIndex.
+	selectedIndex = argumentsList items size
+		ifTrue: [ ^ self inform: 'The argument is already the last of the list.' ].
+	argumentsList items swap: selectedIndex with: selectedIndex + 1.
+	argumentsList selectIndex: selectedIndex + 1.
+	self updateLabel
+]
+
+{ #category : #action }
+SycMethodNameEditor2 >> pushUpSelectedArgument [
+	| selectedIndex |
+	selectedIndex := argumentsList selectedIndex.
+	selectedIndex = 1
+		ifTrue: [ ^ self inform: 'The argument is already the first of the list.' ].
+	argumentsList items swap: selectedIndex with: selectedIndex - 1.
+	argumentsList selectIndex: selectedIndex - 1.
+	self updateLabel
+]
+
+{ #category : #action }
+SycMethodNameEditor2 >> renameMethodAndClose: presenter [
+	^ self previewResult label = '(invalid)'
+		ifTrue: [ self inform: 'Invalid method name' ]
+		ifFalse: [ methodName
+				arguments: argumentsList items;
+				selector: selectorInput text.
+			presenter
+				beOk;
+				close ]
+]
+
 { #category : #accessing }
 SycMethodNameEditor2 >> selectorInput [
 	^ selectorInput
 ]
 
-{ #category : #action }
-SycMethodNameEditor2 >> selectorInputAction [
-	^ [ :text | 
-	self previewResult
-		label: (self upDateSelector: text arguments: self argumentsList items) ]
-]
-
 { #category : #'accessing model' }
-SycMethodNameEditor2 >> setModelBeforeInitialization: aCompiledMethod [
-	"this metod just call a setter"
-	self compiledMethod: aCompiledMethod
+SycMethodNameEditor2 >> setModelBeforeInitialization: aRBMethodName [
+	methodName := aRBMethodName
 ]
 
 { #category : #accessing }
@@ -262,33 +190,12 @@ SycMethodNameEditor2 >> upButton [
 ]
 
 { #category : #action }
-SycMethodNameEditor2 >> upButtonAction [
-	self flag: #RefactoringUpDownButton.
-	^ [ | selectedIndex selectedElement elementBefore |
-	selectedIndex := argumentsList selectionMode selectedIndex.
-	selectedElement := argumentsList items at: selectedIndex.
-	elementBefore := argumentsList items at: selectedIndex - 1.
-	argumentsList items at: selectedIndex put: elementBefore.
-	argumentsList items at: selectedIndex - 1 put: selectedElement.
-	argumentsList selectionMode selectIndex: selectedIndex - 1.
+SycMethodNameEditor2 >> updateLabel [
+	"Update the new method name to display to the user when the user change its name or order of the arguments."
+
 	previewResult
 		label:
-			(self
-				upDateSelector: self selectorInput text
-				arguments: argumentsList items) ]
-]
-
-{ #category : #update }
-SycMethodNameEditor2 >> upDateSelector: selectorCollection arguments: argumentsCollection [
-	"this method is used to rebuild the preview when text in the selectorInput change and when the argumentsList change 
-	example: 
-		if we want to rename ARandomClass >> #open:with:
-		upDateSelector: #open:with: arguments: #( #something #otherthing  ) 
-			return: 'open: something with: otherthing'  
-		upDateSelector: #open: arguments: #( #something #otherthing  ) 
-			return: '(invalid)' 
-		and the same thing with not acceptable method name "
-	^ (RBMethodName
-		selector: selectorCollection 
-		arguments: (argumentsCollection  "collect: #name")) methodName
+			(RBMethodName
+				selector: self selectorInput text
+				arguments: self argumentsList items) methodName
 ]
