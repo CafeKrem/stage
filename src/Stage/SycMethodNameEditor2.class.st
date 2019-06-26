@@ -21,7 +21,7 @@ Internal Representation and Key Implementation Points.
 "
 Class {
 	#name : #SycMethodNameEditor2,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'selectorInput',
 		'argumentsList',
@@ -122,7 +122,7 @@ SycMethodNameEditor2 >> initializePresenter [
 
 { #category : #initialization }
 SycMethodNameEditor2 >> initializeWidgets [
-	selectorInput := self instantiate: TextInputFieldPresenter.
+	selectorInput := self instantiate: SpTextInputFieldPresenter.
 	argumentsList := self newList.
 	previewResult := self newLabel.
 	upButton := self newButton.

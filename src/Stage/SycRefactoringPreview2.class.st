@@ -20,7 +20,7 @@ Instance Variables
 "
 Class {
 	#name : #SycRefactoringPreview2,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'changes',
 		'scopeDropList',
