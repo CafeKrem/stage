@@ -38,7 +38,7 @@ ChangesBrowser2 class >> changes: aCollection [
 { #category : #specs }
 ChangesBrowser2 class >> defaultSpec [
 	<spec>
-	^ SpecBoxLayout newVertical
+	^ SpBoxLayout newVertical
 		add: #table;
 		"addSplitter;"
 			add: #textArea

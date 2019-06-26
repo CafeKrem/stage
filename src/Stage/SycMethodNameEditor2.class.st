@@ -35,20 +35,20 @@ Class {
 
 { #category : #specs }
 SycMethodNameEditor2 class >> defaultSpec [
-	^ SpecBoxLayout newVertical
+	^ SpBoxLayout newVertical
 		add:
-			(SpecBoxLayout newHorizontal
+			(SpBoxLayout newHorizontal
 				add: 'Selector'
 					withConstraints: [ :aConstraints | aConstraints width: 80 ];
 				add: #selectorInput;
 				yourself);
 		add:
-			(SpecBoxLayout newHorizontal
+			(SpBoxLayout newHorizontal
 				add: 'Arguments'
 					withConstraints: [ :aConstraints | aConstraints width: 80 ];
 				add: #argumentsList;
 				add:
-					(SpecBoxLayout newVertical
+					(SpBoxLayout newVertical
 						add: #upButton
 							withConstraints: [ :aConstraints | aConstraints height: 30 ];
 						add: #downButton
@@ -57,7 +57,7 @@ SycMethodNameEditor2 class >> defaultSpec [
 					withConstraints: [ :aConstraints | aConstraints width: 30 ];
 				yourself);
 		add:
-			(SpecBoxLayout newHorizontal
+			(SpBoxLayout newHorizontal
 				add: 'Preview'
 					withConstraints: [ :aConstraints | aConstraints width: 80 ];
 				add: #previewResult yourself);

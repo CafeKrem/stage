@@ -34,10 +34,10 @@ Class {
 
 { #category : #specs }
 SycRefactoringPreview2 class >> defaultSpec [
-	^ SpecBoxLayout newVertical
+	^ SpBoxLayout newVertical
 		add: #table;
 		add: #scopeDropList withConstraints: [ :constraints | constraints height: 30 ];
-		add: #textArea;
+		add: #diffPresenter;
 		yourself
 ]
 
