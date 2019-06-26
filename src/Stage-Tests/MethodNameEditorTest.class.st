@@ -13,9 +13,6 @@ Class {
 	#instVars : [
 		'presenterMNEThreeSetter',
 		'presenterMNEOneSetter',
-		'windowMNEOneGetter',
-		'windowMNEOneSetter',
-		'windowMNEThreeSetter',
 		'presenterMNEOneGetter'
 	],
 	#classInstVars : [
@@ -46,10 +43,6 @@ MethodNameEditorTest >> setUp [
 			(RBMethodName
 				selector: (UseOnlyForTest >> #a) selector
 				arguments:( (UseOnlyForTest >> #a) ast arguments collect: #name)).
-		
-	windowMNEOneGetter := presenterMNEOneGetter openWithSpec.
-	windowMNEOneSetter := presenterMNEOneSetter openWithSpec.
-	windowMNEThreeSetter := presenterMNEThreeSetter openWithSpec.
 ]
 
 { #category : #'action-input' }
@@ -57,9 +50,6 @@ MethodNameEditorTest >> tearDown [
 	presenterMNEOneGetter ifNotNil: [ :x | x application close ].
 	presenterMNEOneSetter ifNotNil: [ :x | x application close ].
 	presenterMNEThreeSetter ifNotNil: [ :x | x application close ].
-	windowMNEOneGetter ifNotNil: [ :x | x close ].
-	windowMNEOneSetter ifNotNil: [ :x | x close ].
-	windowMNEThreeSetter ifNotNil: [ :x | x close ].
 	super tearDown
 ]
 
