@@ -50,7 +50,7 @@ Internal Representation and Key Implementation Points.
 "
 Class {
 	#name : #FusionSingleCodeCriticResultList2AndCriticBrowser2,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'criticsPresenter',
 		'rulesPresenter',
