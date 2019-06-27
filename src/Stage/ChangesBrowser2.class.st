@@ -1,6 +1,6 @@
 Class {
 	#name : #ChangesBrowser2,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'textArea',
 		'scopeChooser',
