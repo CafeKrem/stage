@@ -55,38 +55,6 @@ SycRefactoringPreview2Test >> setUp [
 ]
 
 { #category : #tests }
-SycRefactoringPreview2Test >> testBuilDiffMethod [
-	| mockBuilDiff returnBuildDiffFor |
-	sycRefactoringPreview := SycRefactoringPreview2 new.
-	mockBuilDiff := SycMockBuildDiff
-		oldVersionTextToDisplay: 'k' , String cr , ' ^ je suis une banane'
-		textToDisplay: 'klm' , String cr , ' ^ je sius une banane'.
-	returnBuildDiffFor := sycRefactoringPreview
-		buildDiffFor: mockBuilDiff.
-	self
-		assert: returnBuildDiffFor 
-		equals:
-			mockBuilDiff textToDisplay   , String cr
-				, mockBuilDiff oldVersionTextToDisplay , String cr
-]
-
-{ #category : #tests }
-SycRefactoringPreview2Test >> testCheckBoxTickShouldUseToggleSelection [
-	self flag: #toTest.
-]
-
-{ #category : #tests }
-SycRefactoringPreview2Test >> testCheckBoxUnTickShouldUseToggleSelection [
-	self flag:#toTest.
-]
-
-{ #category : #tests }
-SycRefactoringPreview2Test >> testDiffBuilderNilSendMustReturnEmptyChar [
-	sycRefactoringPreview := SycRefactoringPreview2 new.
-	self assert:  (sycRefactoringPreview buildDiffFor: nil) equals: ''.
-]
-
-{ #category : #tests }
 SycRefactoringPreview2Test >> testDoubleClickAnTableItemShouldChangeTheValueAssociateToKey [
 	| mockTreeTableItem1 mockTreeTableItem2 mockTreeTableItem3 |
 	mockTreeTableItem1 := MockTreeTableItem new.
@@ -130,14 +98,6 @@ SycRefactoringPreview2Test >> testInitAllCheckBoxDictionarySetTrue [
 			
 ]
 
-{ #category : #'initialize-test' }
-SycRefactoringPreview2Test >> testInitTextAreaShouldEmpty [
-	"this method can't be test because i can't isolate the command"
-
-	self initializeForInitializeTest.
-	self assert: sycRefactoringPreview textArea text equals: ''
-]
-
 { #category : #tests }
 SycRefactoringPreview2Test >> testPickedChanges [
 	self fillTableWith3MockItem.
@@ -148,12 +108,4 @@ SycRefactoringPreview2Test >> testPickedChanges [
 		deny:
 			(sycRefactoringPreview selectedRefactorings
 				includesKey: sycRefactoringPreview table selection selectedIndex)
-]
-
-{ #category : #tests }
-SycRefactoringPreview2Test >> testSelectAnElementTreeTablePresenterShouldSendBuilDiffForToTextArea [
-	self fillTableWith3MockItem.
-	self assert: sycRefactoringPreview textArea text isEmpty.
-	sycRefactoringPreview table selectIndex: 2.
-	self assert: sycRefactoringPreview textArea text equals: 'useForTest'
 ]
