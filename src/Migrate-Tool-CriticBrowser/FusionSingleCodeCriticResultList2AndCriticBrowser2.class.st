@@ -66,19 +66,39 @@ Class {
 	#category : #'Migrate-Tool-CriticBrowser-main'
 }
 
+{ #category : #commander2 }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> buildCommandsGroupWith: presenter forRoot: rootCommandGroup [
+	rootCommandGroup
+		register:
+			((CmCommandGroup named: 'critic') asSpecGroup
+				register: (CBBrowseCriticMenu forSpec context: presenter);
+				register: (CBImplementorCriticMenu forSpec context: presenter);
+				register: (CBMarkAsTODOCriticMenu forSpec context: presenter);
+				register: (CBMarkAsWrongCriticMenu forSpec context: presenter);
+				register: (CBSenderCriticMenu forSpec context: presenter);
+				yourself);
+		register:
+			((CmCommandGroup named: 'rule') asSpecGroup
+				register: (CBBanRuleMenu forSpec context: presenter);
+				register: (CBBrowseRuleMenu forSpec context: presenter);
+				register: (CBReapplyRuleMenu forSpec context: presenter);
+				register: (CBUnBanRuleMenu forSpec context: presenter);
+				yourself)
+]
+
 { #category : #specs }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> defaultSpec [
-	^ SpecPanedLayout newVertical
+	^ SpPanedLayout newVertical
 		add:
-			(SpecPanedLayout newHorizontal
+			(SpPanedLayout newHorizontal
 				add:
-					(SpecBoxLayout newVertical
+					(SpBoxLayout newVertical
 						add: #rulesPresenter;
 						add: #rulesActionsPresenter
 							withConstraints: [ :element | element height: self buttonHeight ];
 						yourself);
 				add:
-					(SpecBoxLayout newVertical
+					(SpBoxLayout newVertical
 						add: #criticsPresenter;
 						add: #criticsActionsPresenter
 							withConstraints: [ :element | element height: self buttonHeight ];
@@ -234,24 +254,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticErrorPresenter [
 	^ noteBookPageCriticErrorPresenter
 ]
 
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticMenuGenerator [
-	| aMenu |
-	"below it's generate the contextMenu of Critics"
-	aMenu := self menuGenerator: CBAbstractCriticMenu.
-	"and now i add all action from Critic it's ugly but i depend on ReProperty in package: renraku" 
-	criticsPresenter selection selectedItem actions
-		do: [ :aCritic | 
-			aMenu
-				addItem: [ :newItem | 
-					newItem
-						name: aCritic description;
-						icon: nil;
-						action: aCritic action ] ].
-
-	^ aMenu
-]
-
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsOf: aRule [
 	^ criticCache criticsOf: aRule
@@ -264,10 +266,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
-	"                  "
-
 	criticsPresenter
-		whenActivatedDo: [ :singleSelection | self sendSelectedCriticCriticErrorPresenter: singleSelection ].
+		whenActivatedDo:
+			[ :singleSelection | self sendSelectedCriticCriticErrorPresenter: singleSelection ].
 	criticsPresenter
 		whenSelectionChangedDo: [ :singleSelection | 
 			self sendSelectedCriticCriticErrorPresenter: singleSelection.
@@ -380,7 +381,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 	criticCache browser: self
 ]
 
-{ #category : #initialize }
+{ #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticErrorPresenter [
 	noteBookPageCriticErrorPresenter
 		acceptBlock: [ :text | 
@@ -397,11 +398,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 	criticsPresenter
 		displayBlock: [ :selec | self formatCritic: selec ];
 		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
-		contextMenu: [ self criticMenuGenerator ];
+		contextMenu: [(self rootCommandsGroup / 'critic') beRoot
+				asMenuPresenter];
 		icons: [ :item | self iconFor: item ]
 ]
 
-{ #category : #initialize }
+{ #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeNoteBookPresenter [
 	noteBookPresenter
 		addPage:
@@ -431,8 +433,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 			(StringTableColumn new
 				width: 40;
 				title: 'toSort';
-				evaluated:
-						[ :aRules | self computeToSort: aRules ];
+				evaluated: [ :aRules | self computeToSort: aRules ];
 				yourself);
 		addColumn:
 			(StringTableColumn new
@@ -452,7 +453,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 			aRule isComposite
 				ifTrue: [ aRule rules ]
 				ifFalse: [ #() ] ];
-		contextMenu: (self menuGenerator: CBAbstractRuleMenu)
+		contextMenu: [ (self rootCommandsGroup / 'critic') asMenuPresenter ]
 ]
 
 { #category : #initialize }
@@ -472,11 +473,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	self initializeCriticErrorPresenter.	"and: [ rule isTransformationRule not ]"
 	self initializeRulesPresenter.
 	self initializeCriticsPresenter
-]
-
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isFalsePositive: aCritic forRule: aRule [
-	
 ]
 
 { #category : #TOCATEGORISE }
@@ -499,33 +495,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> logInManifest [
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurrentRule: aCritic [
 	criticCache addFalsePositive: aCritic forRule: self rule
-]
-
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGenerator: aClassName [
-	| newMenu |
-	newMenu := MenuPresenter new.
-	(aClassName actionsMenu)
-		do:
-			[ :aCBGroupMenu | newMenu addGroup: (self menuGroupGenerator: aCBGroupMenu) ].
-	^ newMenu
-]
-
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGroupGenerator: aGroupClass [
-	^ [ :newGroup | 
-	aGroupClass actionsGroup
-		do: [ :item | newGroup addItem: (self menuItemGenerator: item) ] ]
-]
-
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuItemGenerator: anItem [
-	^ [ :newItem | 
-	newItem
-		name: anItem title;
-		action: [ anItem runOn: self ];
-		icon: anItem icon;
-		yourself ]
 ]
 
 { #category : #'system annoucements-Action' }
@@ -738,12 +707,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
 
 	SystemAnnouncer uniqueInstance unsubscribe: self
-]
-
-{ #category : #update }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateCritics [
-	self criticsPresenter needRebuild: false.
-	self criticsPresenter buildWithSpec
 ]
 
 { #category : #api }

@@ -1,7 +1,7 @@
 Class {
 	#name : #CBBanRuleMenu,
-	#superclass : #CBGroupBRuleMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data-menu'
+	#superclass : #CmCommand,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu-rule'
 }
 
 { #category : #accessing }
