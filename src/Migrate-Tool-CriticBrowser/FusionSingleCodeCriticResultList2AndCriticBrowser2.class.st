@@ -145,39 +145,56 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> title [
 	^ 'Critic Browser'
 ]
 
-{ #category : #menu }
+{ #category : #'initialize-actions' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> DoubleClickActionOnCritic: singleSelection [
+	| selectedCritic |
+	selectedCritic := singleSelection selectedItem.
+	selectedCritic
+		ifNotNil: [ selectedCritic providesChange
+				ifTrue: [ noteBookPageCriticErrorPresenter 
+						text: (self diffTextForChange: selectedCritic change) ]
+				ifFalse: [ | entity |
+					entity := selectedCritic sourceAnchor entity.
+					(entity respondsTo: #definition)
+						ifTrue: [ noteBookPageCriticErrorPresenter text: entity definition ]
+						ifFalse: [ noteBookPageCriticErrorPresenter text: entity asString ] ].
+			noteBookPresenter selectPageIndex: 2 ]
+		ifNil: [ '' ]
+]
+
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addCriticToToDo [
 	criticsPresenter selectedItems
 		ifNotNil:
 			[ :items | items do: [ :item | criticCache addToDo: item forRule: self rule ] ]
 ]
 
-{ #category : #menu }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addFalsePositive: aCritic forRule: aRule [
 	criticCache addFalsePositive: aCritic forRule: aRule
 ]
 
-{ #category : #menu }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addFalsePositiveRule: aRule forPackage: aPackage [
 	criticCache addFalsePositiveRule: aRule forPackage: aPackage
 ]
 
-{ #category : #menu }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> addToDo: aCritic forRule: aRule [
 	criticCache addToDo: aCritic forRule: aRule
 ]
 
-{ #category : #menu }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allPackages [ 
 	^ rbEnvironment packages
 ]
 
-{ #category : #accessing }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> allRules [
 	^ rulesPresenter roots flatCollect: #rules
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> applyRules [
 	| rules checker |
 	rules := self allRules.
@@ -235,7 +252,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> classRemoved: aClass [
 	criticCache updateBrowser
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
 	| total falsePositives toDos |
 	falsePositives := (criticCache falsePositiveOf: aRules) size.
@@ -249,12 +266,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticCache [
 	^ criticCache
 ]
 
-{ #category : #accessing }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticErrorPresenter [
-	^ noteBookPageCriticErrorPresenter
-]
-
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsOf: aRule [
 	^ criticCache criticsOf: aRule
 ]
@@ -268,19 +280,19 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
 	criticsPresenter
 		whenActivatedDo:
-			[ :singleSelection | self sendSelectedCriticCriticErrorPresenter: singleSelection ].
+			[ :singleSelection | self DoubleClickActionOnCritic: singleSelection ].
 	criticsPresenter
 		whenSelectionChangedDo: [ :singleSelection | 
-			self sendSelectedCriticCriticErrorPresenter: singleSelection.
+			self DoubleClickActionOnCritic: singleSelection.
 			self send: criticsPresenter to: noteBookPageCriticErrorPresenter ]
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> defaultColor [
 	^ Color red
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> diffSeparator [
 
 	^ '——————————————————
@@ -288,7 +300,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> diffSeparator [
 '
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> diffTextForChange: aRefactoryChange [
 	| text builder |
 
@@ -311,20 +323,11 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> environment: aEnvironment 
  
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> formatCritic: aCritic [
 	
 	^  String streamContents: [:s | aCritic sourceAnchor entity criticNameOn: s ]
 
-]
-
-{ #category : #'generators-BookPage' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> generateBookPageForClassSquelleton: aClass [
-	^ NotebookPage
-		title: aClass title
-		icon: (aClass icon ifNil: [ nil ] ifNotNil: [ self iconNamed: aClass icon ])
-		provider: [ aClass provider: self ]
-		layoutSpec: aClass layoutSpec
 ]
 
 { #category : #'system Annoucements-Handle' }
@@ -361,7 +364,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleMethodRemoved: anAnn
 	self methodRemoved: anAnnouncement methodRemoved
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
 	"It is weird than in a branch of the condition there is no icon returned"
 	^ (criticCache isFalsePositive: anItem forRule: self rule)
@@ -475,24 +478,24 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	self initializeCriticsPresenter
 ]
 
-{ #category : #TOCATEGORISE }
+{ #category : #tests }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isSelectedCriticIsToDo [
 	^ criticCache isToDo: self selectedCritic forRule: self selectedRule
 ]
 
-{ #category : #menu }
+{ #category : #tests }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isSelectedRuleIsFalsePositive [
 	^ criticCache
 		isFalsePositive: self selectedCritic
 		forRule: self selectedRule
 ]
 
-{ #category : #TOCATEGORISE }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> logInManifest [
 	criticCache logInManifest 
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurrentRule: aCritic [
 	criticCache addFalsePositive: aCritic forRule: self rule
 ]
@@ -533,6 +536,21 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> newButtonFor: aClass [
 		yourself
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> noteBookPageCriticErrorPresenter [
+	^ noteBookPageCriticErrorPresenter
+]
+
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> noteBookPageRuleCommentPresenter [
+	^ noteBookPageRuleCommentPresenter
+]
+
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> noteBookPresenter [
+	^ noteBookPresenter
+]
+
 { #category : #'system Annoucements-Handle' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> onWindowClosed [
 	self unregisterFromAnnouncements.
@@ -544,13 +562,13 @@ before closing the Critics Browser ?')
 				ifTrue: [ criticCache logInManifest ] ]
 ]
 
-{ #category : #TOCATEGORISE }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyAllRules [
 	criticCache initialize.
 	self applyRules
 ]
 
-{ #category : #TOCATEGORISE }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyRule: aRule [
 	criticCache removeRule: aRule.
 	criticCache checker resetResult.
@@ -583,12 +601,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
 	self announcer when: WindowClosed send: #onWindowClosed to: self" Unmatched " "in comment".
 ]
 
-{ #category : #menu }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositive: aCritic forRule: aRule [
 	criticCache removeFalsePositive: self selectedCritic forRule: self selectedRule. 
 ]
 
-{ #category : #menu }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeFalsePositiveRule: aRule forPackage: aPackage [
 	criticCache removeFalsePositiveRule: aRule forPackage: aPackage
 ]
@@ -598,19 +616,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeTestCase: aBoolean [
 	removeTestCase := aBoolean 
 ]
 
-{ #category : #menu }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> removeToDo: aCritic forRule: aRule [
 	criticCache removeToDo: aCritic forRule: aRule
 ]
 
-{ #category : #accessing }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> rule [
 	^ self rulesPresenter selection selectedItem
-]
-
-{ #category : #accessing }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> ruleCommentPresenter [
-	^ noteBookPageRuleCommentPresenter
 ]
 
 { #category : #accessing }
@@ -651,17 +664,17 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedCritic [
 	^ criticsPresenter selection selectedItem
 ]
 
-{ #category : #TOCATEGORISE }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectedRule [
 	^ rulesPresenter selectedItem
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> selectionIntervalFor: aString [
 	^ self rule result selectionIntervalFor: aString
 ]
 
-{ #category : #private }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> send: origin to: dest [
 	^ origin selection selectedItem
 		ifNotNil: [ :critic | 
@@ -681,35 +694,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> send: origin to: dest [
 						ifTrue: [ dest setSelection: critic sourceAnchor interval ] ] ]
 ]
 
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sendSelectedCriticCriticErrorPresenter: singleSelection [
-	| selectedCritic |
-	selectedCritic := singleSelection selectedItem.
-	selectedCritic
-		ifNotNil: [ selectedCritic providesChange
-				ifTrue: [ noteBookPageCriticErrorPresenter 
-						text: (self diffTextForChange: selectedCritic change) ]
-				ifFalse: [ | entity |
-					entity := selectedCritic sourceAnchor entity.
-					(entity respondsTo: #definition)
-						ifTrue: [ noteBookPageCriticErrorPresenter text: entity definition ]
-						ifFalse: [ noteBookPageCriticErrorPresenter text: entity asString ] ].
-			noteBookPresenter selectPageIndex: 2 ]
-		ifNil: [ '' ]
-]
-
-{ #category : #accessing }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
-	^ noteBookPresenter
-]
-
 { #category : #'system annoucements' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
 
 	SystemAnnouncer uniqueInstance unsubscribe: self
 ]
 
-{ #category : #api }
+{ #category : #utils }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateTree [
 	self needRebuild: false.
 	self buildWithSpec

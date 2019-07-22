@@ -26,10 +26,10 @@ CBCriticBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCr
 
 	self setupCriticBrowser: criticBrowser.
 	self
-		assert: criticBrowser sourceCodePresenter selectedPageIndex
+		assert: criticBrowser noteBookPresenter selectedPageIndex
 		equals: 2.
 	self
-		assert: criticBrowser criticErrorPresenter text
+		assert: criticBrowser noteBookPageCriticErrorPresenter text
 		equals:
 			'UseForTestCriticBrowser removeInstVarName: #A!
 UseForTestCriticBrowser addInstVarName: #a!
@@ -47,7 +47,7 @@ CBCriticBrowserTest >> testDoubleOnCriticShouldSendSourceCodeToSourceCodePresent
 	| textBefore |
 	self setupSelectRBUnclassifiedMethodRule.
 	criticBrowser criticsPresenter selectIndex: 1.
-	textBefore := criticBrowser criticErrorPresenter text.
+	textBefore := criticBrowser noteBookPageCriticErrorPresenter text.
 	self setupSelectionRulesPresenter: criticBrowser.
 	criticBrowser criticsPresenter selectIndex: 2.
 	self setupSelectRBUnclassifiedMethodRule.
@@ -55,18 +55,18 @@ CBCriticBrowserTest >> testDoubleOnCriticShouldSendSourceCodeToSourceCodePresent
 	criticBrowser criticsPresenter selectIndex: 1.
 	criticBrowser criticsPresenter selectIndex: 1.
 	self
-		assert: criticBrowser criticErrorPresenter text
+		assert: criticBrowser noteBookPageCriticErrorPresenter text
 		equals: textBefore
 ]
 
 { #category : #initialize }
 CBCriticBrowserTest >> testInitCriticErrorPresenterIsEmpty [
-	self assert: criticBrowser criticErrorPresenter text equals: ''
+	self assert: criticBrowser noteBookPageCriticErrorPresenter text equals: ''
 ]
 
 { #category : #initialize }
 CBCriticBrowserTest >> testInitRuleCommentPresenterIsEmpty [
-	self assert: criticBrowser ruleCommentPresenter text equals: ''
+	self assert: criticBrowser noteBookPageRuleCommentPresenter text equals: ''
 ]
 
 { #category : #initialize }
@@ -78,7 +78,7 @@ CBCriticBrowserTest >> testRulesPresenterAnySelectedItem [
 CBCriticBrowserTest >> testRulesPresenterClickaCompositeNodeShouldRuleCommentPresenterShouldEmpty [
 	criticBrowser rulesPresenter selectPath: #(1).
 	self assert: criticBrowser rule isComposite.
-	self assert: criticBrowser ruleCommentPresenter text equals: ''
+	self assert: criticBrowser noteBookPageRuleCommentPresenter text equals: ''
 ]
 
 { #category : #'action-RulesPresenter' }
@@ -102,14 +102,14 @@ CBCriticBrowserTest >> testRulesPresenterClickaNotCompositeShouldTransmitDescrip
 	self setupSelectionRulesPresenter: criticBrowser.
 	self deny: criticBrowser rule isComposite.
 	self
-		assert: criticBrowser ruleCommentPresenter text
+		assert: criticBrowser noteBookPageRuleCommentPresenter text
 		equals:
 			'Instance variable names on the instance- and class-side should start with a lowercase letter.'
 ]
 
 { #category : #initialize }
 CBCriticBrowserTest >> testSelectedRuleIsNilShouldRuleCommentPresenterIsEmpty [
-	self assert: criticBrowser ruleCommentPresenter text equals: ''.
+	self assert: criticBrowser noteBookPageRuleCommentPresenter text equals: ''.
 ]
 
 { #category : #'action-SourceCodePresenter' }
@@ -117,16 +117,16 @@ CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCom
 	| beforeModif |
 	"n'enregistre pas les modification"
 	self setupSelectRBUnclassifiedMethodRule.
-	beforeModif := criticBrowser criticErrorPresenter text.
-	criticBrowser criticErrorPresenter text: beforeModif , '"klm"'.
-	criticBrowser criticErrorPresenter accept.
+	beforeModif := criticBrowser noteBookPageCriticErrorPresenter text.
+	criticBrowser noteBookPageCriticErrorPresenter text: beforeModif , '"klm"'.
+	criticBrowser noteBookPageCriticErrorPresenter accept.
 	criticBrowser criticsPresenter clickOnSelectedItem.
 	criticBrowser criticsPresenter clickOnSelectedItem.
 	self
-		assert: criticBrowser criticErrorPresenter text
+		assert: criticBrowser noteBookPageCriticErrorPresenter text
 		equals: beforeModif , '"klm"'.
-	criticBrowser criticErrorPresenter text: beforeModif.
-	criticBrowser criticErrorPresenter accept
+	criticBrowser noteBookPageCriticErrorPresenter text: beforeModif.
+	criticBrowser noteBookPageCriticErrorPresenter accept
 ]
 
 { #category : #tests }
