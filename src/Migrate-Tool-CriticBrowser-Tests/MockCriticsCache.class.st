@@ -9,6 +9,11 @@ MockCriticsCache >> critics [
 	^ critics
 ]
 
+{ #category : #'as yet unclassified' }
+MockCriticsCache >> falsePositiveClass [
+	^ falsePositiveClasses
+]
+
 { #category : #accessing }
 MockCriticsCache >> falsePositives [
 	^ falsePositives 

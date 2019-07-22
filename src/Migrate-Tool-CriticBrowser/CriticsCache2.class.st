@@ -211,6 +211,7 @@ CriticsCache2 >> isToDo: aCritic forRule: aRule [
 
 { #category : #'add/remove' }
 CriticsCache2 >> itemRemoved: anItem [
+	"anItem : can be a method a class (where is the critics)"
 	{ critics . toDos . falsePositives } do: [ :ruleDict |
 		ruleDict valuesDo: [ :crits |
 			crits removeAllSuchThat: [ :crit |
@@ -331,7 +332,6 @@ CriticsCache2 >> removeCritic: aCritic forRule: aRule [
 
 { #category : #'add/remove' }
 CriticsCache2 >> removeFalsePositive: aCritic forRule: aRule [
-
 	(falsePositives includesKey: aRule) 
 		ifFalse: [^ self ].
 	[ (falsePositiveClasses includes: aCritic sourceAnchor entity criticTheNonMetaclassClass) 
@@ -361,7 +361,7 @@ CriticsCache2 >> removeFalsePositiveRule: aRule forPackage: aPackage [
 		remove: aRule class uniqueIdentifierName
 		ifAbsent: [ ^ self ].
 	fp := (critics at: aRule ifAbsent: [ ^ self ])
-		select: [ :c | 1 halt.
+		select: [ :c | 
 			(self packageOf: c) package name = aPackage packageName
 				and: [ (falsePositiveClasses
 						includes: c sourceAnchor entity criticTheNonMetaclassClass) not ] ].
@@ -378,13 +378,10 @@ CriticsCache2 >> removeRule: aRule [
 
 { #category : #'add/remove' }
 CriticsCache2 >> removeToDo: aCritic forRule: aRule [
-
-	(toDos includesKey: aRule) 
-		ifFalse: [^ self].
-			
-	(toDos at:aRule) remove: aCritic ifAbsent: [^ self].
+	(toDos includesKey: aRule)
+		ifFalse: [ ^ self ].
+	(toDos at: aRule) remove: aCritic ifAbsent: [ ^ self ].
 	self updateBrowser
-	
 ]
 
 { #category : #protocol }
