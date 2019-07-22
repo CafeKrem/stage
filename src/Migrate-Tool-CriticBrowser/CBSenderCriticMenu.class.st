@@ -3,23 +3,16 @@ test
 "
 Class {
 	#name : #CBSenderCriticMenu,
-	#superclass : #CBGroupACriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data-menu'
+	#superclass : #CmCommand,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu-critic'
 }
 
-{ #category : #accessing }
-CBSenderCriticMenu class >> icon [ 
-	^ nil
-]
+{ #category : #hooks }
+CBSenderCriticMenu >> execute [
+	"Execute the actions that should be done by the command.
+	 This method expect that the context has been put in #context inst. var. if any context is relevant."
 
-{ #category : #accessing }
-CBSenderCriticMenu class >> itemPriority [ 
-	^ 20
-]
-
-{ #category : #accessing }
-CBSenderCriticMenu class >> runOn: aCriticBrowser [
-	^ aCriticBrowser selectedCritic
+	self context selectedCritic
 		ifNotNil: [ :aCritic | 
 			(aCritic sourceAnchor entity respondsTo: #selector)
 				ifFalse: [ ^ self inform: 'you can`t use senders of this' ].
@@ -27,7 +20,10 @@ CBSenderCriticMenu class >> runOn: aCriticBrowser [
 				browseSendersOf: aCritic sourceAnchor entity selector ]
 ]
 
-{ #category : #accessing }
-CBSenderCriticMenu class >> title [ 
-	^ 'senders of...'
+{ #category : #hooks }
+CBSenderCriticMenu >> initialize [
+	super initialize.
+	self
+		basicName: 'senders';
+		basicDescription: 'show the senders of selectedItem'
 ]

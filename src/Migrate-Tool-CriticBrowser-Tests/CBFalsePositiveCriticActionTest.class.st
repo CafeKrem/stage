@@ -26,4 +26,5 @@ CBFalsePositiveCriticActionTest >> testCBFalsePositiveActionCallMarkAsFalsePosit
 	criticBrowser selectedCritic ifNil: [ self fail ].
 	CBFalsePositiveCriticAction runOn: criticBrowser .
 	self assert: criticBrowser messageCall equals: 1
+
 ]

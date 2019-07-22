@@ -1,45 +1,43 @@
 "
-HOW TO RUN 
+I am a GUI used to preview the impact of a refactoring and select the changes to apply.
+
+Examples
+
 	scopePackage := ClyPackageScope of: 'Stage' asPackage in: ClyNavigationEnvironment currentImage.
 	scopeClass := ClyClassScope of: 'SycRefactoringPreview' in: ClyNavigationEnvironment currentImage.
 	
 	SycRefactoringPreview2 for:  scope: { scopePackage . scopeClass } 
-Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
 
-I a UI use to select modification that you want to sdo 
-(add Method remove method) when you want to rename a Method
 
-    Instance Variables
-	changes:		<Array<RBRefactroring>>
-	scopeDropList:		<DropListPresenter>
-	scopes:		<ClyScope>
-	selectedCheckBoxs:		<Dictionary>
-	table:		<TablePresenter>
-	textArea:		<SourceCodePresenter>
+
+Instance Variables
+	changes:						<ArrayOfRBRefactroring>	The collection of changes that can be applied with the refactoring.
+	scopeDropList:				<DropListPresenter>		A drop list to let the user chose the scope of the refactoring to apply. (All image, current package, current class...)				
+	selectedRefactorings:		<Dictionary>					A dictionary remembering for all refactorings if they should be applied.	
+	table:							<TablePresenter>			A table to display the possible refactorings.
+	diffPresenter				<DiffPresenter>				A diff presenter to show the users the consequences of the refactorings.
 	
-
-    Implementation Points
 "
 Class {
 	#name : #SycRefactoringPreview2,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
-		'textArea',
 		'changes',
 		'scopeDropList',
 		'table',
 		'command',
-		'selectedRefactorings'
+		'selectedRefactorings',
+		'diffPresenter'
 	],
 	#category : #'Stage-things'
 }
 
 { #category : #specs }
 SycRefactoringPreview2 class >> defaultSpec [
-	^ SpecBoxLayout newVertical
+	^ SpBoxLayout newVertical
 		add: #table;
 		add: #scopeDropList withConstraints: [ :constraints | constraints height: 30 ];
-		add: #textArea;
+		add: #diffPresenter;
 		yourself
 ]
 
@@ -52,7 +50,6 @@ SycRefactoringPreview2 class >> for: aCommand scopes: scopes [
 
 { #category : #specs }
 SycRefactoringPreview2 class >> title [
-
 	^ 'Refactoring changes'
 ]
 
@@ -93,13 +90,9 @@ SycRefactoringPreview2 >> asEpiceaEvent [
 
 { #category : #private }
 SycRefactoringPreview2 >> buildDiffFor: aChange [
-
-	^ aChange
-		ifNil: [ '' ]
-		ifNotNil: [
-			TextDiffBuilder 
-				buildDisplayPatchFrom: aChange oldVersionTextToDisplay 
-				to: aChange textToDisplay ].
+	^ diffPresenter
+		leftText: aChange oldVersionTextToDisplay;
+		rightText: aChange textToDisplay
 ]
 
 { #category : #controlling }
@@ -136,45 +129,40 @@ SycRefactoringPreview2 >> generateChanges [
 { #category : #initialization }
 SycRefactoringPreview2 >> initializeDialogWindow: aDialogWindowPresenter [
 	super initializeDialogWindow: aDialogWindowPresenter.
-	aDialogWindowPresenter title: self title
+	aDialogWindowPresenter
+		title: self title;
+		initialExtent: 500 @ 500
 ]
 
 { #category : #initialization }
 SycRefactoringPreview2 >> initializePresenter [
 	super initializePresenter.
 	table
-		transmitTo: textArea
-		transform: [ :selectedItem | self buildDiffFor: selectedItem ].
-		
+		whenSelectionChangedDo: [ :selection | self buildDiffFor: selection selectedItem ].
 	table
 		whenActivatedDo: [ :selectedElement | 
 			self toggleSelectionOf: selectedElement widget selection selectedItem.
 			self rebuild ].
-		
 	scopeDropList
 		whenSelectedItemChangedDo: [ :scope | self updateChanges ]
 ]
 
 { #category : #initialization }
-SycRefactoringPreview2 >> initializeTable [
+SycRefactoringPreview2 >> initializeWidgets [
+	table := self newTable.
+	diffPresenter := self newDiff.
+	scopeDropList := self newDropList.
+	
 	table
 		addColumn:
 			((CheckBoxTableColumn evaluated: [ :x | selectedRefactorings at: x ])
 				onActivation: [ :class | self toggleSelectionOf: class ];
 				onDesactivation: [ :class | self toggleSelectionOf: class ];
 				width: 20);
-		addColumn: (StringTableColumn evaluated: [ :x | x name ]);
-		hideColumnHeaders
-]
-
-{ #category : #initialization }
-SycRefactoringPreview2 >> initializeWidgets [
-	table := self newTable.
-	textArea := self newCode.
-	scopeDropList := self newDropList.
-	
-	self initializeTable.
-	textArea enabled: false.
+		addColumn: (StringTableColumn evaluated: #name);
+		hideColumnHeaders.
+		
+	diffPresenter disable.
 	scopeDropList displayBlock: [ :scope | scope description capitalized ].
 	
 	self
@@ -191,8 +179,7 @@ SycRefactoringPreview2 >> isEpiceaInterestingJobOwner [
 
 { #category : #accessing }
 SycRefactoringPreview2 >> pickedChanges [
-	^ table items
-		select: [ :item | selectedRefactorings at: item ]
+	^ table items select: [ :item | selectedRefactorings at: item ]
 ]
 
 { #category : #update }
@@ -223,7 +210,7 @@ SycRefactoringPreview2 >> setFocus [
 	self focusOrder
 		add: table;
 		add: scopeDropList;
-		add: textArea
+		add: diffPresenter
 ]
 
 { #category : #initialization }
@@ -236,11 +223,6 @@ SycRefactoringPreview2 >> setShortcuts [
 { #category : #accessing }
 SycRefactoringPreview2 >> table [
 	^ table
-]
-
-{ #category : #accessing }
-SycRefactoringPreview2 >> textArea [
-	^ textArea
 ]
 
 { #category : #accessing }

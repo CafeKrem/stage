@@ -1,16 +1,16 @@
 Class {
 	#name : #CBMarkAsTODOCriticMenu,
-	#superclass : #CBGroupMarkItemCriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data-menu'
+	#superclass : #CmCommand,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu-critic'
 }
 
-{ #category : #accessing }
-CBMarkAsTODOCriticMenu class >> itemPriority [ 
-	^ 1
-]
+{ #category : #hooks }
+CBMarkAsTODOCriticMenu >> execute [
+	"Execute the actions that should be done by the command.
+	 This method expect that the context has been put in #context inst. var. if any context is relevant."
 
-{ #category : #accessing }
-CBMarkAsTODOCriticMenu class >> runOn: aCriticBrowser [
+	| aCriticBrowser |
+	aCriticBrowser := self context.
 	aCriticBrowser isSelectedCriticIsToDo
 		ifTrue: [ aCriticBrowser
 				removeToDo: aCriticBrowser selectedCritic
@@ -21,7 +21,10 @@ CBMarkAsTODOCriticMenu class >> runOn: aCriticBrowser [
 	aCriticBrowser updateTree
 ]
 
-{ #category : #accessing }
-CBMarkAsTODOCriticMenu class >> title [ 
-	^ 'Mark / unMark  as TODO'
+{ #category : #initialization }
+CBMarkAsTODOCriticMenu >> initialize [
+	super initialize.
+	self
+		basicName: 'mark/unMark as TODO';
+		basicDescription: 'mark/unMark as TODO'
 ]

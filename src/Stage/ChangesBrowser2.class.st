@@ -1,6 +1,6 @@
 Class {
 	#name : #ChangesBrowser2,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'textArea',
 		'scopeChooser',
@@ -38,7 +38,7 @@ ChangesBrowser2 class >> changes: aCollection [
 { #category : #specs }
 ChangesBrowser2 class >> defaultSpec [
 	<spec>
-	^ SpecBoxLayout newVertical
+	^ SpBoxLayout newVertical
 		add: #table;
 		"addSplitter;"
 			add: #textArea

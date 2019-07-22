@@ -19,3 +19,20 @@ CBUpdateRuleActionTest >> testUpdateButtonHaveSameNumberOfToDo [
 		assert: (criticBrowser computeToSort: criticBrowser rule)
 		equals: numberOfTodoBefore
 ]
+
+{ #category : #tests }
+CBUpdateRuleActionTest >> testUpdateWhenAddMethodAction [
+	[ | beforeReset |
+	self setupSelectRBUnclassifiedMethodRule.
+	beforeReset := criticBrowser computeToSort: criticBrowser rule.
+	UseForTestCriticBrowser
+		compile:
+			'toto
+	 ^ ''klm'' , ''klm'''
+		classified: 'as yet unclassified'.
+	CBUpdateRuleAction runOn: criticBrowser.
+	self
+		assert: (criticBrowser computeToSort: criticBrowser rule)
+		equals: beforeReset + 1 ]
+		ensure: [ (UseForTestCriticBrowser >> #toto) removeFromSystem ]
+]

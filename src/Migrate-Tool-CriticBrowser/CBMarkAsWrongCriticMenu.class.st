@@ -1,16 +1,16 @@
 Class {
 	#name : #CBMarkAsWrongCriticMenu,
-	#superclass : #CBGroupMarkItemCriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data-menu'
+	#superclass : #CmCommand,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu-critic'
 }
 
-{ #category : #accessing }
-CBMarkAsWrongCriticMenu class >> itemPriority [ 
-	^ 10
-]
+{ #category : #hooks }
+CBMarkAsWrongCriticMenu >> execute [
+	"Execute the actions that should be done by the command.
+	 This method expect that the context has been put in #context inst. var. if any context is relevant."
 
-{ #category : #accessing }
-CBMarkAsWrongCriticMenu class >> runOn: aCriticBrowser [
+	| aCriticBrowser |
+	aCriticBrowser := self context.
 	aCriticBrowser isSelectedRuleIsFalsePositive
 		ifTrue: [ aCriticBrowser
 				removeFalsePositive: aCriticBrowser selectedCritic
@@ -21,7 +21,10 @@ CBMarkAsWrongCriticMenu class >> runOn: aCriticBrowser [
 	aCriticBrowser updateTree
 ]
 
-{ #category : #accessing }
-CBMarkAsWrongCriticMenu class >> title [ 
-	^ 'Mark / UnMark as Wrong'
+{ #category : #initialization }
+CBMarkAsWrongCriticMenu >> initialize [
+	super initialize.
+	self
+		basicName: 'mark/unMark as wrong';
+		basicDescription: 'mark/unMark as wrong'
 ]

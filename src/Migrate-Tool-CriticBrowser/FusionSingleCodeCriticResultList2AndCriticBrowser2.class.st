@@ -50,7 +50,7 @@ Internal Representation and Key Implementation Points.
 "
 Class {
 	#name : #FusionSingleCodeCriticResultList2AndCriticBrowser2,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'criticsPresenter',
 		'rulesPresenter',
@@ -66,19 +66,39 @@ Class {
 	#category : #'Migrate-Tool-CriticBrowser-main'
 }
 
+{ #category : #commander2 }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> buildCommandsGroupWith: presenter forRoot: rootCommandGroup [
+	rootCommandGroup
+		register:
+			((CmCommandGroup named: 'critic') asSpecGroup
+				register: (CBBrowseCriticMenu forSpec context: presenter);
+				register: (CBImplementorCriticMenu forSpec context: presenter);
+				register: (CBMarkAsTODOCriticMenu forSpec context: presenter);
+				register: (CBMarkAsWrongCriticMenu forSpec context: presenter);
+				register: (CBSenderCriticMenu forSpec context: presenter);
+				yourself);
+		register:
+			((CmCommandGroup named: 'rule') asSpecGroup
+				register: (CBBanRuleMenu forSpec context: presenter);
+				register: (CBBrowseRuleMenu forSpec context: presenter);
+				register: (CBReapplyRuleMenu forSpec context: presenter);
+				register: (CBUnBanRuleMenu forSpec context: presenter);
+				yourself)
+]
+
 { #category : #specs }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 class >> defaultSpec [
-	^ SpecPanedLayout newVertical
+	^ SpPanedLayout newVertical
 		add:
-			(SpecPanedLayout newHorizontal
+			(SpPanedLayout newHorizontal
 				add:
-					(SpecBoxLayout newVertical
+					(SpBoxLayout newVertical
 						add: #rulesPresenter;
 						add: #rulesActionsPresenter
 							withConstraints: [ :element | element height: self buttonHeight ];
 						yourself);
 				add:
-					(SpecBoxLayout newVertical
+					(SpBoxLayout newVertical
 						add: #criticsPresenter;
 						add: #criticsActionsPresenter
 							withConstraints: [ :element | element height: self buttonHeight ];
@@ -180,6 +200,41 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> cache:  aCache [
 	criticCache := aCache
 ]
 
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> checker [
+	^ criticCache checker
+]
+
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> classAdded: aClass [
+
+	| rules |
+
+	(rbEnvironment definesClass: aClass) ifFalse: [ ^ self ].
+
+	rules := self allRules.
+	self checker
+		resetResult;
+		checkClass: aClass.
+		
+	rules do: [ :rule |		
+		(self checker criticsOf: rule) do:	[ :crit |
+			criticCache  addCritic: crit forRule: rule ].
+		(self checker falsePositiveOf: rule) do:	[ :crit |
+			criticCache  addFalsePositive: crit forRule: rule ].
+		(self checker toDoOf: rule) do:	[ :crit |
+			criticCache addToDo: crit forRule: rule ] ].
+	
+	criticCache updateBrowser.
+]
+
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> classRemoved: aClass [
+	(rbEnvironment definesClass: aClass)
+		ifTrue: [ criticCache itemRemoved: aClass ].
+	criticCache updateBrowser
+]
+
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
 	| total falsePositives toDos |
@@ -190,26 +245,13 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> computeToSort: aRules [
 ]
 
 { #category : #accessing }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticErrorPresenter [
-	^ noteBookPageCriticErrorPresenter
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticCache [
+	^ criticCache
 ]
 
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticMenuGenerator [
-	| aMenu |
-	"below it's generate the contextMenu of Critics"
-	aMenu := self menuGenerator: CBAbstractCriticMenu.
-	"and now i add all action from Critic it's ugly but i depend on ReProperty in package: renraku" 
-	criticsPresenter selection selectedItem actions
-		do: [ :aCritic | 
-			aMenu
-				addItem: [ :newItem | 
-					newItem
-						name: aCritic description;
-						icon: nil;
-						action: aCritic action ] ].
-
-	^ aMenu
+{ #category : #accessing }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticErrorPresenter [
+	^ noteBookPageCriticErrorPresenter
 ]
 
 { #category : #private }
@@ -224,10 +266,9 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenter [
 
 { #category : #'initialize-actions' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> criticsPresenterAction [
-	"                  "
-
 	criticsPresenter
-		whenActivatedDo: [ :singleSelection | self sendSelectedCriticCriticErrorPresenter: singleSelection ].
+		whenActivatedDo:
+			[ :singleSelection | self sendSelectedCriticCriticErrorPresenter: singleSelection ].
 	criticsPresenter
 		whenSelectionChangedDo: [ :singleSelection | 
 			self sendSelectedCriticCriticErrorPresenter: singleSelection.
@@ -286,9 +327,43 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> generateBookPageForClassSq
 		layoutSpec: aClass layoutSpec
 ]
 
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleClassAdded: anAnnouncement [
+	self classAdded: anAnnouncement classAdded
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleClassModified: anAnnouncement [
+	self
+		classRemoved: anAnnouncement newClassDefinition;
+		classAdded: anAnnouncement newClassDefinition
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleClassRemoved: anAnnouncement [
+	self classRemoved: anAnnouncement classRemoved
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleMethodAdded: anAnnouncement [
+	self methodAdded: anAnnouncement methodAdded
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleMethodModified: anAnnouncement [
+	self
+		methodRemoved: anAnnouncement newMethod;
+		methodAdded: anAnnouncement newMethod
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> handleMethodRemoved: anAnnouncement [
+	self methodRemoved: anAnnouncement methodRemoved
+]
+
 { #category : #private }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
-	self flag: #pharoTodo.	"It is weird than in a branch of the condition there is no icon returned"
+	"It is weird than in a branch of the condition there is no icon returned"
 	^ (criticCache isFalsePositive: anItem forRule: self rule)
 		ifFalse: [ self
 				iconNamed:
@@ -301,13 +376,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> iconFor: anItem [
 { #category : #initialize }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initialize [
 	super initialize.
-	self initializeShortcuts.
 	criticCache := ReCriticsCache new.
 	criticCache checker: ReSmalllintChecker new.
 	criticCache browser: self
 ]
 
-{ #category : #initialize }
+{ #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticErrorPresenter [
 	noteBookPageCriticErrorPresenter
 		acceptBlock: [ :text | 
@@ -324,11 +398,12 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeCriticsPresenter
 	criticsPresenter
 		displayBlock: [ :selec | self formatCritic: selec ];
 		itemFilterBlock: [ :item :string | '*' , string , '*' match: item contents ];
-		contextMenu: [ self criticMenuGenerator ];
+		contextMenu: [(self rootCommandsGroup / 'critic') beRoot
+				asMenuPresenter];
 		icons: [ :item | self iconFor: item ]
 ]
 
-{ #category : #initialize }
+{ #category : #'initialize-widgets' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeNoteBookPresenter [
 	noteBookPresenter
 		addPage:
@@ -344,7 +419,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeNoteBookPresente
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializePresenter [
 	self criticsPresenterAction.
 	self rulesPresenterActions.
-	self sourceCodePresenterAction
 ]
 
 { #category : #'initialize-widgets' }
@@ -359,8 +433,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 			(StringTableColumn new
 				width: 40;
 				title: 'toSort';
-				evaluated:
-						[ :aRules | self computeToSort: aRules ];
+				evaluated: [ :aRules | self computeToSort: aRules ];
 				yourself);
 		addColumn:
 			(StringTableColumn new
@@ -380,13 +453,7 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeRulesPresenter [
 			aRule isComposite
 				ifTrue: [ aRule rules ]
 				ifFalse: [ #() ] ];
-		contextMenu: (self menuGenerator: CBAbstractRuleMenu)
-]
-
-{ #category : #initialize }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeShortcuts [
-	self flag: 'last element to migrate'.
-	criticsPresenter bindKeyCombination: PharoShortcuts current browseShortcut toAction: [ self browseCritic ]
+		contextMenu: [ (self rootCommandsGroup / 'critic') asMenuPresenter ]
 ]
 
 { #category : #initialize }
@@ -406,11 +473,6 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> initializeWidgets [
 	self initializeCriticErrorPresenter.	"and: [ rule isTransformationRule not ]"
 	self initializeRulesPresenter.
 	self initializeCriticsPresenter
-]
-
-{ #category : #menu }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> isFalsePositive: aCritic forRule: aRule [
-	
 ]
 
 { #category : #TOCATEGORISE }
@@ -435,31 +497,32 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> markAsFalsePositiveForCurr
 	criticCache addFalsePositive: aCritic forRule: self rule
 ]
 
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGenerator: aClassName [
-	| newMenu |
-	newMenu := MenuPresenter new.
-	(aClassName actionsMenu)
-		do:
-			[ :aCBGroupMenu | newMenu addGroup: (self menuGroupGenerator: aCBGroupMenu) ].
-	^ newMenu
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> methodAdded: aMethod [
+	| rules |
+	(rbEnvironment includesMethod: aMethod)
+		ifFalse: [ ^ self ].
+	rules := self allRules.
+	self checker
+		resetResult;
+		getCritiquesAbout: aMethod
+			by: (rules select: [ :r | r class checksMethod ]).
+	rules
+		do: [ :rule | 
+			(self checker criticsOf: rule)
+				do: [ :crit | criticCache addCritic: crit forRule: rule ].
+			(self checker falsePositiveOf: rule)
+				do: [ :crit | criticCache addFalsePositive: crit forRule: rule ].
+			(self checker toDoOf: rule)
+				do: [ :crit | criticCache addToDo: crit forRule: rule ] ].
+	criticCache updateBrowser
 ]
 
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuGroupGenerator: aGroupClass [
-	^ [ :newGroup | 
-	aGroupClass actionsGroup
-		do: [ :item | newGroup addItem: (self menuItemGenerator: item) ] ]
-]
-
-{ #category : #'menu-generator' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> menuItemGenerator: anItem [
-	^ [ :newItem | 
-	newItem
-		name: anItem title;
-		action: [ anItem runOn: self ];
-		icon: anItem icon;
-		yourself ]
+{ #category : #'system annoucements-Action' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> methodRemoved: aMethod [
+	(rbEnvironment includesMethod: aMethod)
+		ifTrue: [ criticCache itemRemoved: aMethod ].
+	criticCache updateBrowser
 ]
 
 { #category : #'initialize-widgets' }
@@ -468,6 +531,17 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> newButtonFor: aClass [
 		label: aClass title;
 		action: [ aClass runOn: self ];
 		yourself
+]
+
+{ #category : #'system Annoucements-Handle' }
+FusionSingleCodeCriticResultList2AndCriticBrowser2 >> onWindowClosed [
+	self unregisterFromAnnouncements.
+	criticCache cacheChange
+		ifTrue: [ (UIManager default
+				confirm:
+					'Do you want log all wrong violations in the Manifests
+before closing the Critics Browser ?')
+				ifTrue: [ criticCache logInManifest ] ]
 ]
 
 { #category : #TOCATEGORISE }
@@ -499,14 +573,14 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> reapplyRule: aRule [
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> registerToAnnouncements [
 	 
 	self unregisterFromAnnouncements.
-	"SystemAnnouncer uniqueInstance weak
+	SystemAnnouncer uniqueInstance weak
 		when: ClassAdded send: #handleClassAdded: to: self;
 		when: ClassModifiedClassDefinition send: #handleClassModified: to: self;
 		when: ClassRemoved send: #handleClassRemoved: to: self;
 		when: MethodAdded send: #handleMethodAdded: to: self;
 		when: MethodModified send: #handleMethodModified: to: self;
 		when: MethodRemoved send: #handleMethodRemoved: to: self.
-	self window window announcer when: WindowClosed send: #onWindowClosed to: self"
+	self announcer when: WindowClosed send: #onWindowClosed to: self" Unmatched " "in comment".
 ]
 
 { #category : #menu }
@@ -629,22 +703,10 @@ FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenter [
 	^ noteBookPresenter
 ]
 
-{ #category : #'initialize-actions' }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> sourceCodePresenterAction [
-	| selectedItem |
-	self flag: #incomplete.
-]
-
 { #category : #'system annoucements' }
 FusionSingleCodeCriticResultList2AndCriticBrowser2 >> unregisterFromAnnouncements [
 
 	SystemAnnouncer uniqueInstance unsubscribe: self
-]
-
-{ #category : #update }
-FusionSingleCodeCriticResultList2AndCriticBrowser2 >> updateCritics [
-	self criticsPresenter needRebuild: false.
-	self criticsPresenter buildWithSpec
 ]
 
 { #category : #api }

@@ -1,22 +1,15 @@
 Class {
 	#name : #CBImplementorCriticMenu,
-	#superclass : #CBGroupACriticMenu,
-	#category : #'Migrate-Tool-CriticBrowser-data-menu'
+	#superclass : #CmCommand,
+	#category : #'Migrate-Tool-CriticBrowser-data-menu-critic'
 }
 
-{ #category : #accessing }
-CBImplementorCriticMenu class >> icon [
-	^ nil
-]
+{ #category : #hooks }
+CBImplementorCriticMenu >> execute [
+	"Execute the actions that should be done by the command.
+	 This method expect that the context has been put in #context inst. var. if any context is relevant."
 
-{ #category : #accessing }
-CBImplementorCriticMenu class >> itemPriority [ 
-	^ 10 
-]
-
-{ #category : #accessing }
-CBImplementorCriticMenu class >> runOn: aCriticBrowser [
-	^ aCriticBrowser selectedCritic
+	self context selectedCritic
 		ifNotNil: [ :aCritic | 
 			(aCritic sourceAnchor entity respondsTo: #selector)
 				ifFalse: [ ^ self inform: 'you can ask the implementors of this' ].
@@ -24,7 +17,10 @@ CBImplementorCriticMenu class >> runOn: aCriticBrowser [
 				browseImplementorsOf: aCritic sourceAnchor entity selector ]
 ]
 
-{ #category : #accessing }
-CBImplementorCriticMenu class >> title [ 
-	^ 'implementors of...'
+{ #category : #initialization }
+CBImplementorCriticMenu >> initialize [
+	super initialize.
+	self
+		basicName: 'implementor';
+		basicDescription: 'implementor of selectedCritic'
 ]

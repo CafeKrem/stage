@@ -59,6 +59,18 @@ CBAbstractTest >> setupCriticBrowser: aCriticBrowser [
 	self setupSelectionCriticPresenter: aCriticBrowser
 ]
 
+{ #category : #'action-SourceCodePresenter' }
+CBAbstractTest >> setupSelectRBUnclassifiedMethodRule [
+	| indexRule rulePresenterTmp |
+	indexRule := (rulePresenterTmp := (criticBrowser rulesPresenter roots
+		at: 1) rules)
+		indexOf:
+			(rulePresenterTmp
+				detect: [ :e | e isKindOf: RBUnclassifiedMethodsRule ]).
+	criticBrowser rulesPresenter selectPath: #(1) , indexRule asArray.
+	criticBrowser criticsPresenter selectIndex: 1
+]
+
 { #category : #UIModification }
 CBAbstractTest >> setupSelectionCriticPresenter: aCriticBrowser [
 	aCriticBrowser criticsPresenter selectIndex: 1

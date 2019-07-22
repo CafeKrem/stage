@@ -20,25 +20,6 @@ CBCriticBrowserTest >> rulesToTest [
 	^ (ReRuleManager uniqueInstance allRules groupedBy: #group) at: #Style
 ]
 
-{ #category : #running }
-CBCriticBrowserTest >> setUp [
-	"Hooks that subclasses may override to define the fixture of test."
-
-	super setUp
-]
-
-{ #category : #'action-SourceCodePresenter' }
-CBCriticBrowserTest >> setupSelectRBUnclassifiedMethodRule [
-	| indexRule rulePresenterTmp |
-	indexRule := (rulePresenterTmp := (criticBrowser rulesPresenter roots
-		at: 1) rules)
-		indexOf:
-			(rulePresenterTmp
-				detect: [ :e | e isKindOf: RBUnclassifiedMethodsRule ]).
-	criticBrowser rulesPresenter selectPath: #(1) , indexRule asArray.
-	criticBrowser criticsPresenter selectIndex: 1
-]
-
 { #category : #'action-CriticsPresenter' }
 CBCriticBrowserTest >> testCriticsPresenterClickACriticsShouldTransmitLocationCriticsToSourceCodePresenter [
 	"this test check if he transmit the location of the critics and the range "
@@ -146,4 +127,20 @@ CBCriticBrowserTest >> testSourceCodePresenterChangeTextAndAcceptShouldSameAsCom
 		equals: beforeModif , '"klm"'.
 	criticBrowser criticErrorPresenter text: beforeModif.
 	criticBrowser criticErrorPresenter accept
+]
+
+{ #category : #tests }
+CBCriticBrowserTest >> testWhenAddInstanceVariableCapitalisedShouldAddItToTheToSortColumn [
+	self timeLimit: 1 minute.
+	[ | nbOfToSort rule |
+	self setupSelectionRulesPresenter: criticBrowser.
+	rule := ((criticBrowser rulesPresenter roots at: 1) rules
+		select: [ :aRule | aRule isKindOf: GRInstanceVariableCapitalizationRule ])
+		at: 1.	"ugly sorry"
+	nbOfToSort := criticBrowser computeToSort: rule.
+	UseForTestCriticBrowser addInstVarNamed: 'O'.
+	self
+		assert: (criticBrowser computeToSort: rule)
+		equals: nbOfToSort + 1 ]
+		ensure: [ UseForTestCriticBrowser removeInstVarNamed: 'O' ]
 ]
